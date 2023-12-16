@@ -1,0 +1,14 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.mashtoolz.mixins",
+	"compatibilityLevel": "JAVA_17",
+	"client": [
+		"IAdvancementToast",
+		"MixinChatHud",
+		"MixinToastManager"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
