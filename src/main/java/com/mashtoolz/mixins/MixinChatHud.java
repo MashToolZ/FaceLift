@@ -33,7 +33,7 @@ public class MixinChatHud {
 		if (!instance.config.xpDisplayEnabled)
 			return;
 
-		var message = text.getString();
+		var message = text.getString().replaceAll("[.,]", "");
 		if (message.contains(":"))
 			return;
 
