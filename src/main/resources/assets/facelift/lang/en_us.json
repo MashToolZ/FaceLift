@@ -1,0 +1,54 @@
+{
+    "facelift.title": "FaceLift",
+
+    "facelift.key.config": "Open Config",
+    "facelift.key.mount": "Mount",
+    "facelift.key.spell1": "Spell 1",
+    "facelift.key.spell2": "Spell 2",
+    "facelift.key.spell3": "Spell 3",
+    "facelift.key.spell4": "Spell 4",
+
+    "facelift.config.general": "General",
+    "facelift.config.combatTimer": "Combat Timer",
+    "facelift.config.dpsMeter": "DPS Meter",
+    "facelift.config.xpDisplay": "XP Display",
+    "facelift.config.arenaTimer": "Arena Timer",
+
+    "facelift.config.general.mountThirdPerson": "3rd Person Mount",
+    "facelift.config.general.mountThirdPerson.tooltip": "Automatically toggles between 1st/3rd Person Camera when mounting",
+
+    "facelift.config.combatTimer.enabled": "Enabled",
+    "facelift.config.combatTimer.enabled.tooltip": "Show Combat Timer",
+
+    "facelift.config.combatTimer.duration": "Display Duration (ms)",
+    "facelift.config.combatTimer.duration.tooltip": "How long the Combat Timer is shown for",
+    "facelift.config.combatTimer.position.x": "X Position (px)",
+    "facelift.config.combatTimer.position.x.tooltip": "X Position of the Combat Timer",
+    "facelift.config.combatTimer.position.y": "Y Position (px)",
+    "facelift.config.combatTimer.position.y.tooltip": "Y Position of the Combat Timer",
+
+    "facelift.config.dpsMeter.enabled": "Enabled",
+    "facelift.config.dpsMeter.enabled.tooltip": "Show DPS Meter",
+    "facelift.config.dpsMeter.duration": "Display Duration (ms)",
+    "facelift.config.dpsMeter.duration.tooltip": "How long the DPS Meter is shown for",
+    "facelift.config.dpsMeter.position.x": "X Position (px)",
+    "facelift.config.dpsMeter.position.x.tooltip": "X Position of the DPS Meter",
+    "facelift.config.dpsMeter.position.y": "Y Position (px)",
+    "facelift.config.dpsMeter.position.y.tooltip": "Y Position of the DPS Meter",
+
+    "facelift.config.xpDisplay.enabled": "Enabled",
+    "facelift.config.xpDisplay.enabled.tooltip": "Use XP Display instead of Chat Messages",
+    "facelift.config.xpDisplay.duration": "Display Duration (ms)",
+    "facelift.config.xpDisplay.duration.tooltip": "How long the XP Display is shown for",
+    "facelift.config.xpDisplay.position.x": "X Position (px)",
+    "facelift.config.xpDisplay.position.x.tooltip": "X Position of the XP Display",
+    "facelift.config.xpDisplay.position.y": "Y Position (px)",
+    "facelift.config.xpDisplay.position.y.tooltip": "Y Position of the XP Display",
+
+    "facelift.config.arenaTimer.enabled": "Enabled",
+    "facelift.config.arenaTimer.enabled.tooltip": "Show Arena Timer",
+    "facelift.config.arenaTimer.position.x": "X Position (px)",
+    "facelift.config.arenaTimer.position.x.tooltip": "X Position of the Arena Timer",
+    "facelift.config.arenaTimer.position.y": "Y Position (px)",
+    "facelift.config.arenaTimer.position.y.tooltip": "Y Position of the Arena Timer"
+}

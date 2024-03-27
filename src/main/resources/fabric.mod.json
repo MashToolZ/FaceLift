@@ -1,0 +1,30 @@
+{
+    "schemaVersion": 1,
+    "id": "facelift",
+    "version": "1.0.0",
+    "name": "FaceLift",
+    "description": "Provides a bunch of Quality of Life features for Faceland",
+    "authors": ["Sakurasou"],
+    "custom": {
+        "modmenu": {
+            "links": {
+                "modmenu.discord": "https://discord.gg/VUkE7Db4a8"
+            },
+            "update_checker": true
+        }
+    },
+    "license": "GPLv3",
+    "icon": "assets/facelift/icon.png",
+    "environment": "client",
+    "entrypoints": {
+        "client": ["xyz.mashtoolz.FaceLift"],
+        "modmenu": ["xyz.mashtoolz.integrations.ModMenuIntegration"]
+    },
+    "mixins": ["facelift.mixins.json"],
+    "depends": {
+        "fabricloader": ">=0.15.7",
+        "minecraft": "1.20.4",
+        "java": ">=17",
+        "fabric-api": ">=0.96.4+1.20.4"
+    }
+}
