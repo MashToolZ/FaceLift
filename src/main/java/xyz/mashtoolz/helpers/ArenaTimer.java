@@ -8,7 +8,8 @@ public class ArenaTimer {
 	public RegexPattern[] regexes = new RegexPattern[] {
 			new RegexPattern("subtitle.waveStart", "Wave (\\d+) has begun!"),
 			new RegexPattern("title.waveEnd", "WAVE VANQUISHED!"),
-			new RegexPattern("title.arenaEnd", "ARENA ENDED!")
+			new RegexPattern("title.arenaEnd", "ARENA ENDED!"),
+			new RegexPattern("title.arenaEnd", "ARENA COMPLETE!")
 	};
 
 	public List<Wave> waves = new ArrayList<>();
