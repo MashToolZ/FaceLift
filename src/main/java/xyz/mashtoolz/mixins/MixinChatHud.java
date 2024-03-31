@@ -40,49 +40,50 @@ public class MixinChatHud {
 		for (var regex : instance.config.xpRegexes) {
 			var match = regex.getPattern().matcher(message);
 
-			if (match.find()) {
-				ci.cancel();
+			if (!match.find())
+				continue;
 
-				switch (regex.getKey()) {
-					case "skillXP": {
+			ci.cancel();
 
-						var color = "#D1D1D1";
+			switch (regex.getKey()) {
+				case "skillXP": {
 
-						try {
-							color = text.getSiblings().get(0).getStyle().getColor().toString();
-						} catch (Exception e) {
-						}
+					var color = "#D1D1D1";
 
-						if (color.matches("#[0-9A-Fa-f]{6}"))
-							color = "<" + color + ">";
-						else
-							color = Formatting.byName(color).toString();
-
-						var key = match.group(1);
-						if (!instance.config.xpDisplays.containsKey(key))
-							instance.config.xpDisplays.put(key, new XPDisplay(key, color, 0, System.currentTimeMillis(), false));
-
-						var display = instance.config.xpDisplays.get(key);
-						display.setXP(Integer.parseInt(match.group(2)) + display.getXP());
-						display.setTime(System.currentTimeMillis());
-						display.setColor(color);
-						break;
+					try {
+						color = text.getSiblings().get(0).getStyle().getColor().toString();
+					} catch (Exception e) {
 					}
 
-					case "combatXP": {
-						var key = "Combat";
-						if (!instance.config.xpDisplays.containsKey(key))
-							instance.config.xpDisplays.put(key, new XPDisplay(key, "<#8AF828>", 0, System.currentTimeMillis(), false));
+					if (color.matches("#[0-9A-Fa-f]{6}"))
+						color = "<" + color + ">";
+					else
+						color = Formatting.byName(color).toString();
 
-						var display = instance.config.xpDisplays.get(key);
-						display.setXP(Integer.parseInt(match.group(1)) + display.getXP());
-						display.setTime(System.currentTimeMillis());
-						display.setColor("<#8AF828>");
-						break;
-					}
+					var key = match.group(1);
+					if (!instance.config.xpDisplays.containsKey(key))
+						instance.config.xpDisplays.put(key, new XPDisplay(key, color, 0, System.currentTimeMillis(), false));
+
+					var display = instance.config.xpDisplays.get(key);
+					display.setXP(Integer.parseInt(match.group(2)) + display.getXP());
+					display.setTime(System.currentTimeMillis());
+					display.setColor(color);
+					break;
 				}
-				return;
+
+				case "combatXP": {
+					var key = "Combat";
+					if (!instance.config.xpDisplays.containsKey(key))
+						instance.config.xpDisplays.put(key, new XPDisplay(key, "<#8AF828>", 0, System.currentTimeMillis(), false));
+
+					var display = instance.config.xpDisplays.get(key);
+					display.setXP(Integer.parseInt(match.group(1)) + display.getXP());
+					display.setTime(System.currentTimeMillis());
+					display.setColor("<#8AF828>");
+					break;
+				}
 			}
+			return;
 		}
 	}
 }
