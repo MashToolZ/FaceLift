@@ -13,10 +13,8 @@ import xyz.mashtoolz.helpers.KeyHandler;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
@@ -26,8 +24,6 @@ public class FaceLift implements ClientModInitializer {
 	private static FaceLift instance;
 
 	public MinecraftClient client;
-
-	public ServerInfo serverInfo;
 
 	public Config config;
 	public DPSMeter dpsMeter;
@@ -50,14 +46,7 @@ public class FaceLift implements ClientModInitializer {
 		arenaTimer = new ArenaTimer();
 		hudRenderer = new HudRenderer();
 
-		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-			this.serverInfo = handler.getServerInfo();
-		});
-
 		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
-
-			if (!this.isOnFaceland())
-				return;
 
 			switch (entity.getName().getString()) {
 				case "Text Display": {
@@ -68,9 +57,6 @@ public class FaceLift implements ClientModInitializer {
 		});
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-
-			if (!this.isOnFaceland())
-				return;
 
 			if (client == null || client.player == null)
 				return;
@@ -117,10 +103,6 @@ public class FaceLift implements ClientModInitializer {
 
 	public static FaceLift getInstance() {
 		return instance;
-	}
-
-	public boolean isOnFaceland() {
-		return serverInfo != null && serverInfo.address == "PLAY.FACE.LAND:25566";
 	}
 
 	public boolean isMounted() {
