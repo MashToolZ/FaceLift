@@ -140,16 +140,14 @@ public class FaceLift implements ClientModInitializer {
 		Matcher matcher = fishingXPRegex.matcher(message);
 		if (matcher.find()) {
 			reelTime = new Time(System.currentTimeMillis());
-			System.out.println("reelTime: " + reelTime);
 			handleReelTime();
 		}
 	}
 
 	private void handleReelTime() {
 		long reelDuration = (reelTime.getTime() - throwTime.getTime()) / (1000 * 60);
-		if (reelDuration > 0) {
-			oneMinFish.put(reelDuration, 1);
-		}
+		oneMinFish.put(reelDuration, 1);
+		System.out.println("reelDuration: " + reelDuration);
 		throwTime = null;
 		reelTime = null;
 	}
