@@ -1,22 +1,23 @@
 package xyz.mashtoolz;
 
+import java.sql.Time;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Hand;
 import xyz.mashtoolz.config.Config;
-import xyz.mashtoolz.helpers.ArenaTimer;
-import xyz.mashtoolz.helpers.DPSMeter;
-import xyz.mashtoolz.helpers.HudRenderer;
-import xyz.mashtoolz.helpers.KeyHandler;
+import xyz.mashtoolz.helpers.*;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.Entity;
@@ -37,6 +38,10 @@ public class FaceLift implements ClientModInitializer {
 	private HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
 	private HashSet<UUID> textDisplayEntitiesToRemove = new HashSet<>();
 	private boolean rightMouseClickedLastTick = false;
+	private Time throwTime;
+	private Time reelTime;
+	private HashMap<Long, Integer> oneMinFish = new HashMap<>();
+	private final Pattern fishingXPRegex = Pattern.compile("Gained Fishing XP! \\(\\+(\\d+)XP\\)");
 
 
 	@Override
@@ -104,15 +109,24 @@ public class FaceLift implements ClientModInitializer {
 				ItemStack heldItem = client.player.getStackInHand(hand);
 
 				if (heldItem.getItem() == Items.FISHING_ROD) {
-					if (client.player.fishHook != null && client.player.fishHook.isInOpenWater()) {
-						System.out.println("Player is reeling fishing rod!");
-					} else {
-						System.out.println("Player is throwing fishing rod!");
+					if (client.player.fishHook != null && client.player.fishHook.isInOpenWater()) { // Reeling
+						// doing nothing here because autoFishing rods wouldn't work otherwise.
+					} else { // Throwing
+						throwTime = new Time(System.currentTimeMillis());
 					}
 				}
 			}
 
+			if (throwTime != null && reelTime != null) {
+				handleReelTime();
+			}
+
 			rightMouseClickedLastTick = rightMouseClickedThisTick;
+		});
+
+		ClientReceiveMessageEvents.CHAT.register((client, sender, message, messageType, UUID) -> {
+			String messageText = message.toString();
+			handleChatMessage(messageText);
 		});
 
 		HudRenderCallback.EVENT.register((context, delta) -> {
@@ -120,6 +134,24 @@ public class FaceLift implements ClientModInitializer {
 		});
 
 
+	}
+
+	private void handleChatMessage(String message) {
+		Matcher matcher = fishingXPRegex.matcher(message);
+		if (matcher.find()) {
+			reelTime = new Time(System.currentTimeMillis());
+			System.out.println("reelTime: " + reelTime);
+			handleReelTime();
+		}
+	}
+
+	private void handleReelTime() {
+		long reelDuration = (reelTime.getTime() - throwTime.getTime()) / (1000 * 60);
+		if (reelDuration > 0) {
+			oneMinFish.put(reelDuration, 1);
+		}
+		throwTime = null;
+		reelTime = null;
 	}
 
 	public static FaceLift getInstance() {
