@@ -38,6 +38,7 @@ public class Config {
 	public long lastHurtTime = 0;
 
 	public RegexPattern[] xpRegexes = new RegexPattern[] {
+			new RegexPattern("fishingXP", "Gained Fishing XP! \\(\\+(\\d+)XP\\)"),
 			new RegexPattern("skillXP", "Gained (\\w+ ?){1,2} XP! \\(\\+(\\d+)XP\\)"),
 			new RegexPattern("combatXP", "\\+(\\d+)XP")
 	};

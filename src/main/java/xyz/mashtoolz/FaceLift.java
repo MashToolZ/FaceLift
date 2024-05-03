@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.util.Hand;
 import xyz.mashtoolz.config.Config;
 import xyz.mashtoolz.helpers.ArenaTimer;
 import xyz.mashtoolz.helpers.DPSMeter;
@@ -33,6 +36,8 @@ public class FaceLift implements ClientModInitializer {
 
 	private HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
 	private HashSet<UUID> textDisplayEntitiesToRemove = new HashSet<>();
+	private boolean rightMouseClickedLastTick = false;
+
 
 	@Override
 	public void onInitializeClient() {
@@ -93,11 +98,27 @@ public class FaceLift implements ClientModInitializer {
 			if (config.spell4Key.wasPressed())
 				keyHandler.onSpell4Key();
 
+			boolean rightMouseClickedThisTick = client.mouse.wasRightButtonClicked();
+			if (rightMouseClickedThisTick && !rightMouseClickedLastTick) {
+				Hand hand = client.player.getActiveHand();
+				ItemStack heldItem = client.player.getStackInHand(hand);
+
+				if (heldItem.getItem() == Items.FISHING_ROD) {
+					if (client.player.fishHook != null && client.player.fishHook.isInOpenWater()) {
+						System.out.println("Player is reeling fishing rod!");
+					} else {
+						System.out.println("Player is throwing fishing rod!");
+					}
+				}
+			}
+
+			rightMouseClickedLastTick = rightMouseClickedThisTick;
 		});
 
 		HudRenderCallback.EVENT.register((context, delta) -> {
 			hudRenderer.onHudRender(context, delta);
 		});
+
 
 	}
 
