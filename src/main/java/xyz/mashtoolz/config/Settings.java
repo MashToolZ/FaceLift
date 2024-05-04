@@ -8,6 +8,8 @@ public class Settings {
 	Category_XPDisplay xpDisplay = Category_XPDisplay.getDefault();
 	Category_ArenaTimer arenaTimer = Category_ArenaTimer.getDefault();
 
+	Category_XPCalc xpCalculator = Category_XPCalc.getDefault();
+
 	public static Settings getDefault() {
 		return new Settings();
 	}

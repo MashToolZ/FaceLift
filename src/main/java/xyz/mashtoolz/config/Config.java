@@ -30,7 +30,7 @@ public class Config {
 
 	private FaceLift instance = FaceLift.getInstance();
 
-	private MinecraftClient client;
+	private final MinecraftClient client;
 
 	public boolean mounted = false;
 	public boolean inCombat = false;
@@ -53,6 +53,8 @@ public class Config {
 	public Category_CombatTimer combatTimer = settings.combatTimer;
 	public Category_XPDisplay xpDisplay = settings.xpDisplay;
 	public Category_ArenaTimer arenaTimer = settings.arenaTimer;
+
+	public Category_XPCalc xpCalculator = settings.xpCalculator;
 
 	public KeyBinding configKey;
 	public KeyBinding mountKey;
@@ -165,9 +167,7 @@ public class Config {
 		addConfigEntry(entryBuilder, arenaTimer, "config.arenaTimer.position.x", this.arenaTimer.position.x, settings.arenaTimer.position.x, "config.arenaTimer.position.x.tooltip", newValue -> this.arenaTimer.position.x = newValue);
 		addConfigEntry(entryBuilder, arenaTimer, "config.arenaTimer.position.y", this.arenaTimer.position.y, settings.arenaTimer.position.y, "config.arenaTimer.position.y.tooltip", newValue -> this.arenaTimer.position.y = newValue);
 
-		builder.setSavingRunnable(() -> {
-			saveConfig();
-		});
+		builder.setSavingRunnable(this::saveConfig);
 
 		return builder.build();
 	}

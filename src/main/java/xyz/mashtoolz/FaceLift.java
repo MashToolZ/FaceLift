@@ -3,12 +3,17 @@ package xyz.mashtoolz;
 import java.sql.Time;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.util.Hand;
 import xyz.mashtoolz.config.Config;
 import xyz.mashtoolz.helpers.*;
@@ -26,21 +31,22 @@ import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
 public class FaceLift implements ClientModInitializer {
 
 	private static FaceLift instance;
-
+	private static final String ip = "BETA.FACE.LAND";
+	private static final String skillCommand = "/skills";
 	public MinecraftClient client;
-
 	public Config config;
 	public DPSMeter dpsMeter;
 	public KeyHandler keyHandler;
 	public ArenaTimer arenaTimer;
 	public HudRenderer hudRenderer;
 
-	private HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
-	private HashSet<UUID> textDisplayEntitiesToRemove = new HashSet<>();
+	private final HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
+	private final HashSet<UUID> textDisplayEntitiesToRemove = new HashSet<>();
 	private boolean rightMouseClickedLastTick = false;
 	private Time throwTime;
 	private Time reelTime;
-	private HashMap<Long, Integer> oneMinFish = new HashMap<>();
+	private final HashMap<Long, Integer> oneMinFish = new HashMap<>();
+	                     //<TIME, EXP>
 	private final Pattern fishingXPRegex = Pattern.compile("Gained Fishing XP! \\(\\+(\\d+)XP\\)");
 
 
@@ -103,47 +109,83 @@ public class FaceLift implements ClientModInitializer {
 			if (config.spell4Key.wasPressed())
 				keyHandler.onSpell4Key();
 
-			boolean rightMouseClickedThisTick = client.mouse.wasRightButtonClicked();
-			if (rightMouseClickedThisTick && !rightMouseClickedLastTick) {
-				Hand hand = client.player.getActiveHand();
-				ItemStack heldItem = client.player.getStackInHand(hand);
+			if(config.xpCalculator.enabled) {
+				boolean rightMouseClickedThisTick = client.mouse.wasRightButtonClicked();
+				if (rightMouseClickedThisTick && !rightMouseClickedLastTick) {
+					Hand hand = client.player.getActiveHand();
+					ItemStack heldItem = client.player.getStackInHand(hand);
 
-				if (heldItem.getItem() == Items.FISHING_ROD) {
-					if (client.player.fishHook != null && client.player.fishHook.isInOpenWater()) { // Reeling
-						// doing nothing here because autoFishing rods wouldn't work otherwise.
-					} else { // Throwing
-						throwTime = new Time(System.currentTimeMillis());
+					if (heldItem.getItem() == Items.FISHING_ROD) {
+						if (client.player.fishHook != null && client.player.fishHook.isInOpenWater()) { // Reeling
+							// doing nothing here because autoFishing rods wouldn't work otherwise.
+						} else { // Throwing
+							throwTime = new Time(System.currentTimeMillis());
+						}
 					}
 				}
-			}
+				//player.getInventory();
+				if (throwTime != null && reelTime != null) {
+					handleReelTime();
+				}
 
-			if (throwTime != null && reelTime != null) {
-				handleReelTime();
+				rightMouseClickedLastTick = rightMouseClickedThisTick;
 			}
-
-			rightMouseClickedLastTick = rightMouseClickedThisTick;
 		});
 
 		ClientReceiveMessageEvents.CHAT.register((client, sender, message, messageType, UUID) -> {
-			String messageText = message.toString();
+            String messageText = Objects.requireNonNull(message).toString();
 			handleChatMessage(messageText);
+		});
+
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->{
+			String serverAddress = server.getServerIp();
+			if (serverAddress != null && serverAddress.equals(ip)) {
+				System.out.println("joined faceland <3");
+				skillCheck();
+			} else {
+				System.out.println("THAT'S NOT FACELAND!!!");
+			}
 		});
 
 		HudRenderCallback.EVENT.register((context, delta) -> {
 			hudRenderer.onHudRender(context, delta);
 		});
+	}
 
-
+	private void skillCheck() {
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		buf.writeString(skillCommand);
+		Objects.requireNonNull(MinecraftClient.getInstance().player).networkHandler.sendPacket(
+				new ClientCommandC2SPacket(buf)
+		);
+		System.out.println("[skillCheck] commandPacketSent");
 	}
 
 	private void handleChatMessage(String message) {
-		Matcher matcher = fishingXPRegex.matcher(message);
-		if (matcher.find()) {
-			reelTime = new Time(System.currentTimeMillis());
-			handleReelTime();
+		if(config.xpCalculator.enabled) {
+			Matcher matcher = fishingXPRegex.matcher(message);
+			if (matcher.find()) {
+				reelTime = new Time(System.currentTimeMillis());
+				handleReelTime();
+			}
+			if(afkFishingCheck()){
+				throwTime = new Time(System.currentTimeMillis());
+			}
 		}
 	}
 
+	private boolean afkFishingCheck() {
+		String[] afkRodNames = {"Automatic Fishing Rod", "Bewitched Fishing Rod", "Lazy Fishing Rod"};
+		String itemName = Objects.requireNonNull(client.player).getStackInHand(client.player.getActiveHand()).getItem().getName().getString();
+
+		for (String rodName : afkRodNames) {
+			if (itemName.contains(rodName)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 	private void handleReelTime() {
 		long reelDuration = (reelTime.getTime() - throwTime.getTime()) / (1000 * 60);
 		oneMinFish.put(reelDuration, 1);
@@ -157,28 +199,28 @@ public class FaceLift implements ClientModInitializer {
 	}
 
 	public boolean isMounted() {
-		Entity ridingEntity = client.player.getVehicle();
+		Entity ridingEntity = Objects.requireNonNull(client.player).getVehicle();
 		return ridingEntity != null && ridingEntity != client.player;
 	}
 
 	private void FallDamageCheck() {
-		if (config.hurtTime == 0 && client.player.hurtTime != 0)
+		if (config.hurtTime == 0 && Objects.requireNonNull(client.player).hurtTime != 0)
 			config.hurtTime = client.player.hurtTime;
 
-		if (config.hurtTime == -1 && client.player.hurtTime == 0)
+		if (config.hurtTime == -1 && Objects.requireNonNull(client.player).hurtTime == 0)
 			config.hurtTime = 0;
 
 		if (config.hurtTime > 0) {
 			config.hurtTime = -1;
 
-			var recentDamageSource = client.player.getRecentDamageSource();
+			var recentDamageSource = Objects.requireNonNull(client.player).getRecentDamageSource();
 			if (recentDamageSource != null && !recentDamageSource.getType().msgId().toString().equals("fall"))
 				config.lastHurtTime = System.currentTimeMillis();
 		}
 	}
 
 	private void DPSNumbersCheck() {
-		if (textDisplayEntitiesToRemove.size() > 0) {
+		if (!textDisplayEntitiesToRemove.isEmpty()) {
 			for (UUID uuid : textDisplayEntitiesToRemove)
 				textDisplayEntities.remove(uuid.toString());
 			textDisplayEntitiesToRemove.clear();
