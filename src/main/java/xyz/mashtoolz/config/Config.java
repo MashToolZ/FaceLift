@@ -106,6 +106,9 @@ public class Config {
 			this.arenaTimer.enabled = settings.arenaTimer.enabled;
 			this.arenaTimer.position = settings.arenaTimer.position;
 
+			this.xpCalculator.enabled = settings.xpCalculator.enabled;
+			this.xpCalculator.position = settings.xpCalculator.position;
+
 		} catch (IOException | JsonSyntaxException e) {
 			this.saveConfig();
 		}
@@ -133,6 +136,9 @@ public class Config {
 			settings.arenaTimer.enabled = this.arenaTimer.enabled;
 			settings.arenaTimer.position = this.arenaTimer.position;
 
+			settings.xpCalculator.enabled = this.xpCalculator.enabled;
+			settings.xpCalculator.position = this.xpCalculator.position;
+
 			gson.toJson(settings, writer);
 
 		} catch (IOException e) {
@@ -149,6 +155,7 @@ public class Config {
 		ConfigCategory combatTimer = builder.getOrCreateCategory(translatable("config.combatTimer"));
 		ConfigCategory dpsMeter = builder.getOrCreateCategory(translatable("config.dpsMeter"));
 		ConfigCategory xpDisplay = builder.getOrCreateCategory(translatable("config.xpDisplay"));
+		ConfigCategory xpCalc = builder.getOrCreateCategory(translatable("config.xpCalculator"));
 		ConfigCategory arenaTimer = builder.getOrCreateCategory(translatable("config.arenaTimer"));
 
 		addConfigEntry(entryBuilder, general, "config.general.mountThirdPerson", this.general.mountThirdPerson, settings.general.mountThirdPerson, "config.general.mountThirdPerson.tooltip", newValue -> this.general.mountThirdPerson = newValue);
@@ -166,6 +173,10 @@ public class Config {
 		addConfigEntry(entryBuilder, arenaTimer, "config.arenaTimer.enabled", this.arenaTimer.enabled, settings.arenaTimer.enabled, "config.arenaTimer.enabled.tooltip", newValue -> this.arenaTimer.enabled = newValue);
 		addConfigEntry(entryBuilder, arenaTimer, "config.arenaTimer.position.x", this.arenaTimer.position.x, settings.arenaTimer.position.x, "config.arenaTimer.position.x.tooltip", newValue -> this.arenaTimer.position.x = newValue);
 		addConfigEntry(entryBuilder, arenaTimer, "config.arenaTimer.position.y", this.arenaTimer.position.y, settings.arenaTimer.position.y, "config.arenaTimer.position.y.tooltip", newValue -> this.arenaTimer.position.y = newValue);
+
+		addConfigEntry(entryBuilder, xpCalc, "config.xpCalculator.enabled", this.xpCalculator.enabled, settings.xpCalculator.enabled, "config.xpCalculator.enabled.tooltip", newValue -> this.xpCalculator.enabled = newValue);
+		addConfigEntry(entryBuilder, xpCalc, "config.xpCalculator.position.x", this.xpCalculator.position.x, settings.xpCalculator.position.x, "config.xpCalculator.position.x.tooltip", newValue -> this.xpCalculator.position.x = newValue);
+		addConfigEntry(entryBuilder, xpCalc, "config.xpCalculator.position.y", this.xpCalculator.position.y, settings.xpCalculator.position.y, "config.xpCalculator.position.y.tooltip", newValue -> this.xpCalculator.position.y = newValue);
 
 		builder.setSavingRunnable(this::saveConfig);
 

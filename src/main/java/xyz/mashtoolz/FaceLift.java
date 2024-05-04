@@ -1,12 +1,17 @@
 package xyz.mashtoolz;
 
 import java.sql.Time;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.network.ClientConnection;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+
 
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -31,7 +36,7 @@ import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
 public class FaceLift implements ClientModInitializer {
 
 	private static FaceLift instance;
-	private static final String ip = "BETA.FACE.LAND";
+	private static final String ip = "beta.face.land";
 	private static final String skillCommand = "/skills";
 	public MinecraftClient client;
 	public Config config;
@@ -43,8 +48,8 @@ public class FaceLift implements ClientModInitializer {
 	private final HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
 	private final HashSet<UUID> textDisplayEntitiesToRemove = new HashSet<>();
 	private boolean rightMouseClickedLastTick = false;
-	private Time throwTime;
-	private Time reelTime;
+	private Time throwTime = null;
+	private Time reelTime = null;
 	private final HashMap<Long, Integer> oneMinFish = new HashMap<>();
 	                     //<TIME, EXP>
 	private final Pattern fishingXPRegex = Pattern.compile("Gained Fishing XP! \\(\\+(\\d+)XP\\)");
@@ -137,13 +142,17 @@ public class FaceLift implements ClientModInitializer {
 			handleChatMessage(messageText);
 		});
 
-		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->{
-			String serverAddress = server.getServerIp();
-			if (serverAddress != null && serverAddress.equals(ip)) {
-				System.out.println("joined faceland <3");
-				skillCheck();
-			} else {
-				System.out.println("THAT'S NOT FACELAND!!!");
+		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+			ClientConnection connection = client.getNetworkHandler().getConnection();
+			if (connection != null && connection.getAddress() != null) {
+				String serverAddress = connection.getAddress().toString();
+				System.out.println("Server IP: " + serverAddress);
+				if (serverAddress.contains(ip)) {
+					System.out.println("Joined faceland <3");
+					skillCheck();
+				} else {
+					System.out.println("THAT'S NOT FACELAND!!!");
+				}
 			}
 		});
 
@@ -153,11 +162,7 @@ public class FaceLift implements ClientModInitializer {
 	}
 
 	private void skillCheck() {
-		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-		buf.writeString(skillCommand);
-		Objects.requireNonNull(MinecraftClient.getInstance().player).networkHandler.sendPacket(
-				new ClientCommandC2SPacket(buf)
-		);
+		Objects.requireNonNull(MinecraftClient.getInstance().getNetworkHandler()).sendCommand(skillCommand);
 		System.out.println("[skillCheck] commandPacketSent");
 	}
 
@@ -166,17 +171,24 @@ public class FaceLift implements ClientModInitializer {
 			Matcher matcher = fishingXPRegex.matcher(message);
 			if (matcher.find()) {
 				reelTime = new Time(System.currentTimeMillis());
+				System.out.println("[reelCheck] check");
 				handleReelTime();
 			}
 			if(afkFishingCheck()){
 				throwTime = new Time(System.currentTimeMillis());
+				System.out.println("[skillCheck] afkFishing");
 			}
 		}
 	}
 
 	private boolean afkFishingCheck() {
 		String[] afkRodNames = {"Automatic Fishing Rod", "Bewitched Fishing Rod", "Lazy Fishing Rod"};
-		String itemName = Objects.requireNonNull(client.player).getStackInHand(client.player.getActiveHand()).getItem().getName().getString();
+		ItemStack heldItem = Objects.requireNonNull(client.player).getStackInHand(client.player.getActiveHand());
+
+		if (heldItem == null || heldItem.isEmpty())
+			return false;
+
+		String itemName = heldItem.getName().getString();
 
 		for (String rodName : afkRodNames) {
 			if (itemName.contains(rodName)) {
@@ -187,11 +199,13 @@ public class FaceLift implements ClientModInitializer {
 		return false;
 	}
 	private void handleReelTime() {
-		long reelDuration = (reelTime.getTime() - throwTime.getTime()) / (1000 * 60);
-		oneMinFish.put(reelDuration, 1);
-		System.out.println("reelDuration: " + reelDuration);
-		throwTime = null;
-		reelTime = null;
+		if (throwTime != null && reelTime != null) {
+			long reelDuration = (reelTime.getTime() - throwTime.getTime()) / (1000 * 60);
+			System.out.println("reelDuration: " + reelDuration);
+			oneMinFish.put(reelDuration, 1);
+			throwTime = null;
+			reelTime = null;
+		}
 	}
 
 	public static FaceLift getInstance() {
@@ -220,18 +234,13 @@ public class FaceLift implements ClientModInitializer {
 	}
 
 	private void DPSNumbersCheck() {
-		if (!textDisplayEntitiesToRemove.isEmpty()) {
-			for (UUID uuid : textDisplayEntitiesToRemove)
-				textDisplayEntities.remove(uuid.toString());
-			textDisplayEntitiesToRemove.clear();
-		}
-
-		for (TextDisplayEntity textDisplayEntity : textDisplayEntities.values()) {
+		for (Iterator<TextDisplayEntity> iterator = textDisplayEntities.values().iterator(); iterator.hasNext();) {
+			TextDisplayEntity textDisplayEntity = iterator.next();
 
 			if (textDisplayEntity.getData() == null)
 				continue;
 
-			textDisplayEntitiesToRemove.add(textDisplayEntity.getUuid());
+			iterator.remove();
 
 			var text = textDisplayEntity.getData().text();
 			if (text == null)
