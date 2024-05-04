@@ -4,21 +4,12 @@ import java.sql.Time;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
 
 
-import io.netty.buffer.Unpooled;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.util.Hand;
 import xyz.mashtoolz.config.Config;
 import xyz.mashtoolz.helpers.*;
@@ -143,7 +134,7 @@ public class FaceLift implements ClientModInitializer {
 		});
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-			ClientConnection connection = client.getNetworkHandler().getConnection();
+			ClientConnection connection = Objects.requireNonNull(client.getNetworkHandler()).getConnection();
 			if (connection != null && connection.getAddress() != null) {
 				String serverAddress = connection.getAddress().toString();
 				System.out.println("Server IP: " + serverAddress);
