@@ -26,20 +26,17 @@ public class ArenaTimer {
 	}
 
 	public void start() {
-		System.out.println("ArenaTimer.start()");
 		waves.clear();
 		active = true;
 		paused = true;
 	}
 
 	public void end() {
-		System.out.println("ArenaTimer.end()");
 		active = false;
 		paused = false;
 	}
 
 	public void startWave() {
-		System.out.println("ArenaTimer.startWave()");
 		Wave wave = new Wave();
 		wave.setStartTime(System.currentTimeMillis());
 		waves.add(wave);
@@ -47,7 +44,6 @@ public class ArenaTimer {
 	}
 
 	public void endWave() {
-		System.out.println("ArenaTimer.endWave()");
 		Wave wave = waves.get(waves.size() - 1);
 		wave.setEndTime(System.currentTimeMillis());
 		paused = true;

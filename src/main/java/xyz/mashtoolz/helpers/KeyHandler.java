@@ -38,7 +38,6 @@ public class KeyHandler {
 	}
 
 	public void onPotionKey(String category) {
-		System.out.println("DRINK POTION CATEGORY " + category);
 	}
 
 	public void onSpell1Key() {

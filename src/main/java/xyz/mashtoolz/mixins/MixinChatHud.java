@@ -46,7 +46,6 @@ public class MixinChatHud {
 			return;
 
 		var message = text.getString().replaceAll("[.,]", "");
-		System.out.println(escapeStringToUnicode(message).startsWith("\\uf804"));
 		if (escapeStringToUnicode(message).startsWith("\\uf804"))
 			return;
 
