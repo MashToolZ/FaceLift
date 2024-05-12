@@ -25,6 +25,18 @@ public class MixinChatHud {
 		handleMessage(text, ci);
 	}
 
+	private String escapeStringToUnicode(String input) {
+		StringBuilder builder = new StringBuilder();
+		for (char ch : input.toCharArray()) {
+			if (ch < 128) {
+				builder.append(ch);
+			} else {
+				builder.append(String.format("\\u%04x", (int) ch));
+			}
+		}
+		return builder.toString();
+	}
+
 	private void handleMessage(Text text, CallbackInfo ci) {
 
 		if (instance == null)
@@ -34,7 +46,8 @@ public class MixinChatHud {
 			return;
 
 		var message = text.getString().replaceAll("[.,]", "");
-		if (message.contains(":"))
+		System.out.println(escapeStringToUnicode(message).startsWith("\\uf804"));
+		if (escapeStringToUnicode(message).startsWith("\\uf804"))
 			return;
 
 		for (var regex : instance.config.xpRegexes) {
