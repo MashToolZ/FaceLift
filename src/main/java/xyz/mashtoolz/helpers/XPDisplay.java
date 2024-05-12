@@ -10,7 +10,6 @@ public class XPDisplay {
 	private String color;
 	private int xp;
 	private long time;
-	private long totalTime = 0;
 	private boolean visible;
 
 	public XPDisplay(String key, String color, int amount, long time, boolean visible) {
@@ -45,17 +44,11 @@ public class XPDisplay {
 		this.xp = amount;
 	}
 
-	public long getTotalTime() {
-		return System.currentTimeMillis() - totalTime;
-	}
-
 	public long getTime() {
 		return time;
 	}
 
 	public void setTime(long time) {
-		if (this.totalTime == 0 && time > 0)
-			this.totalTime = time;
 		this.time = time;
 		instance.config.lastXPDisplay = this;
 	}
@@ -71,6 +64,5 @@ public class XPDisplay {
 	public void reset() {
 		this.setXP(0);
 		this.setVisible(false);
-		this.totalTime = 0;
 	}
 }
