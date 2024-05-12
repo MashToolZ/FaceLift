@@ -139,8 +139,7 @@ public class HudRenderer {
 			return;
 		}
 
-		int height = config.xpDisplays.values().stream().filter(display -> display.getXP() > 0).mapToInt(display -> 10)
-				.sum();
+		int height = config.xpDisplays.values().stream().filter(display -> display.getXP() > 0).mapToInt(display -> 10).sum();
 
 		int x = config.xpDisplay.position.x;
 		int y = config.xpDisplay.position.y;
@@ -157,8 +156,7 @@ public class HudRenderer {
 			if (display.getXP() == 0)
 				continue;
 
-			if (display.isVisible() && display.getTime() + config.xpDisplay.duration < System.currentTimeMillis()
-					&& !ignoreTimer) {
+			if (display.isVisible() && display.getTime() + config.xpDisplay.duration < System.currentTimeMillis() && !ignoreTimer) {
 				display.reset();
 				continue;
 			}
