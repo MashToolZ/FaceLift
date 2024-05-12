@@ -134,8 +134,10 @@ public class HudRenderer {
 
 		var remaining = config.xpDisplay.duration - (System.currentTimeMillis() - config.lastXPDisplay.getTime());
 		if (remaining <= 0 && !ignoreTimer) {
-			if (config.lastXPDisplay.getXP() != 0)
-				config.lastXPDisplay.reset();
+			for (var display : config.xpDisplays.values()) {
+				if (display.getXP() != 0)
+					display.reset();
+			}
 			return;
 		}
 
