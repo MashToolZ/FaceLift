@@ -134,14 +134,13 @@ public class HudRenderer {
 
 		var remaining = config.xpDisplay.duration - (System.currentTimeMillis() - config.lastXPDisplay.getTime());
 		if (remaining <= 0 && !ignoreTimer) {
-			for (var display : config.xpDisplays.values()) {
-				if (display.getXP() != 0)
-					display.reset();
-			}
+			if (config.lastXPDisplay.getXP() != 0)
+				config.lastXPDisplay.reset();
 			return;
 		}
 
-		int height = config.xpDisplays.values().stream().filter(display -> display.getXP() > 0).mapToInt(display -> 10).sum();
+		int height = config.xpDisplays.values().stream().filter(display -> display.getXP() > 0).mapToInt(display -> 10)
+				.sum();
 
 		int x = config.xpDisplay.position.x;
 		int y = config.xpDisplay.position.y;
@@ -158,7 +157,8 @@ public class HudRenderer {
 			if (display.getXP() == 0)
 				continue;
 
-			if (display.isVisible() && display.getTime() + config.xpDisplay.duration < System.currentTimeMillis() && !ignoreTimer) {
+			if (display.isVisible() && display.getTime() + config.xpDisplay.duration < System.currentTimeMillis()
+					&& !ignoreTimer) {
 				display.reset();
 				continue;
 			}
@@ -172,7 +172,31 @@ public class HudRenderer {
 			int xpWidth = client.textRenderer.getWidth(xp);
 
 			drawTextWithShadow(context, skill, x + p(0), y + tbh(3) + (i * 10));
-			drawTextWithShadow(context, "<#FDFDFD>" + xp, x + w(-xpWidth), y + tbh(3) + (i * 10));
+
+			switch (config.xpDisplay.displayType) {
+
+				default: {
+					drawTextWithShadow(context, "<#FDFDFD>" + xp, x + w(-xpWidth), y + tbh(3) + (i * 10));
+					break;
+				}
+
+				case 1: {
+					var displayMinutes = display.getTotalTime() / (1000.0 * 60);
+					var xpm = NumberFormatter.format((int) (display.getXP() / displayMinutes));
+					int xpmWidth = client.textRenderer.getWidth(xpm);
+					drawTextWithShadow(context, "<#FDFDFD>" + xpm, x + w(-xpmWidth), y + tbh(3) + (i * 10));
+					break;
+				}
+
+				case 2: {
+					var displayHours = display.getTotalTime() / (1000.0 * 60 * 60);
+					var xph = NumberFormatter.format((int) (display.getXP() / displayHours));
+					int xphWidth = client.textRenderer.getWidth(xph);
+					drawTextWithShadow(context, "<#FDFDFD>" + xph, x + w(-xphWidth), y + tbh(3) + (i * 10));
+					break;
+				}
+
+			}
 
 			i++;
 		}

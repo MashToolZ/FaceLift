@@ -160,6 +160,7 @@ public class Config {
 		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.duration", this.xpDisplay.duration, settings.xpDisplay.duration, "config.xpDisplay.duration.tooltip", newValue -> this.xpDisplay.duration = newValue);
 		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.position.x", this.xpDisplay.position.x, settings.xpDisplay.position.x, "config.xpDisplay.position.x.tooltip", newValue -> this.xpDisplay.position.x = newValue);
 		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.position.y", this.xpDisplay.position.y, settings.xpDisplay.position.y, "config.xpDisplay.position.y.tooltip", newValue -> this.xpDisplay.position.y = newValue);
+		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.displayType", this.xpDisplay.displayType, settings.xpDisplay.displayType, "config.xpDisplay.displayType.tooltip", newValue -> this.xpDisplay.displayType = newValue);
 		addConfigEntry(entryBuilder, arenaTimer, "config.arenaTimer.enabled", this.arenaTimer.enabled, settings.arenaTimer.enabled, "config.arenaTimer.enabled.tooltip", newValue -> this.arenaTimer.enabled = newValue);
 		addConfigEntry(entryBuilder, arenaTimer, "config.arenaTimer.position.x", this.arenaTimer.position.x, settings.arenaTimer.position.x, "config.arenaTimer.position.x.tooltip", newValue -> this.arenaTimer.position.x = newValue);
 		addConfigEntry(entryBuilder, arenaTimer, "config.arenaTimer.position.y", this.arenaTimer.position.y, settings.arenaTimer.position.y, "config.arenaTimer.position.y.tooltip", newValue -> this.arenaTimer.position.y = newValue);
