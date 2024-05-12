@@ -44,6 +44,8 @@
     "facelift.config.xpDisplay.position.x.tooltip": "X Position of the XP Display",
     "facelift.config.xpDisplay.position.y": "Y Position (px)",
     "facelift.config.xpDisplay.position.y.tooltip": "Y Position of the XP Display",
+    "facelift.config.xpDisplay.displayType": "Display Type",
+    "facelift.config.xpDisplay.displayType.tooltip": "0: Total\n1: Per Minute\n2: Per Hour",
 
     "facelift.config.arenaTimer.enabled": "Enabled",
     "facelift.config.arenaTimer.enabled.tooltip": "Show Arena Timer",
