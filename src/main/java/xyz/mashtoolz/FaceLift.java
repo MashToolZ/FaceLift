@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.ClientConnection;
 
 
@@ -37,7 +38,6 @@ public class FaceLift implements ClientModInitializer {
 	public HudRenderer hudRenderer;
 
 	private final HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
-	private final HashSet<UUID> textDisplayEntitiesToRemove = new HashSet<>();
 	private boolean rightMouseClickedLastTick = false;
 	private Time throwTime = null;
 	private Time reelTime = null;
@@ -65,7 +65,9 @@ public class FaceLift implements ClientModInitializer {
 					textDisplayEntities.put(entity.getUuid().toString(), (TextDisplayEntity) entity);
 					break;
 				}
-			}
+                default:
+                    throw new IllegalStateException("Unexpected value: " + entity.getName().getString());
+            }
 		});
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
@@ -113,7 +115,7 @@ public class FaceLift implements ClientModInitializer {
 
 					if (heldItem.getItem() == Items.FISHING_ROD) {
 						if (client.player.fishHook != null && client.player.fishHook.isInOpenWater()) { // Reeling
-							// doing nothing here because autoFishing rods wouldn't work otherwise.
+							// doing nothing here (for now) because autoFishing rods wouldn't work otherwise.
 						} else { // Throwing
 							throwTime = new Time(System.currentTimeMillis());
 						}
@@ -125,6 +127,12 @@ public class FaceLift implements ClientModInitializer {
 				}
 
 				rightMouseClickedLastTick = rightMouseClickedThisTick;
+			}
+			if(config.arenaTimer.enabled) {
+				PlayerEntity player = MinecraftClient.getInstance().player;
+				if (player != null && player.getHealth() <= 0) {
+					arenaTimer.end();
+				}
 			}
 		});
 
@@ -146,6 +154,7 @@ public class FaceLift implements ClientModInitializer {
 				}
 			}
 		});
+
 
 		HudRenderCallback.EVENT.register((context, delta) -> {
 			hudRenderer.onHudRender(context, delta);
