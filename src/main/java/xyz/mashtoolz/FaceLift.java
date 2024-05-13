@@ -128,7 +128,7 @@ public class FaceLift implements ClientModInitializer {
 
 				rightMouseClickedLastTick = rightMouseClickedThisTick;
 			}
-			if(config.arenaTimer.enabled) {
+			if(config.arenaTimer.enabled && arenaTimer.isActive()) {
 				PlayerEntity player = MinecraftClient.getInstance().player;
 				if (player != null && player.getHealth() <= 0) {
 					arenaTimer.end();
