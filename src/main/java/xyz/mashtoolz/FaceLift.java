@@ -1,29 +1,33 @@
 package xyz.mashtoolz;
 
-import java.sql.Time;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.ClientConnection;
-
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Hand;
-import xyz.mashtoolz.config.Config;
-import xyz.mashtoolz.helpers.*;
-
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.network.ClientConnection;
+import net.minecraft.util.Hand;
+import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.helpers.ArenaTimer;
+import xyz.mashtoolz.helpers.DPSMeter;
+import xyz.mashtoolz.helpers.HudRenderer;
+import xyz.mashtoolz.helpers.KeyHandler;
+
+import java.sql.Time;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class FaceLift implements ClientModInitializer {
 
@@ -46,6 +50,7 @@ public class FaceLift implements ClientModInitializer {
 	private final Pattern fishingXPRegex = Pattern.compile("Gained Fishing XP! \\(\\+(\\d+)XP\\)");
 
 
+
 	@Override
 	public void onInitializeClient() {
 
@@ -66,6 +71,8 @@ public class FaceLift implements ClientModInitializer {
 					break;
 				}
             }
+
+
 		});
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
@@ -140,17 +147,19 @@ public class FaceLift implements ClientModInitializer {
 		});
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-			ClientConnection connection = Objects.requireNonNull(client.getNetworkHandler()).getConnection();
-			if (connection != null && connection.getAddress() != null) {
-				String serverAddress = connection.getAddress().toString();
-				System.out.println("Server IP: " + serverAddress);
-				if (serverAddress.contains(ip)) {
-					System.out.println("Joined faceland <3");
-					skillCheck();
-				} else {
-					System.out.println("THAT'S NOT FACELAND!!!");
+			client.execute(() -> {
+				ClientConnection connection = Objects.requireNonNull(client.getNetworkHandler()).getConnection();
+				if (connection != null && connection.getAddress() != null) {
+					String serverAddress = connection.getAddress().toString();
+					System.out.println("Server IP: " + serverAddress);
+					if (serverAddress.contains(ip)) {
+						System.out.println("Joined faceland <3");
+						client.execute(this::skillCheck);
+					} else {
+						System.out.println("THAT'S NOT FACELAND!!!");
+					}
 				}
-			}
+			});
 		});
 
 
@@ -160,8 +169,12 @@ public class FaceLift implements ClientModInitializer {
 	}
 
 	private void skillCheck() {
-		Objects.requireNonNull(MinecraftClient.getInstance().getNetworkHandler()).sendCommand(skillCommand);
-		System.out.println("[skillCheck] commandPacketSent");
+		MinecraftClient client = MinecraftClient.getInstance();
+		if (client == null || client.player == null) {
+			System.out.println("[skillCheck] Client || Player is null");
+			return;
+		}
+		client.player.networkHandler.sendCommand(skillCommand);
 	}
 
 	private void handleChatMessage(String message) {
