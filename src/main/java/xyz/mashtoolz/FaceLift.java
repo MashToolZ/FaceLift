@@ -29,7 +29,7 @@ public class FaceLift implements ClientModInitializer {
 
 	private static FaceLift instance;
 	private static final String ip = "beta.face.land";
-	private static final String skillCommand = "/skills";
+	private static final String skillCommand = "skills";
 	public MinecraftClient client;
 	public Config config;
 	public DPSMeter dpsMeter;
@@ -65,8 +65,6 @@ public class FaceLift implements ClientModInitializer {
 					textDisplayEntities.put(entity.getUuid().toString(), (TextDisplayEntity) entity);
 					break;
 				}
-                default:
-                    throw new IllegalStateException("Unexpected value: " + entity.getName().getString());
             }
 		});
 
