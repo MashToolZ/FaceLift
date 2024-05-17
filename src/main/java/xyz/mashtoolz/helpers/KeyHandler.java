@@ -41,15 +41,15 @@ public class KeyHandler {
 	}
 
 	public void onSpell1Key() {
-		client.player.networkHandler.sendChatCommand("ability-macro cast 1");
+		client.player.getInventory().selectedSlot = 0;
 	}
 
 	public void onSpell2Key() {
-		client.player.networkHandler.sendChatCommand("ability-macro cast 2");
+		client.player.getInventory().selectedSlot = 1;
 	}
 
 	public void onSpell3Key() {
-		client.player.networkHandler.sendChatCommand("ability-macro cast 3");
+		client.player.getInventory().selectedSlot = 2;
 	}
 
 	public void onSpell4Key() {
