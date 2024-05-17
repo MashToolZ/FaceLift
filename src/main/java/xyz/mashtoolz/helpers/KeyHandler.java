@@ -3,6 +3,7 @@ package xyz.mashtoolz.helpers;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.Config;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 
 public class KeyHandler {
 
@@ -41,18 +42,18 @@ public class KeyHandler {
 	}
 
 	public void onSpell1Key() {
-		client.player.getInventory().selectedSlot = 0;
+		client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(0));
 	}
 
 	public void onSpell2Key() {
-		client.player.getInventory().selectedSlot = 1;
+		client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(1));
 	}
 
 	public void onSpell3Key() {
-		client.player.getInventory().selectedSlot = 2;
+		client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(2));
 	}
 
 	public void onSpell4Key() {
-		client.player.getInventory().selectedSlot = 3;
+		client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(3));
 	}
 }
