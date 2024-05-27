@@ -33,7 +33,7 @@ public class FaceLift implements ClientModInitializer {
 
 	private static FaceLift instance;
 	private static final String ip = "beta.face.land";
-	private static final String skillCommand = "skills";
+	//private static final String skillCommand = "skills";
 	public MinecraftClient client;
 	public Config config;
 	public DPSMeter dpsMeter;
@@ -42,12 +42,12 @@ public class FaceLift implements ClientModInitializer {
 	public HudRenderer hudRenderer;
 
 	private final HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
-	private boolean rightMouseClickedLastTick = false;
-	private Time throwTime = null;
-	private Time reelTime = null;
-	private final HashMap<Long, Integer> oneMinFish = new HashMap<>();
+	//private boolean rightMouseClickedLastTick = false;
+	//private Time throwTime = null;
+	//private Time reelTime = null;
+	//private final HashMap<Long, Integer> oneMinFish = new HashMap<>();
 	                     //<TIME, EXP>
-	private final Pattern fishingXPRegex = Pattern.compile("Gained Fishing XP! \\(\\+(\\d+)XP\\)");
+	//private final Pattern fishingXPRegex = Pattern.compile("Gained Fishing XP! \\(\\+(\\d+)XP\\)");
 
 
 
@@ -112,7 +112,7 @@ public class FaceLift implements ClientModInitializer {
 			if (config.spell4Key.wasPressed())
 				keyHandler.onSpell4Key();
 
-			if(config.xpCalculator.enabled) {
+			/*if(config.xpCalculator.enabled) {
 				boolean rightMouseClickedThisTick = client.mouse.wasRightButtonClicked();
 				if (rightMouseClickedThisTick && !rightMouseClickedLastTick) {
 					Hand hand = client.player.getActiveHand();
@@ -132,7 +132,7 @@ public class FaceLift implements ClientModInitializer {
 				}
 
 				rightMouseClickedLastTick = rightMouseClickedThisTick;
-			}
+			}*/
 			if(config.arenaTimer.enabled && arenaTimer.isActive()) {
 				PlayerEntity player = MinecraftClient.getInstance().player;
 				if (player != null && player.getHealth() <= 0) {
@@ -141,10 +141,10 @@ public class FaceLift implements ClientModInitializer {
 			}
 		});
 
-		ClientReceiveMessageEvents.CHAT.register((client, sender, message, messageType, UUID) -> {
+		/*ClientReceiveMessageEvents.CHAT.register((client, sender, message, messageType, UUID) -> {
             String messageText = Objects.requireNonNull(message).toString();
 			handleChatMessage(messageText);
-		});
+		});*/
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
 			client.execute(() -> {
@@ -154,7 +154,7 @@ public class FaceLift implements ClientModInitializer {
 					System.out.println("Server IP: " + serverAddress);
 					if (serverAddress.contains(ip)) {
 						System.out.println("Joined faceland <3");
-						client.execute(this::skillCheck);
+						//client.execute(this::skillCheck);
 					} else {
 						System.out.println("THAT'S NOT FACELAND!!!");
 					}
@@ -168,7 +168,7 @@ public class FaceLift implements ClientModInitializer {
 		});
 	}
 
-	private void skillCheck() {
+	/*private void skillCheck() {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client == null || client.player == null) {
 			System.out.println("[skillCheck] Client || Player is null");
@@ -217,7 +217,7 @@ public class FaceLift implements ClientModInitializer {
 			throwTime = null;
 			reelTime = null;
 		}
-	}
+	}*/
 
 	public static FaceLift getInstance() {
 		return instance;
