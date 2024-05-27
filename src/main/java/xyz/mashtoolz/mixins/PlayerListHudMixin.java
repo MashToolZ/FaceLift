@@ -17,6 +17,6 @@ public class PlayerListHudMixin  {
     @Inject(method = "render", at = @At("HEAD"))
     private void onRender(DrawContext context, int scaledWindowWidth, Scoreboard scoreboard, ScoreboardObjective objective, CallbackInfo ci) {
 
-        context.getMatrices().translate(0, 50, 0);
+        context.getMatrices().translate(0, 25, 0);
     }
 }
