@@ -55,7 +55,6 @@ public class MixinToastManager {
 			AdvancementEntry advancement = advancementToast.getAdvancement();
 
 			var id = advancement.id().toString();
-			System.out.println("ID: " + id);
 			var advancementInfo = advancementInfos.get(id);
 			if (advancementInfo == null)
 				return;
