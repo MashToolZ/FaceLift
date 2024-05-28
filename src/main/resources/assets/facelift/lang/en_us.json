@@ -16,6 +16,8 @@
 
     "facelift.config.general.mountThirdPerson": "3rd Person Mount",
     "facelift.config.general.mountThirdPerson.tooltip": "Automatically toggles between 1st/3rd Person Camera when mounting",
+    "facelift.config.general.tabHeightOffset": "Tab Height Offset",
+    "facelift.config.general.tabHeightOffset.tooltip": "Offset of the tab height from the top of the screen",
 
     "facelift.config.combatTimer.enabled": "Enabled",
     "facelift.config.combatTimer.enabled.tooltip": "Show Combat Timer",

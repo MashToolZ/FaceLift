@@ -1,38 +1,38 @@
 package xyz.mashtoolz;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.UUID;
-
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.option.Perspective;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
+import net.minecraft.network.ClientConnection;
 import xyz.mashtoolz.config.Config;
 import xyz.mashtoolz.helpers.ArenaTimer;
 import xyz.mashtoolz.helpers.DPSMeter;
 import xyz.mashtoolz.helpers.HudRenderer;
 import xyz.mashtoolz.helpers.KeyHandler;
 
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.Perspective;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Objects;
 
 public class FaceLift implements ClientModInitializer {
 
 	private static FaceLift instance;
-
 	public MinecraftClient client;
-
+	public ClientPlayerEntity player;
 	public Config config;
 	public DPSMeter dpsMeter;
 	public KeyHandler keyHandler;
 	public ArenaTimer arenaTimer;
 	public HudRenderer hudRenderer;
 
-	private HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
-	private HashSet<UUID> textDisplayEntitiesToRemove = new HashSet<>();
+	private final HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
 
 	@Override
 	public void onInitializeClient() {
@@ -47,7 +47,6 @@ public class FaceLift implements ClientModInitializer {
 		hudRenderer = new HudRenderer();
 
 		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
-
 			switch (entity.getName().getString()) {
 				case "Text Display": {
 					textDisplayEntities.put(entity.getUuid().toString(), (TextDisplayEntity) entity);
@@ -60,6 +59,8 @@ public class FaceLift implements ClientModInitializer {
 
 			if (client == null || client.player == null)
 				return;
+
+			player = client.player;
 
 			FallDamageCheck();
 			DPSNumbersCheck();
@@ -78,9 +79,6 @@ public class FaceLift implements ClientModInitializer {
 			if (config.mountKey.wasPressed())
 				keyHandler.onMountKey();
 
-			// if (config.potionKey.wasPressed())
-			// keyHandler.onPotionKey(1);
-
 			if (config.spell1Key.wasPressed())
 				keyHandler.onSpell1Key();
 
@@ -93,12 +91,28 @@ public class FaceLift implements ClientModInitializer {
 			if (config.spell4Key.wasPressed())
 				keyHandler.onSpell4Key();
 
+			if (config.arenaTimer.enabled && arenaTimer.isActive() && (player != null && player.getHealth() <= 0))
+				arenaTimer.end();
+		});
+
+		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+			client.execute(() -> {
+				ClientConnection connection = Objects.requireNonNull(client.getNetworkHandler()).getConnection();
+				if (connection != null && connection.getAddress() != null) {
+					String serverAddress = connection.getAddress().toString();
+					System.out.println("Server IP: " + serverAddress);
+					if (serverAddress.toLowerCase().contains("face.land")) {
+						System.out.println("Joined FaceLand <3");
+					} else {
+						System.out.println("Not on FaceLand :(");
+					}
+				}
+			});
 		});
 
 		HudRenderCallback.EVENT.register((context, delta) -> {
 			hudRenderer.onHudRender(context, delta);
 		});
-
 	}
 
 	public static FaceLift getInstance() {
@@ -106,39 +120,34 @@ public class FaceLift implements ClientModInitializer {
 	}
 
 	public boolean isMounted() {
-		Entity ridingEntity = client.player.getVehicle();
-		return ridingEntity != null && ridingEntity != client.player;
+		Entity ridingEntity = player.getVehicle();
+		return ridingEntity != null && ridingEntity != player;
 	}
 
 	private void FallDamageCheck() {
-		if (config.hurtTime == 0 && client.player.hurtTime != 0)
-			config.hurtTime = client.player.hurtTime;
+		if (config.hurtTime == 0 && player.hurtTime != 0)
+			config.hurtTime = player.hurtTime;
 
-		if (config.hurtTime == -1 && client.player.hurtTime == 0)
+		if (config.hurtTime == -1 && player.hurtTime == 0)
 			config.hurtTime = 0;
 
 		if (config.hurtTime > 0) {
 			config.hurtTime = -1;
 
-			var recentDamageSource = client.player.getRecentDamageSource();
+			var recentDamageSource = player.getRecentDamageSource();
 			if (recentDamageSource != null && !recentDamageSource.getType().msgId().toString().equals("fall"))
 				config.lastHurtTime = System.currentTimeMillis();
 		}
 	}
 
 	private void DPSNumbersCheck() {
-		if (textDisplayEntitiesToRemove.size() > 0) {
-			for (UUID uuid : textDisplayEntitiesToRemove)
-				textDisplayEntities.remove(uuid.toString());
-			textDisplayEntitiesToRemove.clear();
-		}
-
-		for (TextDisplayEntity textDisplayEntity : textDisplayEntities.values()) {
+		for (Iterator<TextDisplayEntity> iterator = textDisplayEntities.values().iterator(); iterator.hasNext();) {
+			TextDisplayEntity textDisplayEntity = iterator.next();
 
 			if (textDisplayEntity.getData() == null)
 				continue;
 
-			textDisplayEntitiesToRemove.add(textDisplayEntity.getUuid());
+			iterator.remove();
 
 			var text = textDisplayEntity.getData().text();
 			if (text == null)

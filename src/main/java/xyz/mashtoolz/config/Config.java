@@ -30,7 +30,7 @@ public class Config {
 
 	private FaceLift instance = FaceLift.getInstance();
 
-	private MinecraftClient client;
+	private final MinecraftClient client;
 
 	public boolean mounted = false;
 	public boolean inCombat = false;
@@ -38,6 +38,7 @@ public class Config {
 	public long lastHurtTime = 0;
 
 	public RegexPattern[] xpRegexes = new RegexPattern[] {
+			new RegexPattern("fishingXP", "Gained Fishing XP! \\(\\+(\\d+)XP\\)"),
 			new RegexPattern("skillXP", "Gained (\\w+ ?){1,2} XP! \\(\\+(\\d+)XP\\)"),
 			new RegexPattern("combatXP", "\\+(\\d+)XP")
 	};
@@ -89,6 +90,7 @@ public class Config {
 			Settings settings = gson.fromJson(reader, Settings.class);
 
 			this.general.mountThirdPerson = settings.general.mountThirdPerson;
+			this.general.tabHeightOffset = settings.general.tabHeightOffset;
 
 			this.combatTimer.enabled = settings.combatTimer.enabled;
 			this.combatTimer.position = settings.combatTimer.position;
@@ -117,6 +119,7 @@ public class Config {
 			Settings settings = new Settings();
 
 			settings.general.mountThirdPerson = this.general.mountThirdPerson;
+			settings.general.tabHeightOffset = this.general.tabHeightOffset;
 
 			settings.combatTimer.enabled = this.combatTimer.enabled;
 			settings.combatTimer.position = this.combatTimer.position;
@@ -155,6 +158,9 @@ public class Config {
 		addConfigEntry(entryBuilder, general, "config.general.mountThirdPerson", this.general.mountThirdPerson,
 				settings.general.mountThirdPerson, "config.general.mountThirdPerson.tooltip",
 				newValue -> this.general.mountThirdPerson = newValue);
+		addConfigEntry(entryBuilder, general, "config.general.tabHeightOffset", this.general.tabHeightOffset,
+				settings.general.tabHeightOffset, "config.general.tabHeightOffset.tooltip",
+				newValue -> this.general.tabHeightOffset = newValue);
 		addConfigEntry(entryBuilder, combatTimer, "config.combatTimer.enabled", this.combatTimer.enabled,
 				settings.combatTimer.enabled, "config.combatTimer.enabled.tooltip",
 				newValue -> this.combatTimer.enabled = newValue);
@@ -201,9 +207,7 @@ public class Config {
 				settings.arenaTimer.position.y, "config.arenaTimer.position.y.tooltip",
 				newValue -> this.arenaTimer.position.y = newValue);
 
-		builder.setSavingRunnable(() -> {
-			saveConfig();
-		});
+		builder.setSavingRunnable(this::saveConfig);
 
 		return builder.build();
 	}
