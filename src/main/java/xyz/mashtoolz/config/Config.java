@@ -54,8 +54,6 @@ public class Config {
 	public Category_XPDisplay xpDisplay = settings.xpDisplay;
 	public Category_ArenaTimer arenaTimer = settings.arenaTimer;
 
-	//public Category_XPCalc xpCalculator = settings.xpCalculator;
-
 	public KeyBinding configKey;
 	public KeyBinding mountKey;
 
@@ -92,6 +90,7 @@ public class Config {
 			Settings settings = gson.fromJson(reader, Settings.class);
 
 			this.general.mountThirdPerson = settings.general.mountThirdPerson;
+			this.general.tabHeightOffset = settings.general.tabHeightOffset;
 
 			this.combatTimer.enabled = settings.combatTimer.enabled;
 			this.combatTimer.position = settings.combatTimer.position;
@@ -108,9 +107,6 @@ public class Config {
 			this.arenaTimer.enabled = settings.arenaTimer.enabled;
 			this.arenaTimer.position = settings.arenaTimer.position;
 
-			//this.xpCalculator.enabled = settings.xpCalculator.enabled;
-			//this.xpCalculator.position = settings.xpCalculator.position;
-
 		} catch (IOException | JsonSyntaxException e) {
 			this.saveConfig();
 		}
@@ -123,6 +119,7 @@ public class Config {
 			Settings settings = new Settings();
 
 			settings.general.mountThirdPerson = this.general.mountThirdPerson;
+			settings.general.tabHeightOffset = this.general.tabHeightOffset;
 
 			settings.combatTimer.enabled = this.combatTimer.enabled;
 			settings.combatTimer.position = this.combatTimer.position;
@@ -138,9 +135,6 @@ public class Config {
 
 			settings.arenaTimer.enabled = this.arenaTimer.enabled;
 			settings.arenaTimer.position = this.arenaTimer.position;
-
-			//settings.xpCalculator.enabled = this.xpCalculator.enabled;
-			//settings.xpCalculator.position = this.xpCalculator.position;
 
 			gson.toJson(settings, writer);
 
@@ -159,12 +153,14 @@ public class Config {
 		ConfigCategory combatTimer = builder.getOrCreateCategory(translatable("config.combatTimer"));
 		ConfigCategory dpsMeter = builder.getOrCreateCategory(translatable("config.dpsMeter"));
 		ConfigCategory xpDisplay = builder.getOrCreateCategory(translatable("config.xpDisplay"));
-		//ConfigCategory xpCalc = builder.getOrCreateCategory(translatable("config.xpCalculator"));
 		ConfigCategory arenaTimer = builder.getOrCreateCategory(translatable("config.arenaTimer"));
 
 		addConfigEntry(entryBuilder, general, "config.general.mountThirdPerson", this.general.mountThirdPerson,
 				settings.general.mountThirdPerson, "config.general.mountThirdPerson.tooltip",
 				newValue -> this.general.mountThirdPerson = newValue);
+		addConfigEntry(entryBuilder, general, "config.general.tabHeightOffset", this.general.tabHeightOffset,
+				settings.general.tabHeightOffset, "config.general.tabHeightOffset.tooltip",
+				newValue -> this.general.tabHeightOffset = newValue);
 		addConfigEntry(entryBuilder, combatTimer, "config.combatTimer.enabled", this.combatTimer.enabled,
 				settings.combatTimer.enabled, "config.combatTimer.enabled.tooltip",
 				newValue -> this.combatTimer.enabled = newValue);
@@ -211,10 +207,6 @@ public class Config {
 				settings.arenaTimer.position.y, "config.arenaTimer.position.y.tooltip",
 				newValue -> this.arenaTimer.position.y = newValue);
 
-		/*addConfigEntry(entryBuilder, xpCalc, "config.xpCalculator.enabled", this.xpCalculator.enabled, settings.xpCalculator.enabled, "config.xpCalculator.enabled.tooltip", newValue -> this.xpCalculator.enabled = newValue);
-		addConfigEntry(entryBuilder, xpCalc, "config.xpCalculator.position.x", this.xpCalculator.position.x, settings.xpCalculator.position.x, "config.xpCalculator.position.x.tooltip", newValue -> this.xpCalculator.position.x = newValue);
-		addConfigEntry(entryBuilder, xpCalc, "config.xpCalculator.position.y", this.xpCalculator.position.y, settings.xpCalculator.position.y, "config.xpCalculator.position.y.tooltip", newValue -> this.xpCalculator.position.y = newValue);
-		*/
 		builder.setSavingRunnable(this::saveConfig);
 
 		return builder.build();
