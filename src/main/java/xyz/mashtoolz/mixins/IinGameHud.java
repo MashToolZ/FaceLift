@@ -15,4 +15,6 @@ public interface IinGameHud {
 	@Accessor("subtitle")
 	Text getSubtitle();
 
+	@Accessor("overlayMessage")
+	Text getOverlayMessage();
 }
