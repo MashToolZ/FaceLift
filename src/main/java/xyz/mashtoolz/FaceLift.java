@@ -160,4 +160,16 @@ public class FaceLift implements ClientModInitializer {
 			instance.dpsMeter.addDamage(damage);
 		}
 	}
+
+	public String escapeStringToUnicode(String input) {
+		StringBuilder builder = new StringBuilder();
+		for (char ch : input.toCharArray()) {
+			if (ch < 128) {
+				builder.append(ch);
+			} else {
+				builder.append(String.format("\\u%04x", (int) ch));
+			}
+		}
+		return builder.toString();
+	}
 }
