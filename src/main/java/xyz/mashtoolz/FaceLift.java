@@ -16,6 +16,7 @@ import xyz.mashtoolz.helpers.ArenaTimer;
 import xyz.mashtoolz.helpers.DPSMeter;
 import xyz.mashtoolz.helpers.HudRenderer;
 import xyz.mashtoolz.helpers.KeyHandler;
+import xyz.mashtoolz.mixins.IinGameHud;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -62,7 +63,7 @@ public class FaceLift implements ClientModInitializer {
 
 			player = client.player;
 
-			FallDamageCheck();
+			CombatCheck();
 			DPSNumbersCheck();
 
 			if (config.general.mountThirdPerson && this.isMounted() != config.mounted) {
@@ -124,7 +125,22 @@ public class FaceLift implements ClientModInitializer {
 		return ridingEntity != null && ridingEntity != player;
 	}
 
-	private void FallDamageCheck() {
+	private void CombatCheck() {
+
+		var inGameHud = (IinGameHud) client.inGameHud;
+		if (inGameHud == null)
+			return;
+
+		var overlayText = inGameHud.getOverlayMessage().getString();
+		if (overlayText != null) {
+			for (var unicode : config.combatTimer.unicodes) {
+				if (overlayText.contains(unicode)) {
+					config.lastHurtTime = System.currentTimeMillis();
+					break;
+				}
+			}
+		}
+
 		if (config.hurtTime == 0 && player.hurtTime != 0)
 			config.hurtTime = player.hurtTime;
 
