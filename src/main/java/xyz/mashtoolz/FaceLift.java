@@ -131,10 +131,10 @@ public class FaceLift implements ClientModInitializer {
 		if (inGameHud == null)
 			return;
 
-		var overlayText = inGameHud.getOverlayMessage().getString();
-		if (overlayText != null) {
+		var overlayMessage = inGameHud.getOverlayMessage();
+		if (overlayMessage != null) {
 			for (var unicode : config.combatTimer.unicodes) {
-				if (overlayText.contains(unicode)) {
+				if (overlayMessage.getString().contains(unicode)) {
 					config.lastHurtTime = System.currentTimeMillis();
 					break;
 				}
