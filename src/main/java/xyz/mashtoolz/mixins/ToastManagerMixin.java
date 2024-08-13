@@ -15,7 +15,7 @@ import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
 
 @Mixin(ToastManager.class)
-public class MixinToastManager {
+public class ToastManagerMixin {
 
 	private FaceLift instance;
 
@@ -51,7 +51,7 @@ public class MixinToastManager {
 
 		try {
 
-			var advancementToast = (IAdvancementToast) toast;
+			var advancementToast = (AdvancementToastMixin) toast;
 			AdvancementEntry advancement = advancementToast.getAdvancement();
 
 			var id = advancement.id().toString();

@@ -7,7 +7,7 @@ import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.client.toast.AdvancementToast;
 
 @Mixin(AdvancementToast.class)
-public interface IAdvancementToast {
+public interface AdvancementToastMixin {
 
 	@Accessor("advancement")
 	AdvancementEntry getAdvancement();

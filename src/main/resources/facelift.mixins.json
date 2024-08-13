@@ -1,17 +1,10 @@
 {
-  "required": true,
-  "minVersion": "0.8",
-  "package": "xyz.mashtoolz.mixins",
-  "compatibilityLevel": "JAVA_17",
-  "client": [
-    "IAdvancementToast",
-    "IinGameHud",
-    "MixinChatHud",
-    "MixinEntity",
-    "MixinToastManager",
-    "PlayerListHudMixin"
-  ],
-  "injectors": {
-    "defaultRequire": 1
+    "required": true,
+    "minVersion": "0.8",
+    "package": "xyz.mashtoolz.mixins",
+    "compatibilityLevel": "JAVA_17",
+    "client": ["AdvancementToastMixin", "InGameHudMixin", "ChatHudMixin", "EntityMixin", "ToastManagerMixin", "PlayerListHudMixin"],
+    "injectors": {
+        "defaultRequire": 1
     }
 }

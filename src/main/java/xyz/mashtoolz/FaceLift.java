@@ -16,7 +16,7 @@ import xyz.mashtoolz.helpers.ArenaTimer;
 import xyz.mashtoolz.helpers.DPSMeter;
 import xyz.mashtoolz.helpers.HudRenderer;
 import xyz.mashtoolz.helpers.KeyHandler;
-import xyz.mashtoolz.mixins.IinGameHud;
+import xyz.mashtoolz.mixins.InGameHudMixin;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -134,7 +134,7 @@ public class FaceLift implements ClientModInitializer {
 
 	private void CombatCheck() {
 
-		var inGameHud = (IinGameHud) client.inGameHud;
+		var inGameHud = (InGameHudMixin) client.inGameHud;
 		if (inGameHud == null)
 			return;
 

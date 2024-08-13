@@ -5,7 +5,7 @@ import java.math.RoundingMode;
 import java.util.regex.Pattern;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.Config;
-import xyz.mashtoolz.mixins.IinGameHud;
+import xyz.mashtoolz.mixins.InGameHudMixin;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -208,7 +208,7 @@ public class HudRenderer {
 
 	public void updateArenaTimer() {
 
-		var inGameHud = (IinGameHud) client.inGameHud;
+		var inGameHud = (InGameHudMixin) client.inGameHud;
 		if (inGameHud == null)
 			return;
 

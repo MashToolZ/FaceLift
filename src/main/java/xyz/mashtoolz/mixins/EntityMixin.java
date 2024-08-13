@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import net.minecraft.entity.Entity;
 
 @Mixin(Entity.class)
-public abstract class MixinEntity {
+public abstract class EntityMixin {
 
 	@Unique
 	private int glowingColor = -1;

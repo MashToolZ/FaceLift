@@ -15,7 +15,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 @Mixin(ChatHud.class)
-public class MixinChatHud {
+public class ChatHudMixin {
 
 	private FaceLift instance;
 
