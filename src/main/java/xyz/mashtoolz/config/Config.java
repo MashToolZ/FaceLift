@@ -149,8 +149,10 @@ public class Config {
 	}
 
 	public Screen getScreen() {
-		ConfigBuilder builder = ConfigBuilder.create().setParentScreen(client.currentScreen)
-				.setTitle(translatable("title"));
+
+		Settings settings = Settings.getDefault();
+
+		ConfigBuilder builder = ConfigBuilder.create().setParentScreen(client.currentScreen).setTitle(translatable("title"));
 
 		ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
