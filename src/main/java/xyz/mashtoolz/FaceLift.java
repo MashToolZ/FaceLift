@@ -110,6 +110,10 @@ public class FaceLift implements ClientModInitializer {
 				}
 			});
 		});
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			config.onFaceLand = false;
+			arenaTimer.end();
+		});
 
 		HudRenderCallback.EVENT.register((context, delta) -> {
 			hudRenderer.onHudRender(context, delta);
