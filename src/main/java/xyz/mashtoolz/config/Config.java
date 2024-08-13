@@ -92,6 +92,7 @@ public class Config {
 
 			this.general.mountThirdPerson = settings.general.mountThirdPerson;
 			this.general.tabHeightOffset = settings.general.tabHeightOffset;
+			this.general.rarityOpacity = settings.general.rarityOpacity;
 
 			this.combatTimer.enabled = settings.combatTimer.enabled;
 			this.combatTimer.position = settings.combatTimer.position;
@@ -122,6 +123,7 @@ public class Config {
 
 			settings.general.mountThirdPerson = this.general.mountThirdPerson;
 			settings.general.tabHeightOffset = this.general.tabHeightOffset;
+			settings.general.rarityOpacity = this.general.rarityOpacity;
 
 			settings.combatTimer.enabled = this.combatTimer.enabled;
 			settings.combatTimer.position = this.combatTimer.position;
@@ -160,6 +162,7 @@ public class Config {
 
 		addConfigEntry(entryBuilder, general, "config.general.mountThirdPerson", this.general.mountThirdPerson, settings.general.mountThirdPerson, "config.general.mountThirdPerson.tooltip", newValue -> this.general.mountThirdPerson = newValue);
 		addConfigEntry(entryBuilder, general, "config.general.tabHeightOffset", this.general.tabHeightOffset, settings.general.tabHeightOffset, "config.general.tabHeightOffset.tooltip", newValue -> this.general.tabHeightOffset = newValue);
+		addConfigEntry(entryBuilder, general, "config.general.rarityOpacity", this.general.rarityOpacity, settings.general.rarityOpacity, "config.general.rarityOpacity.tooltip", newValue -> this.general.rarityOpacity = newValue);
 		addConfigEntry(entryBuilder, combatTimer, "config.combatTimer.enabled", this.combatTimer.enabled, settings.combatTimer.enabled, "config.combatTimer.enabled.tooltip", newValue -> this.combatTimer.enabled = newValue);
 		addConfigEntry(entryBuilder, combatTimer, "config.combatTimer.showTimebar", this.combatTimer.showTimebar, settings.combatTimer.showTimebar, "config.combatTimer.showTimebar.tooltip", newValue -> this.combatTimer.showTimebar = newValue);
 		addConfigEntry(entryBuilder, combatTimer, "config.combatTimer.position.x", this.combatTimer.position.x, settings.combatTimer.position.x, "config.combatTimer.position.x.tooltip", newValue -> this.combatTimer.position.x = newValue);

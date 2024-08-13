@@ -1,15 +1,28 @@
 package xyz.mashtoolz.helpers;
 
+import java.awt.Color;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Pattern;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.enums.RarityColor;
 import xyz.mashtoolz.mixins.InGameHudMixin;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
+import net.minecraft.util.Identifier;
 
 public class HudRenderer {
 
@@ -19,6 +32,9 @@ public class HudRenderer {
 	private Config config;
 	private DPSMeter dpsMeter;
 	private ArenaTimer arenaTimer;
+
+	private static final Identifier ITEM_GLOW = new Identifier("facelift", "textures/gui/item_glow.png");
+	final ArrayList<Item> IGNORED_ITEMS = new ArrayList<>(Arrays.asList(Items.BARRIER, Items.DIAMOND_CHESTPLATE, Items.GOLDEN_CHESTPLATE, Items.IRON_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.PLAYER_HEAD));
 
 	public HudRenderer() {
 		this.client = instance.client;
@@ -61,6 +77,58 @@ public class HudRenderer {
 		} catch (NumberFormatException e) {
 			return 0;
 		}
+	}
+
+	public void drawItemSlot(DrawContext context, Slot slot) {
+
+		ItemStack stack = slot.getStack();
+
+		if (stack.isEmpty() || IGNORED_ITEMS.contains(stack.getItem()))
+			return;
+
+		int x = slot.x;
+		int y = slot.y;
+
+		RarityColor rarity = null;
+		TextColor color = TextColor.fromRgb(Color.WHITE.getRGB());
+
+		if (stack.getItem().equals(Items.EMERALD)) {
+			var pattern = Pattern.compile("\\b[IVXLCDM]+\\b");
+			var matcher = pattern.matcher(stack.getName().getString());
+			var tier = matcher.find() ? matcher.group() : "U";
+			rarity = RarityColor.fromTier(tier);
+		}
+
+		if (rarity != null)
+			color = rarity.getColor();
+		else {
+			var siblings = stack.getName().getSiblings();
+			if (siblings.size() > 0)
+				color = siblings.get(0).getStyle().getColor();
+		}
+
+		if (color == null)
+			return;
+
+		float red = (color.getRgb() >> 16 & 255) / 255.0F;
+		float green = (color.getRgb() >> 8 & 255) / 255.0F;
+		float blue = (color.getRgb() & 255) / 255.0F;
+
+		context.getMatrices().push();
+		context.getMatrices().translate(0.0f, 0.0f, 100.0f);
+
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
+
+		RenderSystem.setShaderTexture(0, ITEM_GLOW);
+		RenderSystem.setShaderColor(red, green, blue, config.general.rarityOpacity);
+		context.drawTexture(ITEM_GLOW, x, y, 0, 0, 16, 16, 16, 16);
+
+		RenderSystem.disableBlend();
+
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
+		context.getMatrices().pop();
 	}
 
 	public void drawCombatTimer(DrawContext context) {
