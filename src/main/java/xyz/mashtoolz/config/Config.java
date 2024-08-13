@@ -103,6 +103,7 @@ public class Config {
 			this.xpDisplay.enabled = settings.xpDisplay.enabled;
 			this.xpDisplay.duration = settings.xpDisplay.duration;
 			this.xpDisplay.position = settings.xpDisplay.position;
+			this.xpDisplay.showLastGain = settings.xpDisplay.showLastGain;
 			this.xpDisplay.displayType = settings.xpDisplay.displayType;
 
 			this.arenaTimer.enabled = settings.arenaTimer.enabled;
@@ -132,6 +133,7 @@ public class Config {
 			settings.xpDisplay.enabled = this.xpDisplay.enabled;
 			settings.xpDisplay.duration = this.xpDisplay.duration;
 			settings.xpDisplay.position = this.xpDisplay.position;
+			settings.xpDisplay.showLastGain = this.xpDisplay.showLastGain;
 			settings.xpDisplay.displayType = this.xpDisplay.displayType;
 
 			settings.arenaTimer.enabled = this.arenaTimer.enabled;
@@ -156,57 +158,24 @@ public class Config {
 		ConfigCategory xpDisplay = builder.getOrCreateCategory(translatable("config.xpDisplay"));
 		ConfigCategory arenaTimer = builder.getOrCreateCategory(translatable("config.arenaTimer"));
 
-		addConfigEntry(entryBuilder, general, "config.general.mountThirdPerson", this.general.mountThirdPerson,
-				settings.general.mountThirdPerson, "config.general.mountThirdPerson.tooltip",
-				newValue -> this.general.mountThirdPerson = newValue);
-		addConfigEntry(entryBuilder, general, "config.general.tabHeightOffset", this.general.tabHeightOffset,
-				settings.general.tabHeightOffset, "config.general.tabHeightOffset.tooltip",
-				newValue -> this.general.tabHeightOffset = newValue);
-		addConfigEntry(entryBuilder, combatTimer, "config.combatTimer.enabled", this.combatTimer.enabled,
-				settings.combatTimer.enabled, "config.combatTimer.enabled.tooltip",
-				newValue -> this.combatTimer.enabled = newValue);
-		addConfigEntry(entryBuilder, combatTimer, "config.combatTimer.position.x", this.combatTimer.position.x,
-				settings.combatTimer.position.x, "config.combatTimer.position.x.tooltip",
-				newValue -> this.combatTimer.position.x = newValue);
-		addConfigEntry(entryBuilder, combatTimer, "config.combatTimer.position.y", this.combatTimer.position.y,
-				settings.combatTimer.position.y, "config.combatTimer.position.y.tooltip",
-				newValue -> this.combatTimer.position.y = newValue);
-		addConfigEntry(entryBuilder, dpsMeter, "config.dpsMeter.enabled", this.dpsMeter.enabled,
-				settings.dpsMeter.enabled, "config.dpsMeter.enabled.tooltip",
-				newValue -> this.dpsMeter.enabled = newValue);
-		addConfigEntry(entryBuilder, dpsMeter, "config.dpsMeter.duration", this.dpsMeter.duration,
-				settings.dpsMeter.duration, "config.dpsMeter.duration.tooltip",
-				newValue -> this.dpsMeter.duration = newValue);
-		addConfigEntry(entryBuilder, dpsMeter, "config.dpsMeter.position.x", this.dpsMeter.position.x,
-				settings.dpsMeter.position.x, "config.dpsMeter.position.x.tooltip",
-				newValue -> this.dpsMeter.position.x = newValue);
-		addConfigEntry(entryBuilder, dpsMeter, "config.dpsMeter.position.y", this.dpsMeter.position.y,
-				settings.dpsMeter.position.y, "config.dpsMeter.position.y.tooltip",
-				newValue -> this.dpsMeter.position.y = newValue);
-		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.enabled", this.xpDisplay.enabled,
-				settings.xpDisplay.enabled, "config.xpDisplay.enabled.tooltip",
-				newValue -> this.xpDisplay.enabled = newValue);
-		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.duration", this.xpDisplay.duration,
-				settings.xpDisplay.duration, "config.xpDisplay.duration.tooltip",
-				newValue -> this.xpDisplay.duration = newValue);
-		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.position.x", this.xpDisplay.position.x,
-				settings.xpDisplay.position.x, "config.xpDisplay.position.x.tooltip",
-				newValue -> this.xpDisplay.position.x = newValue);
-		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.position.y", this.xpDisplay.position.y,
-				settings.xpDisplay.position.y, "config.xpDisplay.position.y.tooltip",
-				newValue -> this.xpDisplay.position.y = newValue);
-		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.displayType", this.xpDisplay.displayType,
-				settings.xpDisplay.displayType, "config.xpDisplay.displayType.tooltip",
-				newValue -> this.xpDisplay.displayType = newValue);
-		addConfigEntry(entryBuilder, arenaTimer, "config.arenaTimer.enabled", this.arenaTimer.enabled,
-				settings.arenaTimer.enabled, "config.arenaTimer.enabled.tooltip",
-				newValue -> this.arenaTimer.enabled = newValue);
-		addConfigEntry(entryBuilder, arenaTimer, "config.arenaTimer.position.x", this.arenaTimer.position.x,
-				settings.arenaTimer.position.x, "config.arenaTimer.position.x.tooltip",
-				newValue -> this.arenaTimer.position.x = newValue);
-		addConfigEntry(entryBuilder, arenaTimer, "config.arenaTimer.position.y", this.arenaTimer.position.y,
-				settings.arenaTimer.position.y, "config.arenaTimer.position.y.tooltip",
-				newValue -> this.arenaTimer.position.y = newValue);
+		addConfigEntry(entryBuilder, general, "config.general.mountThirdPerson", this.general.mountThirdPerson, settings.general.mountThirdPerson, "config.general.mountThirdPerson.tooltip", newValue -> this.general.mountThirdPerson = newValue);
+		addConfigEntry(entryBuilder, general, "config.general.tabHeightOffset", this.general.tabHeightOffset, settings.general.tabHeightOffset, "config.general.tabHeightOffset.tooltip", newValue -> this.general.tabHeightOffset = newValue);
+		addConfigEntry(entryBuilder, combatTimer, "config.combatTimer.enabled", this.combatTimer.enabled, settings.combatTimer.enabled, "config.combatTimer.enabled.tooltip", newValue -> this.combatTimer.enabled = newValue);
+		addConfigEntry(entryBuilder, combatTimer, "config.combatTimer.position.x", this.combatTimer.position.x, settings.combatTimer.position.x, "config.combatTimer.position.x.tooltip", newValue -> this.combatTimer.position.x = newValue);
+		addConfigEntry(entryBuilder, combatTimer, "config.combatTimer.position.y", this.combatTimer.position.y, settings.combatTimer.position.y, "config.combatTimer.position.y.tooltip", newValue -> this.combatTimer.position.y = newValue);
+		addConfigEntry(entryBuilder, dpsMeter, "config.dpsMeter.enabled", this.dpsMeter.enabled, settings.dpsMeter.enabled, "config.dpsMeter.enabled.tooltip", newValue -> this.dpsMeter.enabled = newValue);
+		addConfigEntry(entryBuilder, dpsMeter, "config.dpsMeter.duration", this.dpsMeter.duration, settings.dpsMeter.duration, "config.dpsMeter.duration.tooltip", newValue -> this.dpsMeter.duration = newValue);
+		addConfigEntry(entryBuilder, dpsMeter, "config.dpsMeter.position.x", this.dpsMeter.position.x, settings.dpsMeter.position.x, "config.dpsMeter.position.x.tooltip", newValue -> this.dpsMeter.position.x = newValue);
+		addConfigEntry(entryBuilder, dpsMeter, "config.dpsMeter.position.y", this.dpsMeter.position.y, settings.dpsMeter.position.y, "config.dpsMeter.position.y.tooltip", newValue -> this.dpsMeter.position.y = newValue);
+		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.enabled", this.xpDisplay.enabled, settings.xpDisplay.enabled, "config.xpDisplay.enabled.tooltip", newValue -> this.xpDisplay.enabled = newValue);
+		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.duration", this.xpDisplay.duration, settings.xpDisplay.duration, "config.xpDisplay.duration.tooltip", newValue -> this.xpDisplay.duration = newValue);
+		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.position.x", this.xpDisplay.position.x, settings.xpDisplay.position.x, "config.xpDisplay.position.x.tooltip", newValue -> this.xpDisplay.position.x = newValue);
+		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.position.y", this.xpDisplay.position.y, settings.xpDisplay.position.y, "config.xpDisplay.position.y.tooltip", newValue -> this.xpDisplay.position.y = newValue);
+		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.showLastGain", this.xpDisplay.showLastGain, settings.xpDisplay.showLastGain, "config.xpDisplay.showLastGain.tooltip", newValue -> this.xpDisplay.showLastGain = newValue);
+		addConfigEntry(entryBuilder, xpDisplay, "config.xpDisplay.displayType", this.xpDisplay.displayType, settings.xpDisplay.displayType, "config.xpDisplay.displayType.tooltip", newValue -> this.xpDisplay.displayType = newValue);
+		addConfigEntry(entryBuilder, arenaTimer, "config.arenaTimer.enabled", this.arenaTimer.enabled, settings.arenaTimer.enabled, "config.arenaTimer.enabled.tooltip", newValue -> this.arenaTimer.enabled = newValue);
+		addConfigEntry(entryBuilder, arenaTimer, "config.arenaTimer.position.x", this.arenaTimer.position.x, settings.arenaTimer.position.x, "config.arenaTimer.position.x.tooltip", newValue -> this.arenaTimer.position.x = newValue);
+		addConfigEntry(entryBuilder, arenaTimer, "config.arenaTimer.position.y", this.arenaTimer.position.y, settings.arenaTimer.position.y, "config.arenaTimer.position.y.tooltip", newValue -> this.arenaTimer.position.y = newValue);
 
 		builder.setSavingRunnable(this::saveConfig);
 

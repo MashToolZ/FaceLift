@@ -171,6 +171,7 @@ public class HudRenderer {
 
 			var skill = display.getColor() + display.getKey();
 			var xp = NumberFormatter.format(display.getXP());
+			var gain = config.xpDisplay.showLastGain ? "  +" + NumberFormatter.format(display.getGain()) : "";
 
 			int xpWidth = client.textRenderer.getWidth(xp);
 
@@ -179,7 +180,7 @@ public class HudRenderer {
 			switch (config.xpDisplay.displayType) {
 
 				default: {
-					drawTextWithShadow(context, "<#FDFDFD>" + xp, x + w(-xpWidth), y + tbh(3) + (i * 10));
+					drawTextWithShadow(context, "<#FDFDFD>" + xp + gain, x + w(-xpWidth), y + tbh(3) + (i * 10));
 					break;
 				}
 
@@ -187,7 +188,7 @@ public class HudRenderer {
 					var displayMinutes = display.getTotalTime() / (1000.0 * 60);
 					var xpm = NumberFormatter.format((int) (display.getXP() / displayMinutes));
 					int xpmWidth = client.textRenderer.getWidth(xpm);
-					drawTextWithShadow(context, "<#FDFDFD>" + xpm, x + w(-xpmWidth), y + tbh(3) + (i * 10));
+					drawTextWithShadow(context, "<#FDFDFD>" + xpm + gain, x + w(-xpmWidth), y + tbh(3) + (i * 10));
 					break;
 				}
 
@@ -195,7 +196,7 @@ public class HudRenderer {
 					var displayHours = display.getTotalTime() / (1000.0 * 60 * 60);
 					var xph = NumberFormatter.format((int) (display.getXP() / displayHours));
 					int xphWidth = client.textRenderer.getWidth(xph);
-					drawTextWithShadow(context, "<#FDFDFD>" + xph, x + w(-xphWidth), y + tbh(3) + (i * 10));
+					drawTextWithShadow(context, "<#FDFDFD>" + xph + gain, x + w(-xphWidth), y + tbh(3) + (i * 10));
 					break;
 				}
 

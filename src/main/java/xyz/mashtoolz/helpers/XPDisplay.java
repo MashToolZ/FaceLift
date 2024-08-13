@@ -9,6 +9,7 @@ public class XPDisplay {
 	private String key;
 	private String color;
 	private int xp;
+	private int lastxp;
 	private long time;
 	private long totalTime = 0;
 	private boolean visible;
@@ -42,7 +43,12 @@ public class XPDisplay {
 	}
 
 	public void setXP(int amount) {
+		this.lastxp = this.xp;
 		this.xp = amount;
+	}
+
+	public int getGain() {
+		return xp - lastxp;
 	}
 
 	public long getTotalTime() {
