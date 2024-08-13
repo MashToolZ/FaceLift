@@ -21,7 +21,8 @@
 
     "facelift.config.combatTimer.enabled": "Enabled",
     "facelift.config.combatTimer.enabled.tooltip": "Show Combat Timer",
-
+    "facelift.config.combatTimer.showTimebar": "Show Timebar",
+    "facelift.config.combatTimer.showTimebar.tooltip": "Display the Timebar or not",
     "facelift.config.combatTimer.duration": "Display Duration (ms)",
     "facelift.config.combatTimer.duration.tooltip": "How long the Combat Timer is shown for",
     "facelift.config.combatTimer.position.x": "X Position (px)",
@@ -31,6 +32,8 @@
 
     "facelift.config.dpsMeter.enabled": "Enabled",
     "facelift.config.dpsMeter.enabled.tooltip": "Show DPS Meter",
+    "facelift.config.dpsMeter.showTimebar": "Show Timebar",
+    "facelift.config.dpsMeter.showTimebar.tooltip": "Display the Timebar or not",
     "facelift.config.dpsMeter.duration": "Display Duration (ms)",
     "facelift.config.dpsMeter.duration.tooltip": "How long the DPS Meter is shown for",
     "facelift.config.dpsMeter.position.x": "X Position (px)",
@@ -40,6 +43,8 @@
 
     "facelift.config.xpDisplay.enabled": "Enabled",
     "facelift.config.xpDisplay.enabled.tooltip": "Use XP Display instead of Chat Messages",
+    "facelift.config.xpDisplay.showTimebar": "Show Timebar",
+    "facelift.config.xpDisplay.showTimebar.tooltip": "Display the Timebar or not",
     "facelift.config.xpDisplay.duration": "Display Duration (ms)",
     "facelift.config.xpDisplay.duration.tooltip": "How long the XP Display is shown for",
     "facelift.config.xpDisplay.position.x": "X Position (px)",

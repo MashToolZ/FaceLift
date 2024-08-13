@@ -85,7 +85,9 @@ public class HudRenderer {
 		drawTextWithShadow(context, "<#FDFDFD>" + seconds, x + w(0) - secondsWidth, y + h(0));
 
 		var hex = String.format("%02x%02x%02x", (int) (255 * percent), (int) (255 * (1 - percent)), 0);
-		drawTimeBar(context, x, y, (int) remaining, 12000, hex2Int(hex, 0x90));
+
+		if (config.combatTimer.showTimebar)
+			drawTimeBar(context, x, y, (int) remaining, 12000, hex2Int(hex, 0x90));
 	}
 
 	public void drawDPSMeter(DrawContext context) {
@@ -115,7 +117,7 @@ public class HudRenderer {
 		context.fill(x, y, x + 112, y + h(5) + 2, 0x80000000);
 		drawTextWithShadow(context, "§cDPS Meter", x + p(0), y + p(0));
 
-		if (!ignoreTimer)
+		if (!ignoreTimer && config.dpsMeter.showTimebar)
 			drawTimeBar(context, x, y, (int) remaining, config.dpsMeter.duration, hex2Int("FD3434", 0x90));
 
 		drawTextWithShadow(context, "<#FFB2CC>Damage <#FDFDFD>", x + p(0), y + tbh(3) + lh(0));
@@ -151,7 +153,7 @@ public class HudRenderer {
 		context.fill(x, y, x + 112, y + height + h(2) + 2, 0x80000000);
 		drawTextWithShadow(context, "§aXP Display", x + p(0), y + p(0));
 
-		if (!ignoreTimer)
+		if (!ignoreTimer && config.xpDisplay.showTimebar)
 			drawTimeBar(context, x, y, (int) remaining, config.xpDisplay.duration, hex2Int("34FD34", 0x90));
 
 		int i = 0;
