@@ -3,7 +3,15 @@
     "minVersion": "0.8",
     "package": "xyz.mashtoolz.mixins",
     "compatibilityLevel": "JAVA_17",
-    "client": ["AdvancementToastMixin", "InGameHudMixin", "ChatHudMixin", "EntityMixin", "ToastManagerMixin", "PlayerListHudMixin"],
+    "client": [
+        "AdvancementToastMixin",
+        "InGameHudMixin",
+        "ChatHudMixin",
+        "EntityMixin",
+        "ToastManagerMixin",
+        "PlayerListHudMixin",
+        "HandledScreenMixin"
+    ],
     "injectors": {
         "defaultRequire": 1
     }
