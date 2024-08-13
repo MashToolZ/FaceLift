@@ -96,8 +96,8 @@ public class FaceLift implements ClientModInitializer {
 			client.execute(() -> {
 				ClientConnection connection = Objects.requireNonNull(client.getNetworkHandler()).getConnection();
 				if (connection != null && connection.getAddress() != null) {
-					String serverAddress = connection.getAddress().toString();
-					config.onFaceLand = serverAddress.toLowerCase().contains("face.land");
+					String serverAddress = connection.getAddress().toString().toLowerCase();
+					config.onFaceLand = serverAddress.startsWith("local") || serverAddress.contains("face.land");
 				}
 			});
 		});
