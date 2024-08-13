@@ -52,6 +52,10 @@ public class HudRenderer {
 	}
 
 	private Integer hex2Int(String colorHex, int opacity) {
+
+		if (colorHex.startsWith("#"))
+			colorHex = colorHex.substring(1);
+
 		try {
 			return (opacity << 24) | Integer.parseInt(colorHex, 16);
 		} catch (NumberFormatException e) {
