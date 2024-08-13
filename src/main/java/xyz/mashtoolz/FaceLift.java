@@ -68,20 +68,13 @@ public class FaceLift implements ClientModInitializer {
 
 			CombatCheck();
 			DPSNumbersCheck();
-
-			if (config.general.mountThirdPerson && this.isMounted() != config.mounted) {
-				config.mounted = !config.mounted;
-				if (config.mounted)
-					client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
-				else
-					client.options.setPerspective(Perspective.FIRST_PERSON);
-			}
+			MountCheck();
 
 			if (config.configKey.wasPressed())
 				keyHandler.onConfigKey();
 
 			if (config.mountKey.wasPressed())
-				keyHandler.onMountKey();
+				keyHandler.onMountKey(this.isMounted());
 
 			if (config.spell1Key.wasPressed())
 				keyHandler.onSpell1Key();
@@ -126,6 +119,17 @@ public class FaceLift implements ClientModInitializer {
 	public boolean isMounted() {
 		Entity ridingEntity = player.getVehicle();
 		return ridingEntity != null && ridingEntity != player;
+	}
+
+	private void MountCheck() {
+		if (config.general.mountThirdPerson) {
+			if (this.isMounted() && client.options.getPerspective() != Perspective.THIRD_PERSON_BACK) {
+				client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
+
+			} else if (!this.isMounted() && client.options.getPerspective() != Perspective.FIRST_PERSON) {
+				client.options.setPerspective(Perspective.FIRST_PERSON);
+			}
+		}
 	}
 
 	private void CombatCheck() {

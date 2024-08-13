@@ -21,8 +21,8 @@ public class KeyHandler {
 		client.setScreen(config.getScreen());
 	}
 
-	public void onMountKey() {
-		if (!config.mounted) {
+	public void onMountKey(boolean isMounted) {
+		if (!isMounted) {
 
 			client.player.setSprinting(false);
 
