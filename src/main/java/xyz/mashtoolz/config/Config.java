@@ -32,7 +32,8 @@ public class Config {
 
 	private final MinecraftClient client;
 
-	public boolean mounted = false;
+	public boolean onFaceLand = false;
+
 	public boolean inCombat = false;
 	public float hurtTime = 0;
 	public long lastHurtTime = 0;

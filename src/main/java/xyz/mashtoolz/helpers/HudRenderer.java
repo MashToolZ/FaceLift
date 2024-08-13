@@ -29,6 +29,9 @@ public class HudRenderer {
 
 	public void onHudRender(DrawContext context, float delta) {
 
+		if (!config.onFaceLand)
+			return;
+
 		context.getMatrices().push();
 
 		if (config.combatTimer.enabled)

@@ -48,6 +48,9 @@ public class FaceLift implements ClientModInitializer {
 		hudRenderer = new HudRenderer();
 
 		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+			if (!config.onFaceLand)
+				return;
+
 			switch (entity.getName().getString()) {
 				case "Text Display": {
 					textDisplayEntities.put(entity.getUuid().toString(), (TextDisplayEntity) entity);
@@ -58,7 +61,7 @@ public class FaceLift implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
-			if (client == null || client.player == null)
+			if (client == null || client.player == null || !config.onFaceLand)
 				return;
 
 			player = client.player;
@@ -101,15 +104,11 @@ public class FaceLift implements ClientModInitializer {
 				ClientConnection connection = Objects.requireNonNull(client.getNetworkHandler()).getConnection();
 				if (connection != null && connection.getAddress() != null) {
 					String serverAddress = connection.getAddress().toString();
-					System.out.println("Server IP: " + serverAddress);
-					if (serverAddress.toLowerCase().contains("face.land")) {
-						System.out.println("Joined FaceLand <3");
-					} else {
-						System.out.println("Not on FaceLand :(");
-					}
+					config.onFaceLand = serverAddress.toLowerCase().contains("face.land");
 				}
 			});
 		});
+
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			config.onFaceLand = false;
 			arenaTimer.end();
