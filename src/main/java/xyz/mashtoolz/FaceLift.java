@@ -123,11 +123,12 @@ public class FaceLift implements ClientModInitializer {
 
 	private void MountCheck() {
 		if (config.general.mountThirdPerson) {
-			if (this.isMounted() && client.options.getPerspective() != Perspective.THIRD_PERSON_BACK) {
+			if (this.isMounted() && !config.isMounted && client.options.getPerspective() != Perspective.THIRD_PERSON_BACK) {
 				client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
-
-			} else if (!this.isMounted() && client.options.getPerspective() != Perspective.FIRST_PERSON) {
+				config.isMounted = true;
+			} else if (!this.isMounted() && config.isMounted && client.options.getPerspective() != Perspective.FIRST_PERSON) {
 				client.options.setPerspective(Perspective.FIRST_PERSON);
+				config.isMounted = false;
 			}
 		}
 	}

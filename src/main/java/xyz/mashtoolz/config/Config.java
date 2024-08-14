@@ -37,6 +37,7 @@ public class Config {
 	public boolean inCombat = false;
 	public float hurtTime = 0;
 	public long lastHurtTime = 0;
+	public boolean isMounted = false;
 
 	public RegexPattern[] xpRegexes = new RegexPattern[] {
 			new RegexPattern("fishingXP", "Gained Fishing XP! \\(\\+(\\d+)XP\\)"),
