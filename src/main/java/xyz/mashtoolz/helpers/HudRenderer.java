@@ -1,21 +1,21 @@
 package xyz.mashtoolz.helpers;
 
-import java.awt.Color;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.Config;
-import xyz.mashtoolz.enums.RarityColor;
 import xyz.mashtoolz.mixins.InGameHudMixin;
-
+import xyz.mashtoolz.utils.ColorUtils;
+import xyz.mashtoolz.utils.RenderUtils;
+import xyz.mashtoolz.utils.TimeUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -30,10 +30,13 @@ public class HudRenderer {
 
 	private MinecraftClient client;
 	private Config config;
+
 	private DPSMeter dpsMeter;
 	private ArenaTimer arenaTimer;
 
-	private static final Identifier ITEM_GLOW = new Identifier("facelift", "textures/gui/item_glow.png");
+	private final Identifier ITEM_GLOW = new Identifier("facelift", "textures/gui/item_glow.png");
+	private final Identifier ICON_TOOL = new Identifier("facelift", "textures/gui/icon/tool.png");
+
 	final ArrayList<Item> IGNORED_ITEMS = new ArrayList<>(Arrays.asList(Items.BARRIER, Items.DIAMOND_CHESTPLATE, Items.GOLDEN_CHESTPLATE, Items.IRON_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.PLAYER_HEAD));
 
 	public HudRenderer() {
@@ -67,68 +70,42 @@ public class HudRenderer {
 		context.getMatrices().pop();
 	}
 
-	private Integer hex2Int(String colorHex, int opacity) {
-
-		if (colorHex.startsWith("#"))
-			colorHex = colorHex.substring(1);
-
-		try {
-			return (opacity << 24) | Integer.parseInt(colorHex, 16);
-		} catch (NumberFormatException e) {
-			return 0;
-		}
-	}
-
 	public void drawItemSlot(DrawContext context, Slot slot) {
 
 		ItemStack stack = slot.getStack();
-
 		if (stack.isEmpty() || IGNORED_ITEMS.contains(stack.getItem()))
 			return;
 
-		int x = slot.x;
-		int y = slot.y;
-
-		RarityColor rarity = null;
-		TextColor color = TextColor.fromRgb(Color.WHITE.getRGB());
-
-		if (stack.getItem().equals(Items.EMERALD)) {
-			var pattern = Pattern.compile("\\b[IVXLCDM]+\\b");
-			var matcher = pattern.matcher(stack.getName().getString());
-			var tier = matcher.find() ? matcher.group() : "U";
-			rarity = RarityColor.fromTier(tier);
-		}
-
-		if (rarity != null)
-			color = rarity.getColor();
-		else {
-			var siblings = stack.getName().getSiblings();
-			if (siblings.size() > 0)
-				color = siblings.get(0).getStyle().getColor();
-		}
+		int x = slot.x, y = slot.y;
+		TextColor color = ColorUtils.getItemColor(stack);
 
 		if (color == null)
 			return;
 
-		float red = (color.getRgb() >> 16 & 255) / 255.0F;
-		float green = (color.getRgb() >> 8 & 255) / 255.0F;
-		float blue = (color.getRgb() & 255) / 255.0F;
+		float[] rgb = ColorUtils.getRGB(color);
 
-		context.getMatrices().push();
-		context.getMatrices().translate(0.0f, 0.0f, 100.0f);
+		MatrixStack matrices = context.getMatrices();
+		matrices.push();
 
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 
+		matrices.translate(0.0f, 0.0f, 100.0f);
 		RenderSystem.setShaderTexture(0, ITEM_GLOW);
-		RenderSystem.setShaderColor(red, green, blue, config.general.rarityOpacity);
+		RenderSystem.setShaderColor(rgb[0], rgb[1], rgb[2], config.general.rarityOpacity);
 		context.drawTexture(ITEM_GLOW, x, y, 0, 0, 16, 16, 16, 16);
 
-		RenderSystem.disableBlend();
+		// matrices.translate(0.0f, 0.0f, 200.0f);
+		// RenderSystem.setShaderTexture(0, ICON_TOOL);
+		// RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		// context.drawTexture(ICON_TOOL, x, y, 0, 0, 4, 4, 4, 4);
 
+		RenderSystem.disableBlend();
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-		context.getMatrices().pop();
+		// drawLine(context, x + 2, y + 2, x + 12, y + 12, hex2Int("#DF3434", 0xFF), 2);
+
+		matrices.pop();
 	}
 
 	public void drawCombatTimer(DrawContext context) {
@@ -152,14 +129,14 @@ public class HudRenderer {
 		int x = config.combatTimer.position.x;
 		int y = config.combatTimer.position.y;
 
-		context.fill(x, y, x + 112, y + h(2) + 2, 0x80000000);
-		drawTextWithShadow(context, "§eCombat Timer", x + p(0), y + p(0));
-		drawTextWithShadow(context, "<#FDFDFD>" + seconds, x + w(0) - secondsWidth, y + h(0));
+		context.fill(x, y, x + 112, y + RenderUtils.h(2) + 2, 0x80000000);
+		RenderUtils.drawTextWithShadow(context, "§eCombat Timer", x + 5, y + 5);
+		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + seconds, x + 107 - secondsWidth, y + RenderUtils.h(0));
 
 		var hex = String.format("%02x%02x%02x", (int) (255 * percent), (int) (255 * (1 - percent)), 0);
 
 		if (config.combatTimer.showTimebar)
-			drawTimeBar(context, x, y, (int) remaining, 12000, hex2Int(hex, 0x90));
+			RenderUtils.drawTimeBar(context, x, y, (int) remaining, 12000, ColorUtils.hex2Int(hex, 0x90));
 	}
 
 	public void drawDPSMeter(DrawContext context) {
@@ -186,20 +163,20 @@ public class HudRenderer {
 		int x = config.dpsMeter.position.x;
 		int y = config.dpsMeter.position.y;
 
-		context.fill(x, y, x + 112, y + h(5) + 2, 0x80000000);
-		drawTextWithShadow(context, "§cDPS Meter", x + p(0), y + p(0));
+		context.fill(x, y, x + 112, y + RenderUtils.h(5) + 2, 0x80000000);
+		RenderUtils.drawTextWithShadow(context, "§cDPS Meter", x + 5, y + 5);
 
 		if (!ignoreTimer && config.dpsMeter.showTimebar)
-			drawTimeBar(context, x, y, (int) remaining, config.dpsMeter.duration, hex2Int("FD3434", 0x90));
+			RenderUtils.drawTimeBar(context, x, y, (int) remaining, config.dpsMeter.duration, ColorUtils.hex2Int("FD3434", 0x90));
 
-		drawTextWithShadow(context, "<#FFB2CC>Damage <#FDFDFD>", x + p(0), y + tbh(3) + lh(0));
-		drawTextWithShadow(context, "<#FDFDFD>" + damageFormat, x + w(0) - damageWidth, y + tbh(3) + lh(0));
+		RenderUtils.drawTextWithShadow(context, "<#FFB2CC>Damage <#FDFDFD>", x + 5, y + 25 + RenderUtils.lh(0));
+		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + damageFormat, x + 107 - damageWidth, y + 25 + RenderUtils.lh(0));
 
-		drawTextWithShadow(context, "<#FFB2CC>Hits <#FDFDFD>", x + p(0), y + tbh(3) + lh(1));
-		drawTextWithShadow(context, "<#FDFDFD>" + hitsFormat, x + w(0) - hitsWidth, y + tbh(3) + lh(1));
+		RenderUtils.drawTextWithShadow(context, "<#FFB2CC>Hits <#FDFDFD>", x + 5, y + 25 + RenderUtils.lh(1));
+		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + hitsFormat, x + 107 - hitsWidth, y + 25 + RenderUtils.lh(1));
 
-		drawTextWithShadow(context, "<#FFB2CC>DPS <#FDFDFD>", x + p(0), y + tbh(3) + lh(2));
-		drawTextWithShadow(context, "<#FDFDFD>" + dpsFormat, x + w(0) - dpsWidth, y + tbh(3) + lh(2));
+		RenderUtils.drawTextWithShadow(context, "<#FFB2CC>DPS <#FDFDFD>", x + 5, y + 25 + RenderUtils.lh(2));
+		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + dpsFormat, x + 107 - dpsWidth, y + 25 + RenderUtils.lh(2));
 	}
 
 	public void drawXPDisplay(DrawContext context) {
@@ -208,7 +185,6 @@ public class HudRenderer {
 			return;
 
 		var ignoreTimer = config.xpDisplay.duration == -1;
-
 		var remaining = config.xpDisplay.duration - (System.currentTimeMillis() - config.lastXPDisplay.getTime());
 		if (remaining <= 0 && !ignoreTimer) {
 			if (config.lastXPDisplay.getXP() != 0)
@@ -216,17 +192,15 @@ public class HudRenderer {
 			return;
 		}
 
-		int height = config.xpDisplays.values().stream().filter(display -> display.getXP() > 0).mapToInt(display -> 10)
-				.sum();
-
+		int height = config.xpDisplays.values().stream().filter(display -> display.getXP() > 0).mapToInt(display -> 10).sum();
 		int x = config.xpDisplay.position.x;
 		int y = config.xpDisplay.position.y;
 
-		context.fill(x, y, x + 112, y + height + h(2) + 2, 0x80000000);
-		drawTextWithShadow(context, "§aXP Display", x + p(0), y + p(0));
+		context.fill(x, y, x + 112, y + height + RenderUtils.h(2) + 2, 0x80000000);
+		RenderUtils.drawTextWithShadow(context, "§aXP Display", x + 5, y + 5);
 
 		if (!ignoreTimer && config.xpDisplay.showTimebar)
-			drawTimeBar(context, x, y, (int) remaining, config.xpDisplay.duration, hex2Int("34FD34", 0x90));
+			RenderUtils.drawTimeBar(context, x, y, (int) remaining, config.xpDisplay.duration, ColorUtils.hex2Int("34FD34", 0x90));
 
 		int i = 0;
 		for (var display : config.xpDisplays.values()) {
@@ -234,8 +208,7 @@ public class HudRenderer {
 			if (display.getXP() == 0)
 				continue;
 
-			if (display.isVisible() && display.getTime() + config.xpDisplay.duration < System.currentTimeMillis()
-					&& !ignoreTimer) {
+			if (display.isVisible() && display.getTime() + config.xpDisplay.duration < System.currentTimeMillis() && !ignoreTimer) {
 				display.reset();
 				continue;
 			}
@@ -247,34 +220,14 @@ public class HudRenderer {
 			var xp = NumberFormatter.format(display.getXP());
 			var gain = config.xpDisplay.showLastGain ? "  +" + NumberFormatter.format(display.getGain()) : "";
 
-			int xpWidth = client.textRenderer.getWidth(xp);
+			RenderUtils.drawTextWithShadow(context, skill, x + 5, y + 25 + (i * 10));
 
-			drawTextWithShadow(context, skill, x + p(0), y + tbh(3) + (i * 10));
+			int type = config.xpDisplay.displayType;
+			var perN = display.getTotalTime() / (1000.0 * 60 * (type == 2 ? 60 : 1));
+			if (type != 0)
+				xp = NumberFormatter.format((int) (display.getXP() / perN));
 
-			switch (config.xpDisplay.displayType) {
-
-				default: {
-					drawTextWithShadow(context, "<#FDFDFD>" + xp + gain, x + w(-xpWidth), y + tbh(3) + (i * 10));
-					break;
-				}
-
-				case 1: {
-					var displayMinutes = display.getTotalTime() / (1000.0 * 60);
-					var xpm = NumberFormatter.format((int) (display.getXP() / displayMinutes));
-					int xpmWidth = client.textRenderer.getWidth(xpm);
-					drawTextWithShadow(context, "<#FDFDFD>" + xpm + gain, x + w(-xpmWidth), y + tbh(3) + (i * 10));
-					break;
-				}
-
-				case 2: {
-					var displayHours = display.getTotalTime() / (1000.0 * 60 * 60);
-					var xph = NumberFormatter.format((int) (display.getXP() / displayHours));
-					int xphWidth = client.textRenderer.getWidth(xph);
-					drawTextWithShadow(context, "<#FDFDFD>" + xph + gain, x + w(-xphWidth), y + tbh(3) + (i * 10));
-					break;
-				}
-
-			}
+			RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + xp + gain, x + 107 - client.textRenderer.getWidth(xp), y + 25 + (i * 10));
 
 			i++;
 		}
@@ -335,86 +288,21 @@ public class HudRenderer {
 
 		var totalTime = arenaTimer.getTotalTime();
 
-		var totalHMS = timeToHMS(totalTime);
+		var totalHMS = TimeUtils.timeToHMS(totalTime);
 		var totalStr = String.format("%02d:%02d.%d", totalHMS[1], totalHMS[2], totalHMS[3]);
 		var totalStrWidth = client.textRenderer.getWidth(totalStr);
 
-		var waveHMS = timeToHMS(arenaTimer.getCurrentWaveTime());
+		var waveHMS = TimeUtils.timeToHMS(arenaTimer.getCurrentWaveTime());
 		var waveStr = String.format("%02d:%02d.%d", waveHMS[1], waveHMS[2], waveHMS[3]);
 		var waveStrWidth = client.textRenderer.getWidth(waveStr);
 
 		int x = config.arenaTimer.position.x;
 		int y = config.arenaTimer.position.y;
 
-		context.fill(x, y, x + 112, y + h(2) + 2, 0x80000000);
-		drawTextWithShadow(context, "§3Arena Timer", x + p(0), y + p(0));
-		drawTextWithShadow(context, "<#FDFDFD>" + totalStr, x + w(0) - totalStrWidth, y + p(0));
-		drawTextWithShadow(context, "§bWave Timer", x + p(0), y + p(0) + 10);
-		drawTextWithShadow(context, "<#FDFDFD>" + waveStr, x + w(0) - waveStrWidth, y + p(0) + 10);
-	}
-
-	private void drawTimeBar(DrawContext context, int x, int y, int remaining, int max, int color) {
-		int barWidth = x + p(1) + Math.round(remaining * 101 / max);
-		context.fill(x + p(0), y + tbh(-7), x + w(0), y + tbh(0), hex2Int("D1D1D1", 0x40));
-		context.fill(x + p(1), y + tbh(-6), x + w(-1), y + tbh(-1), hex2Int("D1D1D1", 0x40));
-		context.fill(x + p(1), y + tbh(-6), barWidth, y + tbh(-1), color);
-	}
-
-	private void drawTextWithShadow(DrawContext context, String text, int x, int y) {
-
-		int color = 0xD1D1D1;
-		var pattern = Pattern.compile("<#([A-Fa-f0-9]{6,8})>");
-		var matcher = pattern.matcher(text);
-		var segments = text.split(pattern.pattern());
-
-		for (var segment : segments) {
-			context.drawTextWithShadow(client.textRenderer, segment, x, y, color);
-			x += client.textRenderer.getWidth(segment);
-
-			if (matcher.find()) {
-				var group = matcher.group(1);
-				var hex = group.substring(0, 6);
-				int opacity = 0xFF;
-				if (group.length() == 8) {
-					hex = group.substring(2, 8);
-					opacity = Math.max(4, Math.min(255, Integer.parseInt(group.substring(0, 2), 16)));
-				}
-
-				color = hex2Int(hex, opacity);
-			} else {
-				color = 0xD1D1D1;
-			}
-		}
-	}
-
-	private long[] timeToHMS(long time) {
-		var ms = time % 1000;
-		time /= 1000;
-		var s = time % 60;
-		time /= 60;
-		var m = time % 60;
-		time /= 60;
-		var h = time % 24;
-		return new long[] { h, m, s, ms / 100 };
-	}
-
-	private int p(int n) {
-		return 5 + n;
-	}
-
-	private int w(int n) {
-		return 112 - 5 + n;
-	}
-
-	private int h(int n) {
-		return 10 * n + 5;
-	}
-
-	private int lh(int n) {
-		return 10 * n;
-	}
-
-	private int tbh(int n) {
-		return 22 + n;
+		context.fill(x, y, x + 112, y + RenderUtils.h(2) + 2, 0x80000000);
+		RenderUtils.drawTextWithShadow(context, "§3Arena Timer", x + 5, y + 5);
+		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + totalStr, x + 107 - totalStrWidth, y + 5);
+		RenderUtils.drawTextWithShadow(context, "§bWave Timer", x + 5, y + 5 + 10);
+		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + waveStr, x + 107 - waveStrWidth, y + 5 + 10);
 	}
 }
