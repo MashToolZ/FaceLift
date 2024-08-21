@@ -7,25 +7,18 @@ import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 
 public class KeyHandler {
 
-	private FaceLift instance = FaceLift.getInstance();
+	private static final FaceLift instance = FaceLift.getInstance();
 
-	private MinecraftClient client;
-	private Config config;
+	private static MinecraftClient client = instance.client;
+	private static Config config = instance.config;
 
-	public KeyHandler() {
-		this.client = instance.client;
-		this.config = instance.config;
-	}
-
-	public void onConfigKey() {
+	public static void onConfigKey() {
 		client.setScreen(config.getScreen());
 	}
 
-	public void onMountKey(boolean isMounted) {
+	public static void onMountKey(boolean isMounted) {
 		if (!isMounted) {
-
 			client.player.setSprinting(false);
-
 			while (client.player.isSprinting()) {
 				try {
 					Thread.sleep(1);
@@ -33,27 +26,26 @@ public class KeyHandler {
 					e.printStackTrace();
 				}
 			}
-
-			client.player.networkHandler.sendChatCommand("mount");
+			instance.sendCommand("mount");
 		}
 	}
 
-	public void onPotionKey(String category) {
+	public static void onPotionKey(String category) {
 	}
 
-	public void onSpell1Key() {
+	public static void onSpell1Key() {
 		client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(0));
 	}
 
-	public void onSpell2Key() {
+	public static void onSpell2Key() {
 		client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(1));
 	}
 
-	public void onSpell3Key() {
+	public static void onSpell3Key() {
 		client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(2));
 	}
 
-	public void onSpell4Key() {
+	public static void onSpell4Key() {
 		client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(3));
 	}
 }

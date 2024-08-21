@@ -3,81 +3,165 @@ package xyz.mashtoolz.helpers;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.text.Text;
+import xyz.mashtoolz.FaceLift;
+import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.mixins.InGameHudInterface;
+import xyz.mashtoolz.utils.RenderUtils;
+import xyz.mashtoolz.utils.TimeUtils;
+
 public class ArenaTimer {
 
-	public RegexPattern[] regexes = new RegexPattern[] {
+	private static final FaceLift instance = FaceLift.getInstance();
+
+	private static MinecraftClient client = instance.client;
+	private static Config config = instance.config;
+
+	public static RegexPattern[] regexes = new RegexPattern[] {
 			new RegexPattern("subtitle.waveStart", "Wave (\\d+) has begun!"),
 			new RegexPattern("title.waveEnd", "WAVE VANQUISHED!"),
 			new RegexPattern("title.arenaEnd", "ARENA ENDED!"),
 			new RegexPattern("title.arenaEnd", "ARENA COMPLETE!")
 	};
 
-	public List<Wave> waves = new ArrayList<>();
+	public static List<Wave> waves = new ArrayList<>();
 
-	private boolean active = false;
-	private boolean paused = false;
+	private static boolean active = false;
+	private static boolean paused = false;
 
-	public boolean isActive() {
-		return active;
+	public static boolean isActive() {
+		return ArenaTimer.active;
 	}
 
-	public boolean isPaused() {
-		return paused;
+	public static boolean isPaused() {
+		return ArenaTimer.paused;
 	}
 
-	public void start() {
-		waves.clear();
-		active = true;
-		paused = true;
+	public static void start() {
+		ArenaTimer.waves.clear();
+		ArenaTimer.active = true;
+		ArenaTimer.paused = true;
 	}
 
-	public void end() {
-		active = false;
-		paused = false;
+	public static void end() {
+		ArenaTimer.active = false;
+		ArenaTimer.paused = false;
 	}
 
-	public void startWave() {
+	public static void startWave() {
 		Wave wave = new Wave();
 		wave.setStartTime(System.currentTimeMillis());
-		waves.add(wave);
-		paused = false;
+		ArenaTimer.waves.add(wave);
+		ArenaTimer.paused = false;
 	}
 
-	public void endWave() {
+	public static void endWave() {
 		Wave wave = waves.get(waves.size() - 1);
 		wave.setEndTime(System.currentTimeMillis());
-		paused = true;
+		ArenaTimer.paused = true;
 	}
 
-	public long getWaveTime(int index) {
+	public static long getWaveTime(int index) {
 		long time = 0;
-		var wave = waves.get(index);
+		var wave = ArenaTimer.waves.get(index);
 		var endTime = wave.getEndTime();
-
 		time = endTime > 0 ? endTime - wave.getStartTime() : System.currentTimeMillis() - wave.getStartTime();
-
 		return time;
 	}
 
-	public long getCurrentWaveTime() {
-		if (waves.isEmpty() || paused)
+	public static long getCurrentWaveTime() {
+		if (ArenaTimer.waves.isEmpty() || ArenaTimer.paused)
 			return 0;
-		int index = waves.size() - 1;
+		int index = ArenaTimer.waves.size() - 1;
 		return getWaveTime(index);
 	}
 
-	public long getTotalTime() {
-		return System.currentTimeMillis() - waves.get(0).getStartTime();
+	public static long getTotalTime() {
+		return System.currentTimeMillis() - ArenaTimer.waves.get(0).getStartTime();
 	}
 
-	public long getTotalTimeWithoutPauses() {
+	public static long getTotalTimeWithoutPauses() {
 		long time = 0;
-		for (var wave : waves) {
+		for (var wave : ArenaTimer.waves) {
 			var endTime = wave.getEndTime();
 			if (endTime > 0)
 				time += endTime - wave.getStartTime();
 		}
 		return time;
+	}
+
+	public static void updateTimer(DrawContext context) {
+
+		var inGameHud = (InGameHudInterface) client.inGameHud;
+		if (inGameHud == null)
+			return;
+
+		var title = inGameHud.getTitle();
+		if (inGameHud.getTitle() == null)
+			return;
+
+		var subtitle = inGameHud.getSubtitle() != null ? inGameHud.getSubtitle() : Text.empty();
+
+		for (var regex : ArenaTimer.regexes) {
+
+			String[] arr = regex.getKey().split("\\.");
+			var type = arr[0];
+			var key = arr[1];
+
+			var match = regex.getPattern().matcher(type.equals("title") ? title.getString() : subtitle.getString());
+
+			if (!match.find())
+				continue;
+
+			switch (key) {
+				case "waveStart": {
+					if (!isActive())
+						start();
+
+					if (isPaused())
+						startWave();
+					break;
+				}
+
+				case "waveEnd": {
+					if (isActive() && !isPaused())
+						endWave();
+					break;
+				}
+
+				case "arenaEnd": {
+					if (isActive())
+						end();
+					break;
+				}
+			}
+		}
+	}
+
+	public static void draw(DrawContext context) {
+		if (!isActive())
+			return;
+
+		var totalTime = getTotalTime();
+
+		var totalHMS = TimeUtils.timeToHMS(totalTime);
+		var totalStr = String.format("%02d:%02d.%d", totalHMS[1], totalHMS[2], totalHMS[3]);
+		var totalStrWidth = client.textRenderer.getWidth(totalStr);
+
+		var waveHMS = TimeUtils.timeToHMS(getCurrentWaveTime());
+		var waveStr = String.format("%02d:%02d.%d", waveHMS[1], waveHMS[2], waveHMS[3]);
+		var waveStrWidth = client.textRenderer.getWidth(waveStr);
+
+		int x = config.arenaTimer.position.x;
+		int y = config.arenaTimer.position.y;
+
+		context.fill(x, y, x + 112, y + RenderUtils.h(2) + 2, 0x80000000);
+		RenderUtils.drawTextWithShadow(context, "§3Arena Timer", x + 5, y + 5);
+		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + totalStr, x + 107 - totalStrWidth, y + 5);
+		RenderUtils.drawTextWithShadow(context, "§bWave Timer", x + 5, y + 5 + 10);
+		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + waveStr, x + 107 - waveStrWidth, y + 5 + 10);
 	}
 
 	private static class Wave {
