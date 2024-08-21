@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.Perspective;
@@ -16,7 +17,7 @@ import xyz.mashtoolz.helpers.ArenaTimer;
 import xyz.mashtoolz.helpers.DPSMeter;
 import xyz.mashtoolz.helpers.HudRenderer;
 import xyz.mashtoolz.helpers.KeyHandler;
-import xyz.mashtoolz.mixins.InGameHudMixin;
+import xyz.mashtoolz.mixins.InGameHudInterface;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,13 +26,10 @@ import java.util.Objects;
 public class FaceLift implements ClientModInitializer {
 
 	private static FaceLift instance;
+
 	public MinecraftClient client;
 	public ClientPlayerEntity player;
 	public Config config;
-	public DPSMeter dpsMeter;
-	public KeyHandler keyHandler;
-	public ArenaTimer arenaTimer;
-	public HudRenderer hudRenderer;
 
 	private final HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
 
@@ -40,14 +38,12 @@ public class FaceLift implements ClientModInitializer {
 
 		instance = this;
 		client = MinecraftClient.getInstance();
-
 		config = new Config();
-		dpsMeter = new DPSMeter();
-		keyHandler = new KeyHandler();
-		arenaTimer = new ArenaTimer();
-		hudRenderer = new HudRenderer();
+
+		ScreenEvents.AFTER_INIT.register(HudRenderer::afterInitScreen);
 
 		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+
 			if (!config.onFaceLand)
 				return;
 
@@ -61,7 +57,7 @@ public class FaceLift implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
-			if (client == null || client.player == null || !config.onFaceLand)
+			if (!config.onFaceLand || client == null || client.player == null)
 				return;
 
 			player = client.player;
@@ -71,25 +67,25 @@ public class FaceLift implements ClientModInitializer {
 			MountCheck();
 
 			if (config.configKey.wasPressed())
-				keyHandler.onConfigKey();
+				KeyHandler.onConfigKey();
 
 			if (config.mountKey.wasPressed())
-				keyHandler.onMountKey(this.isMounted());
+				KeyHandler.onMountKey(this.isMounted());
 
 			if (config.spell1Key.wasPressed())
-				keyHandler.onSpell1Key();
+				KeyHandler.onSpell1Key();
 
 			if (config.spell2Key.wasPressed())
-				keyHandler.onSpell2Key();
+				KeyHandler.onSpell2Key();
 
 			if (config.spell3Key.wasPressed())
-				keyHandler.onSpell3Key();
+				KeyHandler.onSpell3Key();
 
 			if (config.spell4Key.wasPressed())
-				keyHandler.onSpell4Key();
+				KeyHandler.onSpell4Key();
 
-			if (config.arenaTimer.enabled && arenaTimer.isActive() && (player != null && player.getHealth() <= 0))
-				arenaTimer.end();
+			if (config.arenaTimer.enabled && ArenaTimer.isActive() && (player != null && player.getHealth() <= 0))
+				ArenaTimer.end();
 		});
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
@@ -104,12 +100,10 @@ public class FaceLift implements ClientModInitializer {
 
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			config.onFaceLand = false;
-			arenaTimer.end();
+			ArenaTimer.end();
 		});
 
-		HudRenderCallback.EVENT.register((context, delta) -> {
-			hudRenderer.onHudRender(context, delta);
-		});
+		HudRenderCallback.EVENT.register(HudRenderer::onHudRender);
 	}
 
 	public static FaceLift getInstance() {
@@ -141,7 +135,7 @@ public class FaceLift implements ClientModInitializer {
 
 		var overlayMessage = inGameHud.getOverlayMessage();
 		if (overlayMessage != null) {
-			for (var unicode : config.combatTimer.unicodes) {
+			for (var unicode : config.combatUnicodes) {
 				if (overlayMessage.getString().contains(unicode)) {
 					config.lastHurtTime = System.currentTimeMillis();
 					break;
@@ -177,11 +171,11 @@ public class FaceLift implements ClientModInitializer {
 			if (text == null)
 				continue;
 
-			var damage = instance.dpsMeter.parseDamage(text.getString());
+			var damage = DPSMeter.parseDamage(text.getString());
 			if (damage <= 0)
 				continue;
 
-			instance.dpsMeter.addDamage(damage);
+			DPSMeter.addDamage(damage);
 		}
 	}
 
