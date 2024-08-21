@@ -129,7 +129,7 @@ public class FaceLift implements ClientModInitializer {
 
 	private void CombatCheck() {
 
-		var inGameHud = (InGameHudMixin) client.inGameHud;
+		var inGameHud = (InGameHudInterface) client.inGameHud;
 		if (inGameHud == null)
 			return;
 
