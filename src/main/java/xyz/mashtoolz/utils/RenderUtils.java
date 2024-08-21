@@ -2,12 +2,15 @@ package xyz.mashtoolz.utils;
 
 import java.util.regex.Pattern;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
 
 public class RenderUtils {
 
 	private static FaceLift instance = FaceLift.getInstance();
+
+	private static MinecraftClient client = instance.client;
 
 	public static void drawTextWithShadow(DrawContext context, String text, int x, int y) {
 
@@ -17,8 +20,8 @@ public class RenderUtils {
 		var segments = text.split(pattern.pattern());
 
 		for (var segment : segments) {
-			context.drawTextWithShadow(instance.client.textRenderer, segment, x, y, color);
-			x += instance.client.textRenderer.getWidth(segment);
+			context.drawTextWithShadow(client.textRenderer, segment, x, y, color);
+			x += client.textRenderer.getWidth(segment);
 
 			if (matcher.find()) {
 				var group = matcher.group(1);
