@@ -9,6 +9,7 @@
     "facelift.key.spell4": "Spell 4",
 
     "facelift.config.general": "General",
+    "facelift.config.inventory": "Inventory",
     "facelift.config.combatTimer": "Combat Timer",
     "facelift.config.dpsMeter": "DPS Meter",
     "facelift.config.xpDisplay": "XP Display",
@@ -18,6 +19,9 @@
     "facelift.config.general.mountThirdPerson.tooltip": "Automatically toggles between 1st/3rd Person Camera when mounting",
     "facelift.config.general.tabHeightOffset": "Tab Height Offset",
     "facelift.config.general.tabHeightOffset.tooltip": "Offset of the tab height from the top of the screen",
+
+    "facelift.config.inventory.rarityOpacity": "Rarity Opacity",
+    "facelift.config.inventory.rarityOpacity.tooltip": "Opacity of the item rarity color",
 
     "facelift.config.combatTimer.enabled": "Enabled",
     "facelift.config.combatTimer.enabled.tooltip": "Show Combat Timer",
