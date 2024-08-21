@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.helpers.XPDisplay;
+import xyz.mashtoolz.utils.TextUtils;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.MessageIndicator;
 import net.minecraft.network.message.MessageSignatureData;
@@ -17,24 +18,20 @@ import net.minecraft.util.Formatting;
 @Mixin(ChatHud.class)
 public class ChatHudMixin {
 
-	private FaceLift instance;
+	private static final FaceLift instance = FaceLift.getInstance();
 
 	@Inject(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;ILnet/minecraft/client/gui/hud/MessageIndicator;Z)V", at = @At(value = "HEAD"), cancellable = true)
-	private void addMessage(Text text, @Nullable MessageSignatureData messageSignatureData, int i,
-			@Nullable MessageIndicator messageIndicator, boolean bl, CallbackInfo ci) {
+	private void addMessage(Text text, @Nullable MessageSignatureData messageSignatureData, int i, @Nullable MessageIndicator messageIndicator, boolean bl, CallbackInfo ci) {
 		handleMessage(text, ci);
 	}
 
 	private void handleMessage(Text text, CallbackInfo ci) {
 
-		if (instance == null)
-			instance = FaceLift.getInstance();
-
 		if (!instance.config.xpDisplay.enabled)
 			return;
 
 		var message = text.getString().replaceAll("[.,]", "");
-		if (instance.escapeStringToUnicode(message).startsWith("\\uf804"))
+		if (TextUtils.escapeStringToUnicode(message, false).startsWith("\\uf804"))
 			return;
 
 		for (var regex : instance.config.xpRegexes) {

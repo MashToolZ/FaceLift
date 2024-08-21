@@ -17,7 +17,7 @@ import net.minecraft.client.toast.ToastManager;
 @Mixin(ToastManager.class)
 public class ToastManagerMixin {
 
-	private FaceLift instance;
+	private static final FaceLift instance = FaceLift.getInstance();
 
 	public HashMap<String, AdvancementInfo> advancementInfos = new HashMap<String, AdvancementInfo>() {
 		{
@@ -43,15 +43,12 @@ public class ToastManagerMixin {
 	@Inject(method = "add", at = @At("HEAD"))
 	public void add(Toast toast, CallbackInfo ci) {
 
-		if (instance == null)
-			instance = FaceLift.getInstance();
-
 		if (!(toast instanceof AdvancementToast))
 			return;
 
 		try {
 
-			var advancementToast = (AdvancementToastMixin) toast;
+			var advancementToast = (AdvancementToastInterface) toast;
 			AdvancementEntry advancement = advancementToast.getAdvancement();
 
 			var id = advancement.id().toString();

@@ -8,18 +8,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.screen.slot.Slot;
-import xyz.mashtoolz.FaceLift;
+import xyz.mashtoolz.helpers.HudRenderer;
 
 @Mixin(HandledScreen.class)
 public abstract class HandledScreenMixin {
 
-	private FaceLift instance;
+	@Inject(method = "drawSlot", at = @At("HEAD"), cancellable = true)
+	public void drawSlotHead(DrawContext context, Slot slot, CallbackInfo ci) {
+		HudRenderer.preDrawSlot(context, slot, ci);
+	}
 
-	@Inject(method = "drawSlot", at = @At("HEAD"))
-	public void drawSlot(DrawContext context, Slot slot, CallbackInfo ci) {
-		if (instance == null)
-			instance = FaceLift.getInstance();
-
-		instance.hudRenderer.drawItemSlot(context, slot);
+	@Inject(method = "drawSlot", at = @At("TAIL"))
+	public void drawSlotTail(DrawContext context, Slot slot, CallbackInfo ci) {
+		HudRenderer.postDrawSlot(context, slot);
 	}
 }

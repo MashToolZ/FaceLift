@@ -7,7 +7,7 @@ import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.text.Text;
 
 @Mixin(InGameHud.class)
-public interface InGameHudMixin {
+public interface InGameHudInterface {
 
 	@Accessor("title")
 	Text getTitle();
