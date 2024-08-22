@@ -10,7 +10,9 @@
         "ChatHudMixin",
         "ToastManagerMixin",
         "PlayerListHudMixin",
-        "HandledScreenMixin"
+        "HandledScreenMixin",
+        "ItemStackMixin",
+        "DrawContextMixin"
     ],
     "injectors": {
         "defaultRequire": 1

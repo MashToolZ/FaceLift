@@ -41,7 +41,8 @@ public class HudRenderer {
 	private static final Identifier ITEM_GLOW = new Identifier("facelift", "textures/gui/item_glow.png");
 	private static final Identifier ITEM_STAR = new Identifier("facelift", "textures/gui/item_star.png");
 
-	private static final ArrayList<Item> IGNORED_ITEMS = new ArrayList<>(Arrays.asList(Items.BARRIER, Items.DIAMOND_CHESTPLATE, Items.GOLDEN_CHESTPLATE, Items.IRON_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.PLAYER_HEAD, Items.BARRIER));
+	public static final ArrayList<Item> ABILITY_ITEMS = new ArrayList<>(Arrays.asList(Items.DIAMOND_CHESTPLATE, Items.GOLDEN_CHESTPLATE));
+	private static final ArrayList<Item> IGNORED_ITEMS = new ArrayList<>(Arrays.asList(Items.BARRIER, Items.IRON_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.PLAYER_HEAD, Items.BARRIER));
 	private static final ArrayList<Item> HIDDEN_ITEMS = new ArrayList<>(Arrays.asList(Items.SHIELD, Items.TRIPWIRE_HOOK));
 
 	public static void onHudRender(DrawContext context, float delta) {
@@ -140,25 +141,43 @@ public class HudRenderer {
 		return hideItem;
 	}
 
-	public static void preDrawSlot(DrawContext context, Slot slot, CallbackInfo ci) {
+	public static void preDrawHotbarItemSlot(DrawContext context, ItemStack stack, int x, int y, CallbackInfo ci) {
+
+		if (!ABILITY_ITEMS.contains(stack.getItem()))
+			return;
+
+		var matrices = context.getMatrices();
+
+		matrices.push();
+		matrices.translate(0.0f, 0.0f, 300.0f);
+
+		var toggled = stack.getEnchantments().size() > 0;
+		if (toggled)
+			context.drawBorder(x, y, 16, 16, ColorUtils.hex2Int("#FF0000", 0xFF));
+
+		matrices.translate(0.0f, 0.0f, -300.0f);
+		matrices.pop();
+	}
+
+	public static void preDrawItemSlot(DrawContext context, Slot slot, CallbackInfo ci) {
 
 		if (!config.onFaceLand)
 			return;
 
 		ItemStack stack = slot.getStack();
-		if ((stack.isEmpty() || IGNORED_ITEMS.contains(stack.getItem())))
+		if ((stack.isEmpty() || IGNORED_ITEMS.contains(stack.getItem())) || ABILITY_ITEMS.contains(stack.getItem()))
 			return;
 
+		int x = slot.x, y = slot.y;
 		FaceItem item = new FaceItem(stack);
+
 		boolean hideItem = searchbarCheck(item);
+		var rarity = item.getRarity();
+		var color = item.getColor();
 
 		MatrixStack matrices = context.getMatrices();
 		matrices.push();
 
-		int x = slot.x, y = slot.y;
-
-		var rarity = item.getRarity();
-		var color = item.getColor();
 		if (color != null && !rarity.equals(FaceRarity.UNKNOWN)) {
 			float[] rgb = ColorUtils.getRGB(color);
 
@@ -180,9 +199,10 @@ public class HudRenderer {
 				context.drawTexture(ITEM_STAR, x, y, 0, 0, 3 * stars, 3, 3, 3);
 				matrices.translate(0.0f, 0.0f, -300.0f);
 			}
+
+			RenderSystem.disableBlend();
 		}
 
-		RenderSystem.disableBlend();
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, hideItem ? 0.25F : 1.0F);
 
 		matrices.pop();
@@ -191,7 +211,7 @@ public class HudRenderer {
 			ci.cancel();
 	}
 
-	public static void postDrawSlot(DrawContext context, Slot slot) {
+	public static void postDrawItemSlot(DrawContext context, Slot slot) {
 		if (!config.onFaceLand)
 			return;
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

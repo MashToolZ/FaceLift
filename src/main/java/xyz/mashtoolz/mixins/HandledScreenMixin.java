@@ -15,11 +15,11 @@ public abstract class HandledScreenMixin {
 
 	@Inject(method = "drawSlot", at = @At("HEAD"), cancellable = true)
 	public void drawSlotHead(DrawContext context, Slot slot, CallbackInfo ci) {
-		HudRenderer.preDrawSlot(context, slot, ci);
+		HudRenderer.preDrawItemSlot(context, slot, ci);
 	}
 
 	@Inject(method = "drawSlot", at = @At("TAIL"))
 	public void drawSlotTail(DrawContext context, Slot slot, CallbackInfo ci) {
-		HudRenderer.postDrawSlot(context, slot);
+		HudRenderer.postDrawItemSlot(context, slot);
 	}
 }
