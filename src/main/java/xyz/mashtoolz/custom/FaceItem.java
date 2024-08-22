@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
@@ -12,14 +13,16 @@ import xyz.mashtoolz.FaceLift;
 
 public class FaceItem {
 
+	private static FaceLift instance = FaceLift.getInstance();
+
+	private static MinecraftClient client = instance.client;
+
 	private ItemStack stack;
 	private String name;
 	private String tooltip;
 	private FaceRarity rarity;
 
 	public FaceItem(ItemStack stack) {
-
-		var client = FaceLift.getInstance().client;
 
 		this.stack = stack;
 		this.name = stack.getName().getString();
