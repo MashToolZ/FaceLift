@@ -29,7 +29,6 @@ public class FaceLift implements ClientModInitializer {
 
 	public MinecraftClient client;
 	public ClientPlayerEntity player;
-	public Config config;
 
 	private final HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
 
@@ -38,13 +37,14 @@ public class FaceLift implements ClientModInitializer {
 
 		instance = this;
 		client = MinecraftClient.getInstance();
-		config = new Config();
+
+		Config.load();
 
 		ScreenEvents.AFTER_INIT.register(HudRenderer::afterInitScreen);
 
 		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 
-			if (!config.onFaceLand)
+			if (!Config.onFaceLand)
 				return;
 
 			switch (entity.getName().getString()) {
@@ -57,7 +57,7 @@ public class FaceLift implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
-			if (!config.onFaceLand || client == null || client.player == null)
+			if (!Config.onFaceLand || client == null || client.player == null)
 				return;
 
 			player = client.player;
@@ -66,25 +66,25 @@ public class FaceLift implements ClientModInitializer {
 			DPSNumbersCheck();
 			MountCheck();
 
-			if (config.configKey.wasPressed())
+			if (Config.configKey.wasPressed())
 				KeyHandler.onConfigKey();
 
-			if (config.mountKey.wasPressed())
+			if (Config.mountKey.wasPressed())
 				KeyHandler.onMountKey(this.isMounted());
 
-			if (config.spell1Key.wasPressed())
+			if (Config.spell1Key.wasPressed())
 				KeyHandler.onSpell1Key();
 
-			if (config.spell2Key.wasPressed())
+			if (Config.spell2Key.wasPressed())
 				KeyHandler.onSpell2Key();
 
-			if (config.spell3Key.wasPressed())
+			if (Config.spell3Key.wasPressed())
 				KeyHandler.onSpell3Key();
 
-			if (config.spell4Key.wasPressed())
+			if (Config.spell4Key.wasPressed())
 				KeyHandler.onSpell4Key();
 
-			if (config.arenaTimer.enabled && ArenaTimer.isActive() && (player != null && player.getHealth() <= 0))
+			if (Config.arenaTimer.enabled && ArenaTimer.isActive() && (player != null && player.getHealth() <= 0))
 				ArenaTimer.end();
 		});
 
@@ -93,13 +93,13 @@ public class FaceLift implements ClientModInitializer {
 				ClientConnection connection = Objects.requireNonNull(client.getNetworkHandler()).getConnection();
 				if (connection != null && connection.getAddress() != null) {
 					String serverAddress = connection.getAddress().toString().toLowerCase();
-					config.onFaceLand = serverAddress.startsWith("local") || serverAddress.contains("face.land");
+					Config.onFaceLand = serverAddress.startsWith("local") || serverAddress.contains("face.land");
 				}
 			});
 		});
 
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-			config.onFaceLand = false;
+			Config.onFaceLand = false;
 			ArenaTimer.end();
 		});
 
@@ -116,13 +116,13 @@ public class FaceLift implements ClientModInitializer {
 	}
 
 	private void MountCheck() {
-		if (config.general.mountThirdPerson) {
-			if (this.isMounted() && !config.isMounted && client.options.getPerspective() != Perspective.THIRD_PERSON_BACK) {
+		if (Config.general.mountThirdPerson) {
+			if (this.isMounted() && !Config.isMounted && client.options.getPerspective() != Perspective.THIRD_PERSON_BACK) {
 				client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
-				config.isMounted = true;
-			} else if (!this.isMounted() && config.isMounted && client.options.getPerspective() != Perspective.FIRST_PERSON) {
+				Config.isMounted = true;
+			} else if (!this.isMounted() && Config.isMounted && client.options.getPerspective() != Perspective.FIRST_PERSON) {
 				client.options.setPerspective(Perspective.FIRST_PERSON);
-				config.isMounted = false;
+				Config.isMounted = false;
 			}
 		}
 	}
@@ -135,26 +135,26 @@ public class FaceLift implements ClientModInitializer {
 
 		var overlayMessage = inGameHud.getOverlayMessage();
 		if (overlayMessage != null) {
-			for (var unicode : config.combatUnicodes) {
+			for (var unicode : Config.combatUnicodes) {
 				if (overlayMessage.getString().contains(unicode)) {
-					config.lastHurtTime = System.currentTimeMillis();
+					Config.lastHurtTime = System.currentTimeMillis();
 					break;
 				}
 			}
 		}
 
-		if (config.hurtTime == 0 && player.hurtTime != 0)
-			config.hurtTime = player.hurtTime;
+		if (Config.hurtTime == 0 && player.hurtTime != 0)
+			Config.hurtTime = player.hurtTime;
 
-		if (config.hurtTime == -1 && player.hurtTime == 0)
-			config.hurtTime = 0;
+		if (Config.hurtTime == -1 && player.hurtTime == 0)
+			Config.hurtTime = 0;
 
-		if (config.hurtTime > 0) {
-			config.hurtTime = -1;
+		if (Config.hurtTime > 0) {
+			Config.hurtTime = -1;
 
 			var recentDamageSource = player.getRecentDamageSource();
 			if (recentDamageSource != null && !recentDamageSource.getType().msgId().toString().equals("fall"))
-				config.lastHurtTime = System.currentTimeMillis();
+				Config.lastHurtTime = System.currentTimeMillis();
 		}
 	}
 

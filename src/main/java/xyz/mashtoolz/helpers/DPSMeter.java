@@ -15,7 +15,6 @@ public class DPSMeter {
 	private static FaceLift instance = FaceLift.getInstance();
 
 	private static MinecraftClient client = instance.client;
-	private static Config config = instance.config;
 
 	public static final ArrayList<String> damageNumbers = new ArrayList<>(
 			Arrays.asList("０", "１", "２", "３", "４", "５", "６", "７", "８", "９"));
@@ -74,11 +73,11 @@ public class DPSMeter {
 	}
 
 	public static void draw(DrawContext context) {
-		var remaining = config.dpsMeter.duration - (System.currentTimeMillis() - getLastHitTime());
+		var remaining = Config.dpsMeter.duration - (System.currentTimeMillis() - getLastHitTime());
 		if (getStartTime() == 0)
 			return;
 
-		var ignoreTimer = config.dpsMeter.duration == -1;
+		var ignoreTimer = Config.dpsMeter.duration == -1;
 		if (remaining <= 0 && !ignoreTimer) {
 			reset();
 			return;
@@ -92,14 +91,14 @@ public class DPSMeter {
 		int hitsWidth = client.textRenderer.getWidth(hitsFormat);
 		int dpsWidth = client.textRenderer.getWidth(dpsFormat);
 
-		int x = config.dpsMeter.position.x;
-		int y = config.dpsMeter.position.y;
+		int x = Config.dpsMeter.position.x;
+		int y = Config.dpsMeter.position.y;
 
 		context.fill(x, y, x + 112, y + RenderUtils.h(5) + 2, 0x80000000);
 		RenderUtils.drawTextWithShadow(context, "§cDPS Meter", x + 5, y + 5);
 
-		if (!ignoreTimer && config.dpsMeter.showTimebar)
-			RenderUtils.drawTimeBar(context, x, y, (int) remaining, config.dpsMeter.duration, ColorUtils.hex2Int("FD3434", 0x90));
+		if (!ignoreTimer && Config.dpsMeter.showTimebar)
+			RenderUtils.drawTimeBar(context, x, y, (int) remaining, Config.dpsMeter.duration, ColorUtils.hex2Int("FD3434", 0x90));
 
 		RenderUtils.drawTextWithShadow(context, "<#FFB2CC>Damage <#FDFDFD>", x + 5, y + 25 + RenderUtils.lh(0));
 		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + damageFormat, x + 107 - damageWidth, y + 25 + RenderUtils.lh(0));

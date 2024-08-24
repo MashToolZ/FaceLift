@@ -13,7 +13,7 @@ public class KeyHandler {
 	private static Config config = instance.config;
 
 	public static void onConfigKey() {
-		client.setScreen(config.getScreen());
+		client.setScreen(Config.getScreen());
 	}
 
 	public static void onMountKey(boolean isMounted) {

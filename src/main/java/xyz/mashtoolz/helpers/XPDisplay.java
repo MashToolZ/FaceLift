@@ -12,7 +12,6 @@ public class XPDisplay {
 	private static FaceLift instance = FaceLift.getInstance();
 
 	private static MinecraftClient client = instance.client;
-	private static Config config = instance.config;
 
 	private String key;
 	private String color;
@@ -71,7 +70,7 @@ public class XPDisplay {
 		if (this.totalTime == 0 && time > 0)
 			this.totalTime = time;
 		this.time = time;
-		config.lastXPDisplay = this;
+		Config.lastXPDisplay = this;
 	}
 
 	public boolean isVisible() {
@@ -89,29 +88,29 @@ public class XPDisplay {
 	}
 
 	public static void draw(DrawContext context) {
-		if (config.lastXPDisplay == null)
+		if (Config.lastXPDisplay == null)
 			return;
 
-		var ignoreTimer = config.xpDisplay.duration == -1;
-		var remaining = config.xpDisplay.duration - (System.currentTimeMillis() - config.lastXPDisplay.getTime());
+		var ignoreTimer = Config.xpDisplay.duration == -1;
+		var remaining = Config.xpDisplay.duration - (System.currentTimeMillis() - Config.lastXPDisplay.getTime());
 		if (remaining <= 0 && !ignoreTimer) {
-			if (config.lastXPDisplay.getXP() != 0)
-				config.lastXPDisplay.reset();
+			if (Config.lastXPDisplay.getXP() != 0)
+				Config.lastXPDisplay.reset();
 			return;
 		}
 
-		int height = config.xpDisplays.values().stream().filter(display -> display.getXP() > 0).mapToInt(display -> 10).sum();
-		int x = config.xpDisplay.position.x;
-		int y = config.xpDisplay.position.y;
+		int height = Config.xpDisplays.values().stream().filter(display -> display.getXP() > 0).mapToInt(display -> 10).sum();
+		int x = Config.xpDisplay.position.x;
+		int y = Config.xpDisplay.position.y;
 
 		context.fill(x, y, x + 112, y + height + RenderUtils.h(2) + 2, 0x80000000);
 		RenderUtils.drawTextWithShadow(context, "§aXP Display", x + 5, y + 5);
 
-		if (!ignoreTimer && config.xpDisplay.showTimebar)
-			RenderUtils.drawTimeBar(context, x, y, (int) remaining, config.xpDisplay.duration, ColorUtils.hex2Int("34FD34", 0x90));
+		if (!ignoreTimer && Config.xpDisplay.showTimebar)
+			RenderUtils.drawTimeBar(context, x, y, (int) remaining, Config.xpDisplay.duration, ColorUtils.hex2Int("34FD34", 0x90));
 
 		int i = 0;
-		for (var display : config.xpDisplays.values())
+		for (var display : Config.xpDisplays.values())
 			if (!display.draw(context, x, y, i, ignoreTimer))
 				continue;
 	}
@@ -121,7 +120,7 @@ public class XPDisplay {
 		if (getXP() == 0)
 			return false;
 
-		if (isVisible() && getTime() + config.xpDisplay.duration < System.currentTimeMillis() && !ignoreTimer) {
+		if (isVisible() && getTime() + Config.xpDisplay.duration < System.currentTimeMillis() && !ignoreTimer) {
 			this.reset();
 			return false;
 		}
@@ -131,11 +130,11 @@ public class XPDisplay {
 
 		var skill = this.getColor() + this.getKey();
 		var xp = NumberFormatter.format(this.getXP());
-		var gain = config.xpDisplay.showLastGain ? "  +" + NumberFormatter.format(getGain()) : "";
+		var gain = Config.xpDisplay.showLastGain ? "  +" + NumberFormatter.format(getGain()) : "";
 
 		RenderUtils.drawTextWithShadow(context, skill, x + 5, y + 25 + (i * 10));
 
-		int type = config.xpDisplay.displayType;
+		int type = Config.xpDisplay.displayType;
 		var perN = getTotalTime() / (1000.0 * 60 * (type == 2 ? 60 : 1));
 		if (type != 0)
 			xp = NumberFormatter.format((int) (getXP() / perN));

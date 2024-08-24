@@ -15,11 +15,10 @@ public class CombatTimer {
 	private static FaceLift instance = FaceLift.getInstance();
 
 	private static MinecraftClient client = instance.client;
-	private static Config config = instance.config;
 
 	public static void draw(DrawContext context) {
 
-		var time = Math.max(DPSMeter.getLastHitTime(), config.lastHurtTime);
+		var time = Math.max(DPSMeter.getLastHitTime(), Config.lastHurtTime);
 		var remaining = 12000 - (System.currentTimeMillis() - time);
 		if (remaining <= 0)
 			return;
@@ -35,8 +34,8 @@ public class CombatTimer {
 			seconds = "<#00D1D1D1>0<#FDFDFD>" + seconds;
 		}
 
-		int x = config.combatTimer.position.x;
-		int y = config.combatTimer.position.y;
+		int x = Config.combatTimer.position.x;
+		int y = Config.combatTimer.position.y;
 
 		context.fill(x, y, x + 112, y + RenderUtils.h(2) + 2, 0x80000000);
 		RenderUtils.drawTextWithShadow(context, "§eCombat Timer", x + 5, y + 5);
@@ -44,7 +43,7 @@ public class CombatTimer {
 
 		var hex = String.format("%02x%02x%02x", (int) (255 * percent), (int) (255 * (1 - percent)), 0);
 
-		if (config.combatTimer.showTimebar)
+		if (Config.combatTimer.showTimebar)
 			RenderUtils.drawTimeBar(context, x, y, (int) remaining, 12000, ColorUtils.hex2Int(hex, 0x90));
 	}
 }

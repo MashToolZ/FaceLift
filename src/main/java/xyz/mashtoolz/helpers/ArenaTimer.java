@@ -17,7 +17,6 @@ public class ArenaTimer {
 	private static final FaceLift instance = FaceLift.getInstance();
 
 	private static MinecraftClient client = instance.client;
-	private static Config config = instance.config;
 
 	public static RegexPattern[] regexes = new RegexPattern[] {
 			new RegexPattern("subtitle.waveStart", "Wave (\\d+) has begun!"),
@@ -154,8 +153,8 @@ public class ArenaTimer {
 		var waveStr = String.format("%02d:%02d.%d", waveHMS[1], waveHMS[2], waveHMS[3]);
 		var waveStrWidth = client.textRenderer.getWidth(waveStr);
 
-		int x = config.arenaTimer.position.x;
-		int y = config.arenaTimer.position.y;
+		int x = Config.arenaTimer.position.x;
+		int y = Config.arenaTimer.position.y;
 
 		context.fill(x, y, x + 112, y + RenderUtils.h(2) + 2, 0x80000000);
 		RenderUtils.drawTextWithShadow(context, "§3Arena Timer", x + 5, y + 5);
