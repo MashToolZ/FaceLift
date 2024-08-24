@@ -22,6 +22,8 @@
 
     "facelift.config.inventory.rarityOpacity": "Rarity Opacity",
     "facelift.config.inventory.rarityOpacity.tooltip": "Opacity of the item rarity color",
+    "facelift.config.inventory.rarityTexture": "Rarity Texture",
+    "facelift.config.inventory.rarityTexture.tooltip": "Use Rarity Texture or a Colored Border",
 
     "facelift.config.combatTimer.enabled": "Enabled",
     "facelift.config.combatTimer.enabled.tooltip": "Show Combat Timer",

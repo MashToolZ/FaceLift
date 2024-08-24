@@ -93,6 +93,7 @@ public class Config {
 			general.tabHeightOffset = settings.general.tabHeightOffset;
 
 			inventory.rarityOpacity = settings.inventory.rarityOpacity;
+			inventory.rarityTexture = settings.inventory.rarityTexture;
 			inventory.searchbar = settings.inventory.searchbar;
 
 			combatTimer.enabled = settings.combatTimer.enabled;
@@ -126,6 +127,7 @@ public class Config {
 			settings.general.tabHeightOffset = general.tabHeightOffset;
 
 			settings.inventory.rarityOpacity = inventory.rarityOpacity;
+			settings.inventory.rarityTexture = inventory.rarityTexture;
 			settings.inventory.searchbar = inventory.searchbar;
 
 			settings.combatTimer.enabled = combatTimer.enabled;
@@ -169,6 +171,7 @@ public class Config {
 		addConfigEntry(_general, "config.general.tabHeightOffset", general.tabHeightOffset, settings.general.tabHeightOffset, "config.general.tabHeightOffset.tooltip", newValue -> general.tabHeightOffset = newValue);
 
 		addConfigEntry(_inventory, "config.inventory.rarityOpacity", inventory.rarityOpacity, settings.inventory.rarityOpacity, "config.general.rarityOpacity.tooltip", newValue -> inventory.rarityOpacity = newValue);
+		addConfigEntry(_inventory, "config.inventory.rarityTexture", inventory.rarityTexture, settings.inventory.rarityTexture, "config.inventory.rarityTexture.tooltip", newValue -> inventory.rarityTexture = newValue);
 		/*
 		 * These are not meant to be visible
 		 * 

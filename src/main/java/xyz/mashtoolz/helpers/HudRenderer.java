@@ -258,7 +258,10 @@ public class HudRenderer {
 			matrices.translate(0.0f, 0.0f, 100.0f);
 			RenderSystem.setShaderTexture(0, ITEM_GLOW);
 			RenderSystem.setShaderColor(rgb[0], rgb[1], rgb[2], hideItem ? 0.25F : Config.inventory.rarityOpacity);
-			context.drawTexture(ITEM_GLOW, x, y, 0, 0, 16, 16, 16, 16);
+			if (Config.inventory.rarityTexture)
+				context.drawTexture(ITEM_GLOW, x, y, 0, 0, 16, 16, 16, 16);
+			else
+				context.drawBorder(x, y, 16, 16, ColorUtils.hex2Int("#FFFFFF", 0xFF));
 			matrices.translate(0.0f, 0.0f, -100.0f);
 
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, hideItem ? 0.25F : 1.0F);

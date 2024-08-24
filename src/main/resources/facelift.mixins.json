@@ -12,7 +12,9 @@
         "PlayerListHudMixin",
         "HandledScreenMixin",
         "ItemStackMixin",
-        "DrawContextMixin"
+        "DrawContextMixin",
+        "KeyBindingInterface",
+        "KeyBindingMixin"
     ],
     "injectors": {
         "defaultRequire": 1
