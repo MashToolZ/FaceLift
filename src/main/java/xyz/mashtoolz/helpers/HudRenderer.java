@@ -21,6 +21,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -40,10 +44,16 @@ public class HudRenderer {
 
 	private static final Identifier ITEM_GLOW = new Identifier("facelift", "textures/gui/item_glow.png");
 	private static final Identifier ITEM_STAR = new Identifier("facelift", "textures/gui/item_star.png");
+	private static final Identifier ABILITY_GLINT = new Identifier("facelift", "textures/gui/ability_glint.png");
+	private static int glintFrame = 0;
+	private static long glintTime = System.currentTimeMillis();
 
-	public static final ArrayList<Item> ABILITY_ITEMS = new ArrayList<>(Arrays.asList(Items.DIAMOND_CHESTPLATE, Items.GOLDEN_CHESTPLATE));
-	private static final ArrayList<Item> IGNORED_ITEMS = new ArrayList<>(Arrays.asList(Items.BARRIER, Items.IRON_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.PLAYER_HEAD, Items.BARRIER));
-	private static final ArrayList<Item> HIDDEN_ITEMS = new ArrayList<>(Arrays.asList(Items.SHIELD, Items.TRIPWIRE_HOOK));
+	public static final ArrayList<Item> ABILITY_ITEMS = new ArrayList<>(
+			Arrays.asList(Items.DIAMOND_CHESTPLATE, Items.GOLDEN_CHESTPLATE));
+	private static final ArrayList<Item> IGNORED_ITEMS = new ArrayList<>(Arrays.asList(Items.BARRIER,
+			Items.IRON_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.PLAYER_HEAD, Items.BARRIER));
+	private static final ArrayList<Item> HIDDEN_ITEMS = new ArrayList<>(
+			Arrays.asList(Items.SHIELD, Items.TRIPWIRE_HOOK));
 
 	public static void onHudRender(DrawContext context, float delta) {
 
@@ -77,7 +87,8 @@ public class HudRenderer {
 		if (screen instanceof HandledScreen) {
 
 			var inventory = config.inventory;
-			searchBar = new SearchFieldWidget(client.textRenderer, width / 2 - 90, height - 25, 180, 20, searchBar, Text.literal(inventory.searchbar.query));
+			searchBar = new SearchFieldWidget(client.textRenderer, width / 2 - 90, height - 25, 180, 20, searchBar,
+					Text.literal(inventory.searchbar.query));
 			searchBar.setChangedListener(text -> {
 				inventory.searchbar.query = text;
 				config.save();
@@ -141,19 +152,84 @@ public class HudRenderer {
 		return hideItem;
 	}
 
+	private static void drawItemCooldown(DrawContext context, ItemStack stack, int x, int y) {
+
+		var tessellator = Tessellator.getInstance();
+		var buffer = tessellator.getBuffer();
+		var matrix = context.getMatrices().peek().getPositionMatrix();
+
+		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+		int radius = 12;
+		int centerX = x + 8;
+		int centerY = y + 8;
+		int numSegments = 64;
+		float percent = 1.0F - (float) stack.getDamage() / stack.getMaxDamage();
+		float step = (-360 + (360.0F * percent)) / numSegments;
+		int r = 0, g = 0, b = 0, a = 192;
+
+		context.enableScissor(x, y, x + 16, y + 16);
+		buffer.begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_COLOR);
+
+		for (int i = 0; i < numSegments; i++) {
+			float angle1 = -90 + i * step;
+			float angle2 = -90 + (i + 1) * step;
+
+			float x1 = centerX + radius * (float) Math.cos(Math.toRadians(angle1));
+			float y1 = centerY + radius * (float) Math.sin(Math.toRadians(angle1));
+			float x2 = centerX + radius * (float) Math.cos(Math.toRadians(angle2));
+			float y2 = centerY + radius * (float) Math.sin(Math.toRadians(angle2));
+
+			buffer.vertex(matrix, centerX, centerY, 0).color(r, g, b, a).next();
+			buffer.vertex(matrix, x1, y1, 0).color(r, g, b, a).next();
+			buffer.vertex(matrix, x2, y2, 0).color(r, g, b, a).next();
+		}
+
+		tessellator.draw();
+		context.disableScissor();
+	}
+
 	public static void preDrawHotbarItemSlot(DrawContext context, ItemStack stack, int x, int y, CallbackInfo ci) {
 
 		if (!ABILITY_ITEMS.contains(stack.getItem()))
 			return;
 
-		var matrices = context.getMatrices();
-
+		MatrixStack matrices = context.getMatrices();
 		matrices.push();
 		matrices.translate(0.0f, 0.0f, 300.0f);
 
-		var toggled = stack.getEnchantments().size() > 0;
-		if (toggled)
-			context.drawBorder(x, y, 16, 16, ColorUtils.hex2Int("#FF0000", 0xFF));
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
+
+		boolean isToggled = !stack.getEnchantments().isEmpty();
+		if (isToggled) {
+
+			int size = 16;
+			int textureWidth = 960;
+			int maxFrames = textureWidth / size;
+
+			RenderSystem.setShaderTexture(0, ABILITY_GLINT);
+			RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 0.5F);
+			context.drawTexture(ABILITY_GLINT, x + 1, y + 1, 14, 14, 0 | (glintFrame * size), 0, size, size, maxFrames * size, size);
+
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			context.drawTexture(ABILITY_GLINT, x, y, 16, 16, 0 | (glintFrame * size), 0, size, size, maxFrames * size, size);
+
+			int stepTime = 1200 / maxFrames;
+			if (System.currentTimeMillis() - glintTime >= stepTime) {
+				glintTime = System.currentTimeMillis();
+				if (glintFrame < maxFrames)
+					glintFrame++;
+				else if (glintFrame == maxFrames)
+					glintFrame = 0;
+			}
+		}
+
+		if (stack.getItemBarStep() != 13)
+			drawItemCooldown(context, stack, x, y);
+
+		RenderSystem.disableBlend();
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
 		matrices.translate(0.0f, 0.0f, -300.0f);
 		matrices.pop();

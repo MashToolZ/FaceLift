@@ -23,4 +23,12 @@ public abstract class ItemStackMixin {
 			return;
 		}
 	}
+
+	@Inject(method = "isItemBarVisible", at = @At("HEAD"), cancellable = true)
+	public void isItemBarVisible(CallbackInfoReturnable<Boolean> cir) {
+		if (HudRenderer.ABILITY_ITEMS.contains(this.getItem())) {
+			cir.setReturnValue(false);
+			return;
+		}
+	}
 }
