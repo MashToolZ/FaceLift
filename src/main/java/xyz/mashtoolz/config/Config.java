@@ -17,6 +17,7 @@ import com.google.gson.JsonSyntaxException;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.helpers.RegexPattern;
 import xyz.mashtoolz.helpers.XPDisplay;
+import xyz.mashtoolz.mixins.KeyBindingInterface;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
@@ -73,6 +74,10 @@ public class Config {
 
 	public static KeyBinding addKeybind(String key) {
 		return KeyBindingHelper.registerKeyBinding(new KeyBinding(key, InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "facelift.title"));
+	}
+
+	public static boolean isPressed(KeyBinding key) {
+		return InputUtil.isKeyPressed(client.getWindow().getHandle(), ((KeyBindingInterface) key).getBoundKey().getCode());
 	}
 
 	public static void load() {
