@@ -34,6 +34,8 @@ public class Config {
 
 	private static MinecraftClient client;
 
+	private static ConfigEntryBuilder entryBuilder;
+
 	public static boolean onFaceLand = false;
 
 	public static boolean isMounted = false;
@@ -68,8 +70,6 @@ public class Config {
 	public static KeyBinding spell2Key = addKeybind("facelift.key.spell2");
 	public static KeyBinding spell3Key = addKeybind("facelift.key.spell3");
 	public static KeyBinding spell4Key = addKeybind("facelift.key.spell4");
-
-	public static KeyBinding copyChatKey = addKeybind("facelift.key.copychat");
 
 	public static KeyBinding addKeybind(String key) {
 		return KeyBindingHelper.registerKeyBinding(new KeyBinding(key, InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "facelift.title"));
@@ -151,8 +151,7 @@ public class Config {
 		Settings settings = Settings.getDefault();
 
 		ConfigBuilder builder = ConfigBuilder.create().setParentScreen(client.currentScreen).setTitle(translatable("title"));
-
-		ConfigEntryBuilder entryBuilder = builder.entryBuilder();
+		entryBuilder = builder.entryBuilder();
 
 		ConfigCategory _general = builder.getOrCreateCategory(translatable("config.general"));
 		ConfigCategory _inventory = builder.getOrCreateCategory(translatable("config.inventory"));
@@ -161,39 +160,39 @@ public class Config {
 		ConfigCategory _xpDisplay = builder.getOrCreateCategory(translatable("config.xpDisplay"));
 		ConfigCategory _arenaTimer = builder.getOrCreateCategory(translatable("config.arenaTimer"));
 
-		addConfigEntry(entryBuilder, _general, "config.general.mountThirdPerson", general.mountThirdPerson, settings.general.mountThirdPerson, "config.general.mountThirdPerson.tooltip", newValue -> general.mountThirdPerson = newValue);
-		addConfigEntry(entryBuilder, _general, "config.general.tabHeightOffset", general.tabHeightOffset, settings.general.tabHeightOffset, "config.general.tabHeightOffset.tooltip", newValue -> general.tabHeightOffset = newValue);
+		addConfigEntry(_general, "config.general.mountThirdPerson", general.mountThirdPerson, settings.general.mountThirdPerson, "config.general.mountThirdPerson.tooltip", newValue -> general.mountThirdPerson = newValue);
+		addConfigEntry(_general, "config.general.tabHeightOffset", general.tabHeightOffset, settings.general.tabHeightOffset, "config.general.tabHeightOffset.tooltip", newValue -> general.tabHeightOffset = newValue);
 
-		addConfigEntry(entryBuilder, _inventory, "config.inventory.rarityOpacity", inventory.rarityOpacity, settings.inventory.rarityOpacity, "config.general.rarityOpacity.tooltip", newValue -> inventory.rarityOpacity = newValue);
+		addConfigEntry(_inventory, "config.inventory.rarityOpacity", inventory.rarityOpacity, settings.inventory.rarityOpacity, "config.general.rarityOpacity.tooltip", newValue -> inventory.rarityOpacity = newValue);
 		/*
 		 * These are not meant to be visible
 		 * 
-		 * addConfigEntry(entryBuilder, inventory, "config.inventory.searchbar_highlight", inventory.searchbar_highlight, settings.inventory.searchbar_highlight, "config.inventory.searchbar_highlight.tooltip", newValue -> inventory.searchbar_highlight = newValue);
-		 * addConfigEntry(entryBuilder, inventory, "config.inventory.searchbar_query", inventory.searchbar_query, settings.inventory.searchbar_query, "config.inventory.searchbar_query.tooltip", newValue -> inventory.searchbar_query = newValue);
+		 * addConfigEntry(inventory, "config.inventory.searchbar_highlight", inventory.searchbar_highlight, settings.inventory.searchbar_highlight, "config.inventory.searchbar_highlight.tooltip", newValue -> inventory.searchbar_highlight = newValue);
+		 * addConfigEntry(inventory, "config.inventory.searchbar_query", inventory.searchbar_query, settings.inventory.searchbar_query, "config.inventory.searchbar_query.tooltip", newValue -> inventory.searchbar_query = newValue);
 		 */
 
-		addConfigEntry(entryBuilder, _combatTimer, "config.combatTimer.enabled", combatTimer.enabled, settings.combatTimer.enabled, "config.combatTimer.enabled.tooltip", newValue -> combatTimer.enabled = newValue);
-		addConfigEntry(entryBuilder, _combatTimer, "config.combatTimer.showTimebar", combatTimer.showTimebar, settings.combatTimer.showTimebar, "config.combatTimer.showTimebar.tooltip", newValue -> combatTimer.showTimebar = newValue);
-		addConfigEntry(entryBuilder, _combatTimer, "config.combatTimer.position.x", combatTimer.position.x, settings.combatTimer.position.x, "config.combatTimer.position.x.tooltip", newValue -> combatTimer.position.x = newValue);
-		addConfigEntry(entryBuilder, _combatTimer, "config.combatTimer.position.y", combatTimer.position.y, settings.combatTimer.position.y, "config.combatTimer.position.y.tooltip", newValue -> combatTimer.position.y = newValue);
+		addConfigEntry(_combatTimer, "config.combatTimer.enabled", combatTimer.enabled, settings.combatTimer.enabled, "config.combatTimer.enabled.tooltip", newValue -> combatTimer.enabled = newValue);
+		addConfigEntry(_combatTimer, "config.combatTimer.showTimebar", combatTimer.showTimebar, settings.combatTimer.showTimebar, "config.combatTimer.showTimebar.tooltip", newValue -> combatTimer.showTimebar = newValue);
+		addConfigEntry(_combatTimer, "config.combatTimer.position.x", combatTimer.position.x, settings.combatTimer.position.x, "config.combatTimer.position.x.tooltip", newValue -> combatTimer.position.x = newValue);
+		addConfigEntry(_combatTimer, "config.combatTimer.position.y", combatTimer.position.y, settings.combatTimer.position.y, "config.combatTimer.position.y.tooltip", newValue -> combatTimer.position.y = newValue);
 
-		addConfigEntry(entryBuilder, _dpsMeter, "config.dpsMeter.enabled", dpsMeter.enabled, settings.dpsMeter.enabled, "config.dpsMeter.enabled.tooltip", newValue -> dpsMeter.enabled = newValue);
-		addConfigEntry(entryBuilder, _dpsMeter, "config.dpsMeter.showTimebar", dpsMeter.showTimebar, settings.dpsMeter.showTimebar, "config.dpsMeter.showTimebar.tooltip", newValue -> dpsMeter.showTimebar = newValue);
-		addConfigEntry(entryBuilder, _dpsMeter, "config.dpsMeter.duration", dpsMeter.duration, settings.dpsMeter.duration, "config.dpsMeter.duration.tooltip", newValue -> dpsMeter.duration = newValue);
-		addConfigEntry(entryBuilder, _dpsMeter, "config.dpsMeter.position.x", dpsMeter.position.x, settings.dpsMeter.position.x, "config.dpsMeter.position.x.tooltip", newValue -> dpsMeter.position.x = newValue);
-		addConfigEntry(entryBuilder, _dpsMeter, "config.dpsMeter.position.y", dpsMeter.position.y, settings.dpsMeter.position.y, "config.dpsMeter.position.y.tooltip", newValue -> dpsMeter.position.y = newValue);
+		addConfigEntry(_dpsMeter, "config.dpsMeter.enabled", dpsMeter.enabled, settings.dpsMeter.enabled, "config.dpsMeter.enabled.tooltip", newValue -> dpsMeter.enabled = newValue);
+		addConfigEntry(_dpsMeter, "config.dpsMeter.showTimebar", dpsMeter.showTimebar, settings.dpsMeter.showTimebar, "config.dpsMeter.showTimebar.tooltip", newValue -> dpsMeter.showTimebar = newValue);
+		addConfigEntry(_dpsMeter, "config.dpsMeter.duration", dpsMeter.duration, settings.dpsMeter.duration, "config.dpsMeter.duration.tooltip", newValue -> dpsMeter.duration = newValue);
+		addConfigEntry(_dpsMeter, "config.dpsMeter.position.x", dpsMeter.position.x, settings.dpsMeter.position.x, "config.dpsMeter.position.x.tooltip", newValue -> dpsMeter.position.x = newValue);
+		addConfigEntry(_dpsMeter, "config.dpsMeter.position.y", dpsMeter.position.y, settings.dpsMeter.position.y, "config.dpsMeter.position.y.tooltip", newValue -> dpsMeter.position.y = newValue);
 
-		addConfigEntry(entryBuilder, _xpDisplay, "config.xpDisplay.enabled", xpDisplay.enabled, settings.xpDisplay.enabled, "config.xpDisplay.enabled.tooltip", newValue -> xpDisplay.enabled = newValue);
-		addConfigEntry(entryBuilder, _xpDisplay, "config.xpDisplay.showTimebar", xpDisplay.showTimebar, settings.xpDisplay.showTimebar, "config.xpDisplay.showTimebar.tooltip", newValue -> xpDisplay.showTimebar = newValue);
-		addConfigEntry(entryBuilder, _xpDisplay, "config.xpDisplay.duration", xpDisplay.duration, settings.xpDisplay.duration, "config.xpDisplay.duration.tooltip", newValue -> xpDisplay.duration = newValue);
-		addConfigEntry(entryBuilder, _xpDisplay, "config.xpDisplay.position.x", xpDisplay.position.x, settings.xpDisplay.position.x, "config.xpDisplay.position.x.tooltip", newValue -> xpDisplay.position.x = newValue);
-		addConfigEntry(entryBuilder, _xpDisplay, "config.xpDisplay.position.y", xpDisplay.position.y, settings.xpDisplay.position.y, "config.xpDisplay.position.y.tooltip", newValue -> xpDisplay.position.y = newValue);
-		addConfigEntry(entryBuilder, _xpDisplay, "config.xpDisplay.showLastGain", xpDisplay.showLastGain, settings.xpDisplay.showLastGain, "config.xpDisplay.showLastGain.tooltip", newValue -> xpDisplay.showLastGain = newValue);
-		addConfigEntry(entryBuilder, _xpDisplay, "config.xpDisplay.displayType", xpDisplay.displayType, settings.xpDisplay.displayType, "config.xpDisplay.displayType.tooltip", newValue -> xpDisplay.displayType = newValue);
+		addConfigEntry(_xpDisplay, "config.xpDisplay.enabled", xpDisplay.enabled, settings.xpDisplay.enabled, "config.xpDisplay.enabled.tooltip", newValue -> xpDisplay.enabled = newValue);
+		addConfigEntry(_xpDisplay, "config.xpDisplay.showTimebar", xpDisplay.showTimebar, settings.xpDisplay.showTimebar, "config.xpDisplay.showTimebar.tooltip", newValue -> xpDisplay.showTimebar = newValue);
+		addConfigEntry(_xpDisplay, "config.xpDisplay.duration", xpDisplay.duration, settings.xpDisplay.duration, "config.xpDisplay.duration.tooltip", newValue -> xpDisplay.duration = newValue);
+		addConfigEntry(_xpDisplay, "config.xpDisplay.position.x", xpDisplay.position.x, settings.xpDisplay.position.x, "config.xpDisplay.position.x.tooltip", newValue -> xpDisplay.position.x = newValue);
+		addConfigEntry(_xpDisplay, "config.xpDisplay.position.y", xpDisplay.position.y, settings.xpDisplay.position.y, "config.xpDisplay.position.y.tooltip", newValue -> xpDisplay.position.y = newValue);
+		addConfigEntry(_xpDisplay, "config.xpDisplay.showLastGain", xpDisplay.showLastGain, settings.xpDisplay.showLastGain, "config.xpDisplay.showLastGain.tooltip", newValue -> xpDisplay.showLastGain = newValue);
+		addConfigEntry(_xpDisplay, "config.xpDisplay.displayType", xpDisplay.displayType, settings.xpDisplay.displayType, "config.xpDisplay.displayType.tooltip", newValue -> xpDisplay.displayType = newValue);
 
-		addConfigEntry(entryBuilder, _arenaTimer, "config.arenaTimer.enabled", arenaTimer.enabled, settings.arenaTimer.enabled, "config.arenaTimer.enabled.tooltip", newValue -> arenaTimer.enabled = newValue);
-		addConfigEntry(entryBuilder, _arenaTimer, "config.arenaTimer.position.x", arenaTimer.position.x, settings.arenaTimer.position.x, "config.arenaTimer.position.x.tooltip", newValue -> arenaTimer.position.x = newValue);
-		addConfigEntry(entryBuilder, _arenaTimer, "config.arenaTimer.position.y", arenaTimer.position.y, settings.arenaTimer.position.y, "config.arenaTimer.position.y.tooltip", newValue -> arenaTimer.position.y = newValue);
+		addConfigEntry(_arenaTimer, "config.arenaTimer.enabled", arenaTimer.enabled, settings.arenaTimer.enabled, "config.arenaTimer.enabled.tooltip", newValue -> arenaTimer.enabled = newValue);
+		addConfigEntry(_arenaTimer, "config.arenaTimer.position.x", arenaTimer.position.x, settings.arenaTimer.position.x, "config.arenaTimer.position.x.tooltip", newValue -> arenaTimer.position.x = newValue);
+		addConfigEntry(_arenaTimer, "config.arenaTimer.position.y", arenaTimer.position.y, settings.arenaTimer.position.y, "config.arenaTimer.position.y.tooltip", newValue -> arenaTimer.position.y = newValue);
 
 		builder.setSavingRunnable(Config::save);
 
@@ -205,7 +204,7 @@ public class Config {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T> void addConfigEntry(ConfigEntryBuilder entryBuilder, ConfigCategory category, String key, T variable,
+	private static <T> void addConfigEntry(ConfigCategory category, String key, T variable,
 			T defaultValue, String tooltipKey, Consumer<? super T> saveConsumer) {
 
 		switch (variable.getClass().getSimpleName()) {
