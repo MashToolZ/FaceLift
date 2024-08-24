@@ -13,7 +13,7 @@ public enum FaceRarity {
 	DIVINE(0x6D00FF, "九", ""),
 	UNIQUE(0xF8842C, "乞", ""),
 	PAWN_1(0xC48800, "俍", ""),
-	PAWN_2(0x97949E, "懓", ""),
+	PAWN_2(0xCFCFCF, "懓", ""),
 	TRIBUTE(0x008EB4, "懚", ""),
 	IDOL(0xB561C8, "懛", ""),
 	SOCKET_GEM(0x2E891C, "丈", ""),
