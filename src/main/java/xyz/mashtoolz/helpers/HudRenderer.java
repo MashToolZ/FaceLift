@@ -34,7 +34,7 @@ import net.minecraft.util.Identifier;
 
 public class HudRenderer {
 
-	private static SearchFieldWidget searchBar;
+	public static SearchFieldWidget searchBar;
 	private static DropDownMenu dropdown;
 
 	private static final Identifier ITEM_GLOW = new Identifier("facelift", "textures/gui/item_glow.png");
