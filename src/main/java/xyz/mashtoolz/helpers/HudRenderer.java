@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.Config;
 import xyz.mashtoolz.custom.FaceItem;
 import xyz.mashtoolz.custom.FaceRarity;
@@ -34,6 +35,10 @@ import net.minecraft.util.Identifier;
 
 public class HudRenderer {
 
+	private static FaceLift instance = FaceLift.getInstance();
+
+	private static MinecraftClient client = instance.client;
+
 	public static SearchFieldWidget searchBar;
 	private static DropDownMenu dropdown;
 
@@ -54,6 +59,9 @@ public class HudRenderer {
 
 		if (!Config.onFaceLand)
 			return;
+
+		if (client.currentScreen == null)
+			HudRenderer.searchBar = null;
 
 		context.getMatrices().push();
 
