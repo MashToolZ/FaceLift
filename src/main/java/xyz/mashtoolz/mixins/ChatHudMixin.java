@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import xyz.mashtoolz.FaceLift;
+import xyz.mashtoolz.config.Config;
 import xyz.mashtoolz.helpers.XPDisplay;
 import xyz.mashtoolz.utils.TextUtils;
 import net.minecraft.client.gui.hud.ChatHud;
@@ -18,8 +18,6 @@ import net.minecraft.util.Formatting;
 @Mixin(ChatHud.class)
 public class ChatHudMixin {
 
-	private static final FaceLift instance = FaceLift.getInstance();
-
 	@Inject(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;ILnet/minecraft/client/gui/hud/MessageIndicator;Z)V", at = @At(value = "HEAD"), cancellable = true)
 	private void addMessage(Text text, @Nullable MessageSignatureData messageSignatureData, int i, @Nullable MessageIndicator messageIndicator, boolean bl, CallbackInfo ci) {
 		handleMessage(text, ci);
@@ -27,14 +25,14 @@ public class ChatHudMixin {
 
 	private void handleMessage(Text text, CallbackInfo ci) {
 
-		if (!instance.config.xpDisplay.enabled)
+		if (!Config.xpDisplay.enabled)
 			return;
 
 		var message = text.getString().replaceAll("[.,]", "");
 		if (TextUtils.escapeStringToUnicode(message, false).startsWith("\\uf804"))
 			return;
 
-		for (var regex : instance.config.xpRegexes) {
+		for (var regex : Config.xpRegexes) {
 			var match = regex.getPattern().matcher(message);
 
 			if (!match.find())
@@ -58,10 +56,10 @@ public class ChatHudMixin {
 						color = Formatting.byName(color).toString();
 
 					var key = match.group(1);
-					if (!instance.config.xpDisplays.containsKey(key))
-						instance.config.xpDisplays.put(key, new XPDisplay(key, color, 0, System.currentTimeMillis(), false));
+					if (!Config.xpDisplays.containsKey(key))
+						Config.xpDisplays.put(key, new XPDisplay(key, color, 0, System.currentTimeMillis(), false));
 
-					var display = instance.config.xpDisplays.get(key);
+					var display = Config.xpDisplays.get(key);
 					display.setXP(Integer.parseInt(match.group(2)) + display.getXP());
 					display.setTime(System.currentTimeMillis());
 					display.setColor(color);
@@ -70,10 +68,10 @@ public class ChatHudMixin {
 
 				case "combatXP": {
 					var key = "Combat";
-					if (!instance.config.xpDisplays.containsKey(key))
-						instance.config.xpDisplays.put(key, new XPDisplay(key, "<#8AF828>", 0, System.currentTimeMillis(), false));
+					if (!Config.xpDisplays.containsKey(key))
+						Config.xpDisplays.put(key, new XPDisplay(key, "<#8AF828>", 0, System.currentTimeMillis(), false));
 
-					var display = instance.config.xpDisplays.get(key);
+					var display = Config.xpDisplays.get(key);
 					display.setXP(Integer.parseInt(match.group(1)) + display.getXP());
 					display.setTime(System.currentTimeMillis());
 					display.setColor("<#8AF828>");
@@ -83,4 +81,5 @@ public class ChatHudMixin {
 			return;
 		}
 	}
+
 }

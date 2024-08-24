@@ -10,7 +10,6 @@ public class KeyHandler {
 	private static final FaceLift instance = FaceLift.getInstance();
 
 	private static MinecraftClient client = instance.client;
-	private static Config config = instance.config;
 
 	public static void onConfigKey() {
 		client.setScreen(Config.getScreen());
