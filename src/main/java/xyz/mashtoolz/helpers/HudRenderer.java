@@ -13,6 +13,7 @@ import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.Config;
 import xyz.mashtoolz.custom.FaceItem;
 import xyz.mashtoolz.custom.FaceRarity;
+import xyz.mashtoolz.custom.FaceTexture;
 import xyz.mashtoolz.mixins.ScreenInterface;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.widget.DropDownMenu;
@@ -42,9 +43,6 @@ public class HudRenderer {
 	public static SearchFieldWidget searchBar;
 	private static DropDownMenu dropdown;
 
-	private static final Identifier ITEM_GLOW = new Identifier("facelift", "textures/gui/item_glow.png");
-	private static final Identifier ITEM_STAR = new Identifier("facelift", "textures/gui/item_star.png");
-	private static final Identifier ABILITY_GLINT = new Identifier("facelift", "textures/gui/ability_glint.png");
 	private static int glintFrame = 0;
 	private static long glintTime = System.currentTimeMillis();
 
@@ -211,12 +209,12 @@ public class HudRenderer {
 			int textureWidth = 960;
 			int maxFrames = textureWidth / size;
 
-			RenderSystem.setShaderTexture(0, ABILITY_GLINT);
+			RenderSystem.setShaderTexture(0, FaceTexture.ABILITY_GLINT);
 			RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 0.5F);
-			context.drawTexture(ABILITY_GLINT, x + 1, y + 1, 14, 14, 0 | (glintFrame * size), 0, size, size, maxFrames * size, size);
+			context.drawTexture(FaceTexture.ABILITY_GLINT, x + 1, y + 1, 14, 14, 0 | (glintFrame * size), 0, size, size, maxFrames * size, size);
 
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-			context.drawTexture(ABILITY_GLINT, x, y, 16, 16, 0 | (glintFrame * size), 0, size, size, maxFrames * size, size);
+			context.drawTexture(FaceTexture.ABILITY_GLINT, x, y, 16, 16, 0 | (glintFrame * size), 0, size, size, maxFrames * size, size);
 
 			int stepTime = 1200 / maxFrames;
 			if (System.currentTimeMillis() - glintTime >= stepTime) {
@@ -264,10 +262,10 @@ public class HudRenderer {
 			RenderSystem.defaultBlendFunc();
 
 			matrices.translate(0.0f, 0.0f, 100.0f);
-			RenderSystem.setShaderTexture(0, ITEM_GLOW);
+			RenderSystem.setShaderTexture(0, FaceTexture.ITEM_GLOW);
 			RenderSystem.setShaderColor(rgb[0], rgb[1], rgb[2], hideItem ? 0.25F : Config.inventory.rarityOpacity);
 			if (Config.inventory.rarityTexture)
-				context.drawTexture(ITEM_GLOW, x, y, 0, 0, 16, 16, 16, 16);
+				context.drawTexture(FaceTexture.ITEM_GLOW, x, y, 0, 0, 16, 16, 16, 16);
 			else
 				context.drawBorder(x, y, 16, 16, ColorUtils.hex2Int("#FFFFFF", 0xFF));
 			matrices.translate(0.0f, 0.0f, -100.0f);
@@ -277,8 +275,8 @@ public class HudRenderer {
 			if (rarity.getName().startsWith("MATERIAL_")) {
 				matrices.translate(0.0f, 0.0f, 300.0f);
 				var stars = Integer.parseInt(rarity.getName().split("_")[1]);
-				RenderSystem.setShaderTexture(0, ITEM_STAR);
-				context.drawTexture(ITEM_STAR, x, y, 0, 0, 3 * stars, 3, 3, 3);
+				RenderSystem.setShaderTexture(0, FaceTexture.ITEM_STAR);
+				context.drawTexture(FaceTexture.ITEM_STAR, x, y, 0, 0, 3 * stars, 3, 3, 3);
 				matrices.translate(0.0f, 0.0f, -300.0f);
 			}
 
