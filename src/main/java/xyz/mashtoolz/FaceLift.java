@@ -12,12 +12,17 @@ import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.text.Text;
+import net.minecraft.world.RaycastContext;
 import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.custom.FaceItem;
 import xyz.mashtoolz.helpers.ArenaTimer;
 import xyz.mashtoolz.helpers.DPSMeter;
 import xyz.mashtoolz.helpers.HudRenderer;
 import xyz.mashtoolz.helpers.KeyHandler;
 import xyz.mashtoolz.mixins.InGameHudInterface;
+import xyz.mashtoolz.utils.PlayerUtils;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -84,8 +89,14 @@ public class FaceLift implements ClientModInitializer {
 			if (Config.spell4Key.wasPressed())
 				KeyHandler.onSpell4Key();
 
+			if (Config.isPressed(Config.setToolKey))
+				KeyHandler.onSetToolKey();
+
 			if (Config.arenaTimer.enabled && ArenaTimer.isActive() && (player != null && player.getHealth() <= 0))
 				ArenaTimer.end();
+
+			if (client.options.attackKey.isPressed())
+				AutoTool();
 		});
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
@@ -179,7 +190,69 @@ public class FaceLift implements ClientModInitializer {
 		}
 	}
 
+	private void AutoTool() {
+
+		try {
+
+			var eyePos = client.player.getEyePos();
+			var reach = ClientPlayerEntity.getReachDistance(false);
+			var rayEnd = eyePos.add(client.player.getRotationVector().multiply(reach));
+			var blockHitResult = client.world.raycast(new RaycastContext(eyePos, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, client.player));
+			var targetTool = PlayerUtils.getTargetTool(blockHitResult);
+			if (targetTool != null && targetTool.getName().equals("bedrock"))
+				return;
+
+			var inventory = client.player.getInventory();
+			var hotbarSlot = inventory.selectedSlot;
+			var stack = client.player.getMainHandStack();
+			var data = FaceItem.getItemData(stack);
+			var currentTool = PlayerUtils.getCurrentTool(data);
+
+			if (data == null || (data != null && Config.inventory.toolSlots.getTool(data.get("tier").getAsString()) == null)) {
+				if (targetTool != null && !inventory.getStack(targetTool.getSlot()).isEmpty())
+					this.clickSlot(targetTool.getSlot(), hotbarSlot, SlotActionType.SWAP);
+				else if (targetTool != null)
+					player.sendMessage(Text.literal("§7[§eFaceLift§7] §cMissing Tool: " + targetTool.getName()));
+				return;
+			}
+
+			var isSlotEmpty = inventory.getStack(currentTool.getSlot()).isEmpty();
+			if (targetTool == null) {
+				if (isSlotEmpty) {
+					this.clickSlot(36 + hotbarSlot, 0, SlotActionType.PICKUP);
+					this.clickSlot(currentTool.getSlot(), 0, SlotActionType.PICKUP);
+					return;
+				}
+				this.clickSlot(currentTool.getSlot(), hotbarSlot, SlotActionType.SWAP);
+				return;
+			}
+
+			if (currentTool.getName().equals(targetTool.getName()))
+				return;
+
+			if (isSlotEmpty) {
+				this.clickSlot(36 + hotbarSlot, 0, SlotActionType.PICKUP);
+				this.clickSlot(currentTool.getSlot(), 0, SlotActionType.PICKUP);
+				this.clickSlot(targetTool.getSlot(), hotbarSlot, SlotActionType.SWAP);
+			} else {
+				this.clickSlot(currentTool.getSlot(), hotbarSlot, SlotActionType.SWAP);
+				this.clickSlot(targetTool.getSlot(), hotbarSlot, SlotActionType.SWAP);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	public void clickSlot(int slotId, int button, SlotActionType actionType) {
+		var syncId = client.player.currentScreenHandler.syncId;
+		client.interactionManager.clickSlot(syncId, slotId, button, actionType, client.player);
+	}
+
 	public void sendCommand(String command) {
 		client.player.networkHandler.sendChatCommand(command);
 	}
+
+	// public void info(String message) {
+	// player.sendMessage(Text.literal("§7[§cFaceLift§7]"));
+	// }
 }

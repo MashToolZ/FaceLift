@@ -6,6 +6,7 @@ public class Category_Inventory {
 	public boolean rarityTexture = true;
 
 	public Searchbar searchbar = new Searchbar();
+	public ToolSlots toolSlots = new ToolSlots();
 
 	public static Category_Inventory getDefault() {
 		return new Category_Inventory();

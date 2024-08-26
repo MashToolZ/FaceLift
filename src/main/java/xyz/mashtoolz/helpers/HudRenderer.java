@@ -14,6 +14,7 @@ import xyz.mashtoolz.config.Config;
 import xyz.mashtoolz.custom.FaceItem;
 import xyz.mashtoolz.custom.FaceRarity;
 import xyz.mashtoolz.custom.FaceTexture;
+import xyz.mashtoolz.mixins.HandledScreenAccessor;
 import xyz.mashtoolz.mixins.ScreenInterface;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.widget.DropDownMenu;
@@ -48,9 +49,9 @@ public class HudRenderer {
 
 	public static final ArrayList<Item> ABILITY_ITEMS = new ArrayList<>(
 			Arrays.asList(Items.DIAMOND_CHESTPLATE, Items.GOLDEN_CHESTPLATE));
-	private static final ArrayList<Item> IGNORED_ITEMS = new ArrayList<>(Arrays.asList(Items.BARRIER,
+	public static final ArrayList<Item> IGNORED_ITEMS = new ArrayList<>(Arrays.asList(Items.BARRIER,
 			Items.IRON_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.PLAYER_HEAD, Items.BARRIER));
-	private static final ArrayList<Item> HIDDEN_ITEMS = new ArrayList<>(
+	public static final ArrayList<Item> HIDDEN_ITEMS = new ArrayList<>(
 			Arrays.asList(Items.SHIELD, Items.TRIPWIRE_HOOK));
 
 	public static void onHudRender(DrawContext context, float delta) {
@@ -236,30 +237,46 @@ public class HudRenderer {
 		matrices.pop();
 	}
 
+	public static void drawToolSlot(DrawContext context, Identifier texture, int x, int y) {
+		RenderSystem.setShaderTexture(0, texture);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		context.drawTexture(texture, x, y, 0, 0, 16, 16, 16, 16);
+	}
+
 	public static void preDrawItemSlot(DrawContext context, Slot slot, CallbackInfo ci) {
 
 		if (!Config.onFaceLand)
 			return;
 
-		ItemStack stack = slot.getStack();
-		if ((stack.isEmpty() || IGNORED_ITEMS.contains(stack.getItem())) || ABILITY_ITEMS.contains(stack.getItem()))
-			return;
-
-		int x = slot.x, y = slot.y;
-		FaceItem item = new FaceItem(stack);
-
-		boolean hideItem = searchbarCheck(item);
-		var rarity = item.getRarity();
-		var color = item.getColor();
-
 		MatrixStack matrices = context.getMatrices();
 		matrices.push();
 
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
+
+		int x = slot.x, y = slot.y;
+		var stack = slot.getStack();
+		if ((stack.isEmpty() || IGNORED_ITEMS.contains(stack.getItem())) || ABILITY_ITEMS.contains(stack.getItem())) {
+			var screen = (HandledScreenAccessor) client.currentScreen;
+			var handler = screen.getHandler();
+			if (handler.slots.size() == 46 && client.currentScreen.getTitle().getString().length() != 0) {
+				for (var entry : Config.inventory.toolSlots.map().entrySet()) {
+					if (slot.id == entry.getValue().getSlot()) {
+						drawToolSlot(context, entry.getKey(), x, y);
+						break;
+					}
+				}
+			}
+			matrices.pop();
+			return;
+		}
+
+		FaceItem item = new FaceItem(stack);
+		boolean hideItem = searchbarCheck(item);
+		var rarity = item.getRarity();
+		var color = item.getColor();
 		if (color != null && !rarity.equals(FaceRarity.UNKNOWN)) {
 			float[] rgb = ColorUtils.getRGB(color);
-
-			RenderSystem.enableBlend();
-			RenderSystem.defaultBlendFunc();
 
 			matrices.translate(0.0f, 0.0f, 100.0f);
 			RenderSystem.setShaderTexture(0, FaceTexture.ITEM_GLOW);
@@ -279,12 +296,10 @@ public class HudRenderer {
 				context.drawTexture(FaceTexture.ITEM_STAR, x, y, 0, 0, 3 * stars, 3, 3, 3);
 				matrices.translate(0.0f, 0.0f, -300.0f);
 			}
-
-			RenderSystem.disableBlend();
 		}
 
+		RenderSystem.disableBlend();
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, hideItem ? 0.25F : 1.0F);
-
 		matrices.pop();
 
 		if (hideItem && HIDDEN_ITEMS.contains(stack.getItem()))
@@ -294,6 +309,7 @@ public class HudRenderer {
 	public static void postDrawItemSlot(DrawContext context, Slot slot) {
 		if (!Config.onFaceLand)
 			return;
+
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 }

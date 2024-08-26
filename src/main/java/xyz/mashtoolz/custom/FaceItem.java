@@ -4,12 +4,16 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import xyz.mashtoolz.FaceLift;
+import xyz.mashtoolz.helpers.HudRenderer;
 
 public class FaceItem {
 
@@ -95,5 +99,24 @@ public class FaceItem {
 			text = text.replace(code.getUnicode(), code.getText());
 
 		return text;
+	}
+
+	public static JsonObject getItemData(ItemStack stack) {
+		var item = stack.getItem();
+		if (stack.isEmpty() || HudRenderer.IGNORED_ITEMS.contains(item) || HudRenderer.ABILITY_ITEMS.contains(item))
+			return null;
+
+		var nbt = stack.getNbt();
+		if (nbt == null || !nbt.contains("PublicBukkitValues"))
+			return null;
+
+		var publicValues = nbt.getCompound("PublicBukkitValues");
+		var itemData = publicValues.getString("loot:loot.item_data");
+		if (itemData.length() <= 2)
+			return null;
+
+		var jsonObject = JsonParser.parseString(itemData).getAsJsonObject();
+		var stringData = jsonObject.getAsJsonObject("stringData");
+		return stringData;
 	}
 }

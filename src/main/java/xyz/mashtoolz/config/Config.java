@@ -72,6 +72,8 @@ public class Config {
 	public static KeyBinding spell3Key = addKeybind("facelift.key.spell3");
 	public static KeyBinding spell4Key = addKeybind("facelift.key.spell4");
 
+	public static KeyBinding setToolKey = addKeybind("facelift.key.setToolSlot");
+
 	public static KeyBinding addKeybind(String key) {
 		return KeyBindingHelper.registerKeyBinding(new KeyBinding(key, InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "facelift.title"));
 	}
@@ -95,6 +97,7 @@ public class Config {
 			inventory.rarityOpacity = settings.inventory.rarityOpacity;
 			inventory.rarityTexture = settings.inventory.rarityTexture;
 			inventory.searchbar = settings.inventory.searchbar;
+			inventory.toolSlots = settings.inventory.toolSlots;
 
 			combatTimer.enabled = settings.combatTimer.enabled;
 			combatTimer.position = settings.combatTimer.position;
@@ -129,6 +132,7 @@ public class Config {
 			settings.inventory.rarityOpacity = inventory.rarityOpacity;
 			settings.inventory.rarityTexture = inventory.rarityTexture;
 			settings.inventory.searchbar = inventory.searchbar;
+			settings.inventory.toolSlots = inventory.toolSlots;
 
 			settings.combatTimer.enabled = combatTimer.enabled;
 			settings.combatTimer.position = combatTimer.position;
@@ -172,12 +176,14 @@ public class Config {
 
 		addConfigEntry(_inventory, "config.inventory.rarityOpacity", inventory.rarityOpacity, settings.inventory.rarityOpacity, "config.general.rarityOpacity.tooltip", newValue -> inventory.rarityOpacity = newValue);
 		addConfigEntry(_inventory, "config.inventory.rarityTexture", inventory.rarityTexture, settings.inventory.rarityTexture, "config.inventory.rarityTexture.tooltip", newValue -> inventory.rarityTexture = newValue);
-		/*
-		 * These are not meant to be visible
-		 * 
-		 * addConfigEntry(inventory, "config.inventory.searchbar_highlight", inventory.searchbar_highlight, settings.inventory.searchbar_highlight, "config.inventory.searchbar_highlight.tooltip", newValue -> inventory.searchbar_highlight = newValue);
-		 * addConfigEntry(inventory, "config.inventory.searchbar_query", inventory.searchbar_query, settings.inventory.searchbar_query, "config.inventory.searchbar_query.tooltip", newValue -> inventory.searchbar_query = newValue);
-		 */
+
+		// addConfigEntry(_inventory, "config.inventory.toolSlots.shovel", inventory.toolSlots.shovel, settings.inventory.toolSlots.shovel, "config.inventory.toolSlots.shovel.tooltip", newValue -> inventory.toolSlots.shovel = newValue);
+		// addConfigEntry(_inventory, "config.inventory.toolSlots.pickaxe", inventory.toolSlots.pickaxe, settings.inventory.toolSlots.pickaxe, "config.inventory.toolSlots.pickaxe.tooltip", newValue -> inventory.toolSlots.pickaxe = newValue);
+		// addConfigEntry(_inventory, "config.inventory.toolSlots.axe", inventory.toolSlots.axe, settings.inventory.toolSlots.axe, "config.inventory.toolSlots.axe.tooltip", newValue -> inventory.toolSlots.axe = newValue);
+		// addConfigEntry(_inventory, "config.inventory.toolSlots.hoe", inventory.toolSlots.hoe, settings.inventory.toolSlots.hoe, "config.inventory.toolSlots.hoe.tooltip", newValue -> inventory.toolSlots.hoe = newValue);
+
+		// addConfigEntry(inventory, "config.inventory.searchbar_highlight", inventory.searchbar_highlight, settings.inventory.searchbar_highlight, "config.inventory.searchbar_highlight.tooltip", newValue -> inventory.searchbar_highlight = newValue);
+		// addConfigEntry(inventory, "config.inventory.searchbar_query", inventory.searchbar_query, settings.inventory.searchbar_query, "config.inventory.searchbar_query.tooltip", newValue -> inventory.searchbar_query = newValue);
 
 		addConfigEntry(_combatTimer, "config.combatTimer.enabled", combatTimer.enabled, settings.combatTimer.enabled, "config.combatTimer.enabled.tooltip", newValue -> combatTimer.enabled = newValue);
 		addConfigEntry(_combatTimer, "config.combatTimer.showTimebar", combatTimer.showTimebar, settings.combatTimer.showTimebar, "config.combatTimer.showTimebar.tooltip", newValue -> combatTimer.showTimebar = newValue);
