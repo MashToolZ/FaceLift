@@ -31,8 +31,7 @@ import net.minecraft.text.Text;
 
 public class Config {
 
-	private static final FaceLift instance = FaceLift.getInstance();
-
+	private static FaceLift instance = FaceLift.getInstance();
 	private static MinecraftClient client;
 
 	private static ConfigEntryBuilder entryBuilder;

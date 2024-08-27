@@ -9,7 +9,6 @@ import xyz.mashtoolz.FaceLift;
 public class RenderUtils {
 
 	private static FaceLift instance = FaceLift.getInstance();
-
 	private static MinecraftClient client = instance.client;
 
 	public static void drawTextWithShadow(DrawContext context, String text, int x, int y) {

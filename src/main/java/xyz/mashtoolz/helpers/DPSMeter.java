@@ -13,7 +13,6 @@ import xyz.mashtoolz.utils.RenderUtils;
 public class DPSMeter {
 
 	private static FaceLift instance = FaceLift.getInstance();
-
 	private static MinecraftClient client = instance.client;
 
 	public static final ArrayList<String> damageNumbers = new ArrayList<>(

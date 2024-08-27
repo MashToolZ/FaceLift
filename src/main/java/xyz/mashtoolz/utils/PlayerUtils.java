@@ -14,7 +14,6 @@ import xyz.mashtoolz.custom.FaceToolBlock;
 public class PlayerUtils {
 
 	public static FaceLift instance = FaceLift.getInstance();
-
 	public static MinecraftClient client = instance.client;
 
 	public static Tool getCurrentTool(JsonObject itemData) {

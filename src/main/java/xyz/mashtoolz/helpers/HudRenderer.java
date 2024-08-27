@@ -38,7 +38,6 @@ import net.minecraft.util.Identifier;
 public class HudRenderer {
 
 	private static FaceLift instance = FaceLift.getInstance();
-
 	private static MinecraftClient client = instance.client;
 
 	public static SearchFieldWidget searchBar;

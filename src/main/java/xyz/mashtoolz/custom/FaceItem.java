@@ -18,7 +18,6 @@ import xyz.mashtoolz.helpers.HudRenderer;
 public class FaceItem {
 
 	private static FaceLift instance = FaceLift.getInstance();
-
 	private static MinecraftClient client = instance.client;
 
 	private ItemStack stack;

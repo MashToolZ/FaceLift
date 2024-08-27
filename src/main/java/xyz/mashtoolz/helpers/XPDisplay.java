@@ -10,7 +10,6 @@ import xyz.mashtoolz.utils.RenderUtils;
 public class XPDisplay {
 
 	private static FaceLift instance = FaceLift.getInstance();
-
 	private static MinecraftClient client = instance.client;
 
 	private String key;

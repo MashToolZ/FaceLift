@@ -14,8 +14,7 @@ import xyz.mashtoolz.utils.TimeUtils;
 
 public class ArenaTimer {
 
-	private static final FaceLift instance = FaceLift.getInstance();
-
+	private static FaceLift instance = FaceLift.getInstance();
 	private static MinecraftClient client = instance.client;
 
 	public static RegexPattern[] regexes = new RegexPattern[] {

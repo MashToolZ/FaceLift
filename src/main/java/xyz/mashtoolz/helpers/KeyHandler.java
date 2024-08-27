@@ -10,8 +10,7 @@ import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 
 public class KeyHandler {
 
-	private static final FaceLift instance = FaceLift.getInstance();
-
+	private static FaceLift instance = FaceLift.getInstance();
 	private static MinecraftClient client = instance.client;
 
 	public static void onConfigKey() {
