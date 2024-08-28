@@ -1,7 +1,6 @@
 package xyz.mashtoolz.custom;
 
 import xyz.mashtoolz.config.Config;
-import xyz.mashtoolz.config.ToolSlots.Tool;
 
 public enum FaceToolBlock {
 
@@ -38,11 +37,11 @@ public enum FaceToolBlock {
 		return id;
 	}
 
-	public Tool getTool() {
+	public FaceTool getTool() {
 		return Config.inventory.toolSlots.getTool(name);
 	}
 
-	public static Tool getById(String id) {
+	public static FaceTool getById(String id) {
 		for (FaceToolBlock block : FaceToolBlock.values()) {
 			if (block.getId().equals(id))
 				return block.getTool();

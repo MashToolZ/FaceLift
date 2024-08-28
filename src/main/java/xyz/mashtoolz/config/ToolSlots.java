@@ -4,6 +4,7 @@ import java.util.Map;
 
 import net.minecraft.util.Identifier;
 import xyz.mashtoolz.custom.FaceTexture;
+import xyz.mashtoolz.custom.FaceTool;
 
 public class ToolSlots {
 
@@ -11,18 +12,18 @@ public class ToolSlots {
 	public int axe = 10;
 	public int hoe = 11;
 
-	public Map<Identifier, Tool> map() {
+	public Map<Identifier, FaceTool> map() {
 		return Map.of(
-				FaceTexture.EMPTY_PICKAXE, new Tool("pickaxe", pickaxe, FaceTexture.EMPTY_PICKAXE),
-				FaceTexture.EMPTY_AXE, new Tool("woodcuttingaxe", axe, FaceTexture.EMPTY_AXE),
-				FaceTexture.EMPTY_HOE, new Tool("hoe", hoe, FaceTexture.EMPTY_HOE));
+				FaceTexture.EMPTY_PICKAXE, new FaceTool("pickaxe", this.pickaxe, FaceTexture.EMPTY_PICKAXE),
+				FaceTexture.EMPTY_AXE, new FaceTool("woodcuttingaxe", this.axe, FaceTexture.EMPTY_AXE),
+				FaceTexture.EMPTY_HOE, new FaceTool("hoe", this.hoe, FaceTexture.EMPTY_HOE));
 	}
 
 	public static ToolSlots getDefault() {
 		return new ToolSlots();
 	}
 
-	public Tool getTool(String name) {
+	public FaceTool getTool(String name) {
 		switch (name) {
 			case "pickaxe":
 				return map().get(FaceTexture.EMPTY_PICKAXE);
@@ -34,7 +35,7 @@ public class ToolSlots {
 		return null;
 	}
 
-	public void updateSlot(Tool tool, int slot) {
+	public void updateSlot(FaceTool tool, int slot) {
 		switch (tool.getName()) {
 			case "pickaxe":
 				this.pickaxe = slot;
@@ -47,30 +48,5 @@ public class ToolSlots {
 				break;
 		}
 		Config.save();
-	}
-
-	public static class Tool {
-
-		private String name;
-		private int slot;
-		private Identifier texture;
-
-		public Tool(String name, int slot, Identifier texture) {
-			this.name = name;
-			this.slot = slot;
-			this.texture = texture;
-		}
-
-		public Identifier getTexture() {
-			return texture;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public int getSlot() {
-			return slot;
-		}
 	}
 }
