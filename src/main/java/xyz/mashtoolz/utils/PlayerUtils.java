@@ -7,7 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.hit.BlockHitResult;
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.custom.FaceTool;
 import xyz.mashtoolz.custom.FaceToolBlock;
 
@@ -19,7 +19,7 @@ public class PlayerUtils {
 	public static FaceTool getCurrentTool(JsonObject itemData) {
 		try {
 			var tier = itemData.get("tier").getAsString();
-			var currentTool = Config.inventory.toolSlots.getTool(tier);
+			var currentTool = FaceConfig.inventory.toolSlots.getTool(tier);
 			return currentTool;
 		} catch (Exception e) {
 			return null;

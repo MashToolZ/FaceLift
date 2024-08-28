@@ -1,7 +1,7 @@
 package xyz.mashtoolz.helpers;
 
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.custom.FaceItem;
 import xyz.mashtoolz.mixins.HandledScreenAccessor;
 
@@ -14,7 +14,7 @@ public class KeyHandler {
 	private static MinecraftClient client = instance.client;
 
 	public static void onConfigKey() {
-		client.setScreen(Config.getScreen());
+		client.setScreen(FaceConfig.getScreen());
 	}
 
 	public static void onMountKey(boolean isMounted) {
@@ -66,10 +66,10 @@ public class KeyHandler {
 			return;
 
 		var tier = stringData.get("tier").getAsString();
-		for (var entry : Config.inventory.toolSlots.map().entrySet()) {
+		for (var entry : FaceConfig.inventory.toolSlots.map().entrySet()) {
 			var tool = entry.getValue();
 			if (tool.getName().equals(tier) && tool.getSlot() != focusedSlot.id) {
-				Config.inventory.toolSlots.updateSlot(tool, focusedSlot.id);
+				FaceConfig.inventory.toolSlots.updateSlot(tool, focusedSlot.id);
 				break;
 			}
 		}

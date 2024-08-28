@@ -18,6 +18,7 @@ import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.helpers.RegexPattern;
 import xyz.mashtoolz.helpers.XPDisplay;
 import xyz.mashtoolz.mixins.KeyBindingInterface;
+import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
@@ -29,7 +30,8 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 
-public class Config {
+@Config(name = "facelift")
+public class FaceConfig {
 
 	private static FaceLift instance = FaceLift.getInstance();
 	private static MinecraftClient client;
@@ -207,7 +209,7 @@ public class Config {
 		addConfigEntry(_arenaTimer, "config.arenaTimer.position.x", arenaTimer.position.x, settings.arenaTimer.position.x, "config.arenaTimer.position.x.tooltip", newValue -> arenaTimer.position.x = newValue);
 		addConfigEntry(_arenaTimer, "config.arenaTimer.position.y", arenaTimer.position.y, settings.arenaTimer.position.y, "config.arenaTimer.position.y.tooltip", newValue -> arenaTimer.position.y = newValue);
 
-		builder.setSavingRunnable(Config::save);
+		builder.setSavingRunnable(FaceConfig::save);
 
 		return builder.build();
 	}

@@ -1,6 +1,6 @@
 package xyz.mashtoolz.custom;
 
-import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.config.FaceConfig;
 
 public enum FaceToolBlock {
 
@@ -38,7 +38,7 @@ public enum FaceToolBlock {
 	}
 
 	public FaceTool getTool() {
-		return Config.inventory.toolSlots.getTool(name);
+		return FaceConfig.inventory.toolSlots.getTool(name);
 	}
 
 	public static FaceTool getById(String id) {

@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.helpers.AdvancementInfo;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.client.toast.AdvancementToast;
@@ -56,12 +56,12 @@ public class ToastManagerMixin {
 
 			switch (advancementInfo.getName()) {
 				case "CombatStart": {
-					Config.inCombat = true;
+					FaceConfig.inCombat = true;
 					break;
 				}
 
 				case "CombatEnd": {
-					Config.inCombat = false;
+					FaceConfig.inCombat = false;
 					break;
 				}
 			}

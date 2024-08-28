@@ -6,7 +6,7 @@ import java.util.Arrays;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.RenderUtils;
 
@@ -72,11 +72,11 @@ public class DPSMeter {
 	}
 
 	public static void draw(DrawContext context) {
-		var remaining = Config.dpsMeter.duration - (System.currentTimeMillis() - getLastHitTime());
+		var remaining = FaceConfig.dpsMeter.duration - (System.currentTimeMillis() - getLastHitTime());
 		if (getStartTime() == 0)
 			return;
 
-		var ignoreTimer = Config.dpsMeter.duration == -1;
+		var ignoreTimer = FaceConfig.dpsMeter.duration == -1;
 		if (remaining <= 0 && !ignoreTimer) {
 			reset();
 			return;
@@ -90,14 +90,14 @@ public class DPSMeter {
 		int hitsWidth = client.textRenderer.getWidth(hitsFormat);
 		int dpsWidth = client.textRenderer.getWidth(dpsFormat);
 
-		int x = Config.dpsMeter.position.x;
-		int y = Config.dpsMeter.position.y;
+		int x = FaceConfig.dpsMeter.position.x;
+		int y = FaceConfig.dpsMeter.position.y;
 
 		context.fill(x, y, x + 112, y + RenderUtils.h(5) + 2, 0x80000000);
 		RenderUtils.drawTextWithShadow(context, "§cDPS Meter", x + 5, y + 5);
 
-		if (!ignoreTimer && Config.dpsMeter.showTimebar)
-			RenderUtils.drawTimeBar(context, x, y, (int) remaining, Config.dpsMeter.duration, ColorUtils.hex2Int("FD3434", 0x90));
+		if (!ignoreTimer && FaceConfig.dpsMeter.showTimebar)
+			RenderUtils.drawTimeBar(context, x, y, (int) remaining, FaceConfig.dpsMeter.duration, ColorUtils.hex2Int("FD3434", 0x90));
 
 		RenderUtils.drawTextWithShadow(context, "<#FFB2CC>Damage <#FDFDFD>", x + 5, y + 25 + RenderUtils.lh(0));
 		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + damageFormat, x + 107 - damageWidth, y + 25 + RenderUtils.lh(0));

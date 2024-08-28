@@ -4,7 +4,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.PlayerListHud;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardObjective;
-import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.config.FaceConfig;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,7 +17,7 @@ public class PlayerListHudMixin {
 	@Inject(method = "render", at = @At("HEAD"))
 	private void onRender(DrawContext context, int scaledWindowWidth, Scoreboard scoreboard, ScoreboardObjective objective, CallbackInfo ci) {
 		context.getMatrices().push();
-		context.getMatrices().translate(0, Config.general.tabHeightOffset, 0);
+		context.getMatrices().translate(0, FaceConfig.general.tabHeightOffset, 0);
 	}
 
 	@Inject(method = "render", at = @At("RETURN"))

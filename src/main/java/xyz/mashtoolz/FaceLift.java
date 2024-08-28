@@ -15,7 +15,7 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
 import net.minecraft.world.RaycastContext;
-import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.custom.FaceItem;
 import xyz.mashtoolz.custom.FaceStatus;
 import xyz.mashtoolz.helpers.ArenaTimer;
@@ -34,7 +34,6 @@ public class FaceLift implements ClientModInitializer {
 	private static FaceLift instance;
 
 	public MinecraftClient client;
-	public ClientPlayerEntity player;
 
 	private final HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
 
@@ -44,7 +43,7 @@ public class FaceLift implements ClientModInitializer {
 		instance = this;
 		client = MinecraftClient.getInstance();
 
-		Config.load();
+		FaceConfig.load();
 
 		FaceStatus.registerEffects();
 
@@ -53,7 +52,7 @@ public class FaceLift implements ClientModInitializer {
 
 		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 
-			if (!Config.onFaceLand)
+			if (!FaceConfig.onFaceLand)
 				return;
 
 			switch (entity.getName().getString()) {
@@ -66,37 +65,35 @@ public class FaceLift implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
-			if (!Config.onFaceLand || client == null || client.player == null)
+			if (!FaceConfig.onFaceLand || client == null || client.player == null)
 				return;
-
-			player = client.player;
 
 			CombatCheck();
 			DPSNumbersCheck();
 			MountCheck();
 
-			if (Config.configKey.wasPressed())
+			if (FaceConfig.configKey.wasPressed())
 				KeyHandler.onConfigKey();
 
-			if (Config.mountKey.wasPressed())
+			if (FaceConfig.mountKey.wasPressed())
 				KeyHandler.onMountKey(this.isMounted());
 
-			if (Config.spell1Key.wasPressed())
+			if (FaceConfig.spell1Key.wasPressed())
 				KeyHandler.onSpell1Key();
 
-			if (Config.spell2Key.wasPressed())
+			if (FaceConfig.spell2Key.wasPressed())
 				KeyHandler.onSpell2Key();
 
-			if (Config.spell3Key.wasPressed())
+			if (FaceConfig.spell3Key.wasPressed())
 				KeyHandler.onSpell3Key();
 
-			if (Config.spell4Key.wasPressed())
+			if (FaceConfig.spell4Key.wasPressed())
 				KeyHandler.onSpell4Key();
 
-			if (Config.isPressed(Config.setToolKey))
+			if (FaceConfig.isPressed(FaceConfig.setToolKey))
 				KeyHandler.onSetToolKey();
 
-			if (Config.arenaTimer.enabled && ArenaTimer.isActive() && (player != null && player.getHealth() <= 0))
+			if (FaceConfig.arenaTimer.enabled && ArenaTimer.isActive() && (client.player != null && client.player.getHealth() <= 0))
 				ArenaTimer.end();
 
 			if (client.options.attackKey.isPressed())
@@ -108,13 +105,13 @@ public class FaceLift implements ClientModInitializer {
 				ClientConnection connection = Objects.requireNonNull(client.getNetworkHandler()).getConnection();
 				if (connection != null && connection.getAddress() != null) {
 					String serverAddress = connection.getAddress().toString().toLowerCase();
-					Config.onFaceLand = serverAddress.startsWith("local") || serverAddress.contains("face.land");
+					FaceConfig.onFaceLand = serverAddress.startsWith("local") || serverAddress.contains("face.land");
 				}
 			});
 		});
 
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-			Config.onFaceLand = false;
+			FaceConfig.onFaceLand = false;
 			ArenaTimer.end();
 		});
 	}
@@ -124,18 +121,18 @@ public class FaceLift implements ClientModInitializer {
 	}
 
 	public boolean isMounted() {
-		Entity ridingEntity = player.getVehicle();
-		return ridingEntity != null && ridingEntity != player;
+		Entity ridingEntity = client.player.getVehicle();
+		return ridingEntity != null && ridingEntity != client.player;
 	}
 
 	private void MountCheck() {
-		if (Config.general.mountThirdPerson) {
-			if (this.isMounted() && !Config.isMounted && client.options.getPerspective() != Perspective.THIRD_PERSON_BACK) {
+		if (FaceConfig.general.mountThirdPerson) {
+			if (this.isMounted() && !FaceConfig.isMounted && client.options.getPerspective() != Perspective.THIRD_PERSON_BACK) {
 				client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
-				Config.isMounted = true;
-			} else if (!this.isMounted() && Config.isMounted && client.options.getPerspective() != Perspective.FIRST_PERSON) {
+				FaceConfig.isMounted = true;
+			} else if (!this.isMounted() && FaceConfig.isMounted && client.options.getPerspective() != Perspective.FIRST_PERSON) {
 				client.options.setPerspective(Perspective.FIRST_PERSON);
-				Config.isMounted = false;
+				FaceConfig.isMounted = false;
 			}
 		}
 	}
@@ -148,26 +145,26 @@ public class FaceLift implements ClientModInitializer {
 
 		var overlayMessage = inGameHud.getOverlayMessage();
 		if (overlayMessage != null) {
-			for (var unicode : Config.combatUnicodes) {
+			for (var unicode : FaceConfig.combatUnicodes) {
 				if (overlayMessage.getString().contains(unicode)) {
-					Config.lastHurtTime = System.currentTimeMillis();
+					FaceConfig.lastHurtTime = System.currentTimeMillis();
 					break;
 				}
 			}
 		}
 
-		if (Config.hurtTime == 0 && player.hurtTime != 0)
-			Config.hurtTime = player.hurtTime;
+		if (FaceConfig.hurtTime == 0 && client.player.hurtTime != 0)
+			FaceConfig.hurtTime = client.player.hurtTime;
 
-		if (Config.hurtTime == -1 && player.hurtTime == 0)
-			Config.hurtTime = 0;
+		if (FaceConfig.hurtTime == -1 && client.player.hurtTime == 0)
+			FaceConfig.hurtTime = 0;
 
-		if (Config.hurtTime > 0) {
-			Config.hurtTime = -1;
+		if (FaceConfig.hurtTime > 0) {
+			FaceConfig.hurtTime = -1;
 
-			var recentDamageSource = player.getRecentDamageSource();
+			var recentDamageSource = client.player.getRecentDamageSource();
 			if (recentDamageSource != null && !recentDamageSource.getType().msgId().toString().equals("fall"))
-				Config.lastHurtTime = System.currentTimeMillis();
+				FaceConfig.lastHurtTime = System.currentTimeMillis();
 		}
 	}
 
@@ -210,11 +207,11 @@ public class FaceLift implements ClientModInitializer {
 			var data = FaceItem.getItemData(stack);
 			var currentTool = PlayerUtils.getCurrentTool(data);
 
-			if (data == null || (data != null && Config.inventory.toolSlots.getTool(data.get("tier").getAsString()) == null)) {
+			if (data == null || (data != null && FaceConfig.inventory.toolSlots.getTool(data.get("tier").getAsString()) == null)) {
 				if (targetTool != null && !inventory.getStack(targetTool.getSlot()).isEmpty())
 					this.clickSlot(targetTool.getSlot(), hotbarSlot, SlotActionType.SWAP);
 				else if (targetTool != null)
-					player.sendMessage(Text.literal("§7[§eFaceLift§7] §cMissing Tool: " + targetTool.getName()));
+					client.player.sendMessage(Text.literal("§7[§eFaceLift§7] §cMissing Tool: " + targetTool.getName()));
 				return;
 			}
 

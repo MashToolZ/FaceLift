@@ -47,6 +47,6 @@ public class ToolSlots {
 				this.hoe = slot;
 				break;
 		}
-		Config.save();
+		FaceConfig.save();
 	}
 }

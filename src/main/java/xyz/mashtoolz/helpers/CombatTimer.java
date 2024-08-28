@@ -6,7 +6,7 @@ import java.math.RoundingMode;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.RenderUtils;
 
@@ -17,7 +17,7 @@ public class CombatTimer {
 
 	public static void draw(DrawContext context) {
 
-		var time = Math.max(DPSMeter.getLastHitTime(), Config.lastHurtTime);
+		var time = Math.max(DPSMeter.getLastHitTime(), FaceConfig.lastHurtTime);
 		var remaining = 12000 - (System.currentTimeMillis() - time);
 		if (remaining <= 0)
 			return;
@@ -33,8 +33,8 @@ public class CombatTimer {
 			seconds = "<#00D1D1D1>0<#FDFDFD>" + seconds;
 		}
 
-		int x = Config.combatTimer.position.x;
-		int y = Config.combatTimer.position.y;
+		int x = FaceConfig.combatTimer.position.x;
+		int y = FaceConfig.combatTimer.position.y;
 
 		context.fill(x, y, x + 112, y + RenderUtils.h(2) + 2, 0x80000000);
 		RenderUtils.drawTextWithShadow(context, "§eCombat Timer", x + 5, y + 5);
@@ -42,7 +42,7 @@ public class CombatTimer {
 
 		var hex = String.format("%02x%02x%02x", (int) (255 * percent), (int) (255 * (1 - percent)), 0);
 
-		if (Config.combatTimer.showTimebar)
+		if (FaceConfig.combatTimer.showTimebar)
 			RenderUtils.drawTimeBar(context, x, y, (int) remaining, 12000, ColorUtils.hex2Int(hex, 0x90));
 	}
 }

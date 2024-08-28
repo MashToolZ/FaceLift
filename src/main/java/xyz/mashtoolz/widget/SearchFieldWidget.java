@@ -3,7 +3,7 @@ package xyz.mashtoolz.widget;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
-import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.config.FaceConfig;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -25,9 +25,9 @@ public class SearchFieldWidget extends TextFieldWidget {
 		long currentTime = System.currentTimeMillis();
 		if (currentTime - lastClickTime < 250) {
 			highlighted = !highlighted;
-			Config.inventory.searchbar.highlight = highlighted;
+			FaceConfig.inventory.searchbar.highlight = highlighted;
 			this.setEditableColor(highlighted ? 0xFFFF78 : 0xE0E0E0);
-			Config.save();
+			FaceConfig.save();
 		}
 		lastClickTime = currentTime;
 		super.onClick(mouseX, mouseY);

@@ -7,7 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.mixins.InGameHudInterface;
 import xyz.mashtoolz.utils.RenderUtils;
 import xyz.mashtoolz.utils.TimeUtils;
@@ -152,8 +152,8 @@ public class ArenaTimer {
 		var waveStr = String.format("%02d:%02d.%d", waveHMS[1], waveHMS[2], waveHMS[3]);
 		var waveStrWidth = client.textRenderer.getWidth(waveStr);
 
-		int x = Config.arenaTimer.position.x;
-		int y = Config.arenaTimer.position.y;
+		int x = FaceConfig.arenaTimer.position.x;
+		int y = FaceConfig.arenaTimer.position.y;
 
 		context.fill(x, y, x + 112, y + RenderUtils.h(2) + 2, 0x80000000);
 		RenderUtils.drawTextWithShadow(context, "§3Arena Timer", x + 5, y + 5);

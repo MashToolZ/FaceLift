@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import xyz.mashtoolz.config.Config;
+import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.custom.FaceStatus;
 import xyz.mashtoolz.utils.TextUtils;
 
@@ -16,7 +16,7 @@ public class ChatHandler {
 		if (TextUtils.escapeStringToUnicode(message, false).startsWith("\\uf804"))
 			return;
 
-		if (Config.xpDisplay.enabled)
+		if (FaceConfig.xpDisplay.enabled)
 			handleXPMessage(text, message, ci);
 
 		try {
@@ -30,7 +30,7 @@ public class ChatHandler {
 
 	private static void handleXPMessage(Text text, String message, CallbackInfo ci) {
 
-		for (var regex : Config.xpRegexes) {
+		for (var regex : FaceConfig.xpRegexes) {
 			var match = regex.getPattern().matcher(message);
 
 			if (!match.find())
@@ -54,10 +54,10 @@ public class ChatHandler {
 						color = Formatting.byName(color).toString();
 
 					var key = match.group(1);
-					if (!Config.xpDisplays.containsKey(key))
-						Config.xpDisplays.put(key, new XPDisplay(key, color, 0, System.currentTimeMillis(), false));
+					if (!FaceConfig.xpDisplays.containsKey(key))
+						FaceConfig.xpDisplays.put(key, new XPDisplay(key, color, 0, System.currentTimeMillis(), false));
 
-					var display = Config.xpDisplays.get(key);
+					var display = FaceConfig.xpDisplays.get(key);
 					display.setXP(Integer.parseInt(match.group(2)) + display.getXP());
 					display.setTime(System.currentTimeMillis());
 					display.setColor(color);
@@ -66,10 +66,10 @@ public class ChatHandler {
 
 				case "combatXP": {
 					var key = "Combat";
-					if (!Config.xpDisplays.containsKey(key))
-						Config.xpDisplays.put(key, new XPDisplay(key, "<#8AF828>", 0, System.currentTimeMillis(), false));
+					if (!FaceConfig.xpDisplays.containsKey(key))
+						FaceConfig.xpDisplays.put(key, new XPDisplay(key, "<#8AF828>", 0, System.currentTimeMillis(), false));
 
-					var display = Config.xpDisplays.get(key);
+					var display = FaceConfig.xpDisplays.get(key);
 					display.setXP(Integer.parseInt(match.group(1)) + display.getXP());
 					display.setTime(System.currentTimeMillis());
 					display.setColor("<#8AF828>");
