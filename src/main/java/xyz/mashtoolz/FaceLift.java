@@ -17,6 +17,7 @@ import net.minecraft.text.Text;
 import net.minecraft.world.RaycastContext;
 import xyz.mashtoolz.config.Config;
 import xyz.mashtoolz.custom.FaceItem;
+import xyz.mashtoolz.custom.FaceStatus;
 import xyz.mashtoolz.helpers.ArenaTimer;
 import xyz.mashtoolz.helpers.DPSMeter;
 import xyz.mashtoolz.helpers.HudRenderer;
@@ -45,7 +46,10 @@ public class FaceLift implements ClientModInitializer {
 
 		Config.load();
 
+		FaceStatus.registerEffects();
+
 		ScreenEvents.AFTER_INIT.register(HudRenderer::afterInitScreen);
+		HudRenderCallback.EVENT.register(HudRenderer::onHudRender);
 
 		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 
@@ -113,8 +117,6 @@ public class FaceLift implements ClientModInitializer {
 			Config.onFaceLand = false;
 			ArenaTimer.end();
 		});
-
-		HudRenderCallback.EVENT.register(HudRenderer::onHudRender);
 	}
 
 	public static FaceLift getInstance() {

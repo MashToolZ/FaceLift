@@ -68,5 +68,7 @@
     "facelift.config.arenaTimer.position.x": "X Position (px)",
     "facelift.config.arenaTimer.position.x.tooltip": "X Position of the Arena Timer",
     "facelift.config.arenaTimer.position.y": "Y Position (px)",
-    "facelift.config.arenaTimer.position.y.tooltip": "Y Position of the Arena Timer"
+    "facelift.config.arenaTimer.position.y.tooltip": "Y Position of the Arena Timer",
+
+    "effect.facelift.well_rested": "Well Rested"
 }
