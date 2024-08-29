@@ -1,5 +1,6 @@
 package xyz.mashtoolz.custom;
 
+import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
 
 public enum FaceToolBlock {
@@ -25,6 +26,9 @@ public enum FaceToolBlock {
 	RED_MUSHROOM("minecraft:red_mushroom", "hoe"),
 	JUNGLE_SAPLING("minecraft:jungle_sapling", "hoe");
 
+	private static FaceLift instance = FaceLift.getInstance();
+	private static FaceConfig config = instance.config;
+
 	private final String id;
 	private final String name;
 
@@ -38,7 +42,7 @@ public enum FaceToolBlock {
 	}
 
 	public FaceTool getTool() {
-		return FaceConfig.inventory.toolSlots.getTool(name);
+		return config.inventory.autoTool.get(name);
 	}
 
 	public static FaceTool getById(String id) {

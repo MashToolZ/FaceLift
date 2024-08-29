@@ -39,6 +39,7 @@ public class HudRenderer {
 
 	private static FaceLift instance = FaceLift.getInstance();
 	private static MinecraftClient client = instance.client;
+	private static FaceConfig config = instance.config;
 
 	public static SearchFieldWidget searchBar;
 	private static DropDownMenu dropdown;
@@ -55,7 +56,7 @@ public class HudRenderer {
 
 	public static void onHudRender(DrawContext context, float delta) {
 
-		if (!FaceConfig.onFaceLand)
+		if (!config.general.onFaceLand)
 			return;
 
 		if (client.currentScreen == null)
@@ -63,37 +64,34 @@ public class HudRenderer {
 
 		context.getMatrices().push();
 
-		if (FaceConfig.combatTimer.enabled)
+		if (config.combat.combatTimer.enabled)
 			CombatTimer.draw(context);
 
-		if (FaceConfig.dpsMeter.enabled)
+		if (config.combat.dpsMeter.enabled)
 			DPSMeter.draw(context);
 
-		if (FaceConfig.xpDisplay.enabled)
-			XPDisplay.draw(context);
-
-		if (FaceConfig.arenaTimer.enabled) {
+		if (config.combat.arenaTimer.enabled) {
 			ArenaTimer.updateTimer(context);
 			ArenaTimer.draw(context);
 		}
+
+		if (config.general.xpDisplay.enabled)
+			XPDisplay.draw(context);
 
 		context.getMatrices().pop();
 	}
 
 	public static void afterInitScreen(MinecraftClient client, Screen screen, int width, int height) {
 
-		if (!FaceConfig.onFaceLand)
+		if (!config.general.onFaceLand)
 			return;
 
 		if (screen instanceof HandledScreen) {
 
-			var inventory = FaceConfig.inventory;
+			var inventory = config.inventory;
 			searchBar = new SearchFieldWidget(client.textRenderer, width / 2 - 90, height - 25, 180, 20, searchBar,
 					Text.literal(inventory.searchbar.query));
-			searchBar.setChangedListener(text -> {
-				inventory.searchbar.query = text;
-				FaceConfig.save();
-			});
+			searchBar.setChangedListener(text -> inventory.searchbar.query = text);
 
 			if (inventory.searchbar.highlight) {
 				searchBar.highlighted = true;
@@ -104,13 +102,11 @@ public class HudRenderer {
 
 			dropdown.addButton(" Case: " + inventory.searchbar.caseSensitive, button -> {
 				inventory.searchbar.caseSensitive = !inventory.searchbar.caseSensitive;
-				FaceConfig.save();
 				button.setMessage(Text.literal(" Case: " + inventory.searchbar.caseSensitive));
 			}, inventory.searchbar.caseSensitive);
 
 			dropdown.addButton("Regex: " + inventory.searchbar.regex, button -> {
 				inventory.searchbar.regex = !inventory.searchbar.regex;
-				FaceConfig.save();
 				button.setMessage(Text.literal("Regex: " + inventory.searchbar.regex));
 			}, inventory.searchbar.regex);
 
@@ -125,7 +121,7 @@ public class HudRenderer {
 			var name = item.getName();
 			var query = searchBar.getText();
 			var tooltip = item.getTooltip();
-			if (!FaceConfig.inventory.searchbar.caseSensitive) {
+			if (!config.inventory.searchbar.caseSensitive) {
 				name = name.toLowerCase();
 				query = query.toLowerCase();
 				tooltip = tooltip.toLowerCase();
@@ -134,7 +130,7 @@ public class HudRenderer {
 			if (query.length() == 0 || name.toLowerCase().equals("air"))
 				hideItem = true;
 
-			if (FaceConfig.inventory.searchbar.regex) {
+			if (config.inventory.searchbar.regex) {
 				try {
 					Pattern pattern = Pattern.compile(query, Pattern.DOTALL);
 					if (!pattern.matcher(name).find() && !pattern.matcher(tooltip).find())
@@ -244,7 +240,7 @@ public class HudRenderer {
 
 	public static void preDrawItemSlot(DrawContext context, Slot slot, CallbackInfo ci) {
 
-		if (!FaceConfig.onFaceLand)
+		if (!config.general.onFaceLand)
 			return;
 
 		MatrixStack matrices = context.getMatrices();
@@ -259,7 +255,7 @@ public class HudRenderer {
 			var screen = (HandledScreenAccessor) client.currentScreen;
 			var handler = screen.getHandler();
 			if (handler.slots.size() == 46 && client.currentScreen.getTitle().getString().length() != 0) {
-				for (var entry : FaceConfig.inventory.toolSlots.map().entrySet()) {
+				for (var entry : config.inventory.autoTool.map().entrySet()) {
 					if (slot.id == entry.getValue().getSlot()) {
 						drawToolSlot(context, entry.getKey(), x, y);
 						break;
@@ -279,8 +275,8 @@ public class HudRenderer {
 
 			matrices.translate(0.0f, 0.0f, 100.0f);
 			RenderSystem.setShaderTexture(0, FaceTexture.ITEM_GLOW);
-			RenderSystem.setShaderColor(rgb[0], rgb[1], rgb[2], hideItem ? 0.25F : FaceConfig.inventory.rarityOpacity);
-			if (FaceConfig.inventory.rarityTexture)
+			RenderSystem.setShaderColor(rgb[0], rgb[1], rgb[2], hideItem ? 0.25F : config.inventory.rarity.opacity);
+			if (config.inventory.rarity.useTexture)
 				context.drawTexture(FaceTexture.ITEM_GLOW, x, y, 0, 0, 16, 16, 16, 16);
 			else
 				context.drawBorder(x, y, 16, 16, ColorUtils.hex2Int("#FFFFFF", 0xFF));
@@ -306,7 +302,7 @@ public class HudRenderer {
 	}
 
 	public static void postDrawItemSlot(DrawContext context, Slot slot) {
-		if (!FaceConfig.onFaceLand)
+		if (!config.general.onFaceLand)
 			return;
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

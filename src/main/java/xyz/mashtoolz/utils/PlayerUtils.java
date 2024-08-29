@@ -15,11 +15,12 @@ public class PlayerUtils {
 
 	public static FaceLift instance = FaceLift.getInstance();
 	public static MinecraftClient client = instance.client;
+	private static FaceConfig config = instance.config;
 
 	public static FaceTool getCurrentTool(JsonObject itemData) {
 		try {
 			var tier = itemData.get("tier").getAsString();
-			var currentTool = FaceConfig.inventory.toolSlots.getTool(tier);
+			var currentTool = config.inventory.autoTool.get(tier);
 			return currentTool;
 		} catch (Exception e) {
 			return null;

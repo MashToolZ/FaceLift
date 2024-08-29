@@ -6,7 +6,7 @@ import net.minecraft.util.Identifier;
 import xyz.mashtoolz.custom.FaceTexture;
 import xyz.mashtoolz.custom.FaceTool;
 
-public class ToolSlots {
+public class AutoTool {
 
 	public int pickaxe = 9;
 	public int axe = 10;
@@ -19,11 +19,7 @@ public class ToolSlots {
 				FaceTexture.EMPTY_HOE, new FaceTool("hoe", this.hoe, FaceTexture.EMPTY_HOE));
 	}
 
-	public static ToolSlots getDefault() {
-		return new ToolSlots();
-	}
-
-	public FaceTool getTool(String name) {
+	public FaceTool get(String name) {
 		switch (name) {
 			case "pickaxe":
 				return map().get(FaceTexture.EMPTY_PICKAXE);
@@ -35,7 +31,7 @@ public class ToolSlots {
 		return null;
 	}
 
-	public void updateSlot(FaceTool tool, int slot) {
+	public void update(FaceTool tool, int slot) {
 		switch (tool.getName()) {
 			case "pickaxe":
 				this.pickaxe = slot;
@@ -47,6 +43,5 @@ public class ToolSlots {
 				this.hoe = slot;
 				break;
 		}
-		FaceConfig.save();
 	}
 }

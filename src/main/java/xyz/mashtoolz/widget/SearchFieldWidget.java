@@ -3,11 +3,15 @@ package xyz.mashtoolz.widget;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
+import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
 
 import org.jetbrains.annotations.Nullable;
 
 public class SearchFieldWidget extends TextFieldWidget {
+
+	private static FaceLift instance = FaceLift.getInstance();
+	private static FaceConfig config = instance.config;
 
 	private long lastClickTime = 0;
 	public boolean highlighted = false;
@@ -25,9 +29,8 @@ public class SearchFieldWidget extends TextFieldWidget {
 		long currentTime = System.currentTimeMillis();
 		if (currentTime - lastClickTime < 250) {
 			highlighted = !highlighted;
-			FaceConfig.inventory.searchbar.highlight = highlighted;
+			config.inventory.searchbar.highlight = highlighted;
 			this.setEditableColor(highlighted ? 0xFFFF78 : 0xE0E0E0);
-			FaceConfig.save();
 		}
 		lastClickTime = currentTime;
 		super.onClick(mouseX, mouseY);

@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
+import xyz.mashtoolz.config.FaceConfig.General.Display.DisplayType;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.RenderUtils;
 
@@ -11,6 +12,7 @@ public class XPDisplay {
 
 	private static FaceLift instance = FaceLift.getInstance();
 	private static MinecraftClient client = instance.client;
+	private static FaceConfig config = instance.config;
 
 	private String key;
 	private String color;
@@ -69,7 +71,7 @@ public class XPDisplay {
 		if (this.totalTime == 0 && time > 0)
 			this.totalTime = time;
 		this.time = time;
-		FaceConfig.lastXPDisplay = this;
+		config.general.xpDisplay.lastDisplay = this;
 	}
 
 	public boolean isVisible() {
@@ -87,29 +89,29 @@ public class XPDisplay {
 	}
 
 	public static void draw(DrawContext context) {
-		if (FaceConfig.lastXPDisplay == null)
+		if (config.general.xpDisplay.lastDisplay == null)
 			return;
 
-		var ignoreTimer = FaceConfig.xpDisplay.duration == -1;
-		var remaining = FaceConfig.xpDisplay.duration - (System.currentTimeMillis() - FaceConfig.lastXPDisplay.getTime());
+		var ignoreTimer = config.general.xpDisplay.duration == -1;
+		var remaining = config.general.xpDisplay.duration - (System.currentTimeMillis() - config.general.xpDisplay.lastDisplay.getTime());
 		if (remaining <= 0 && !ignoreTimer) {
-			if (FaceConfig.lastXPDisplay.getXP() != 0)
-				FaceConfig.lastXPDisplay.reset();
+			if (config.general.xpDisplay.lastDisplay.getXP() != 0)
+				config.general.xpDisplay.lastDisplay.reset();
 			return;
 		}
 
-		int height = FaceConfig.xpDisplays.values().stream().filter(display -> display.getXP() > 0).mapToInt(display -> 10).sum();
-		int x = FaceConfig.xpDisplay.position.x;
-		int y = FaceConfig.xpDisplay.position.y;
+		int height = config.general.xpDisplay.displays.values().stream().filter(display -> display.getXP() > 0).mapToInt(display -> 10).sum();
+		int x = config.general.xpDisplay.position.x;
+		int y = config.general.xpDisplay.position.y;
 
 		context.fill(x, y, x + 112, y + height + RenderUtils.h(2) + 2, 0x80000000);
 		RenderUtils.drawTextWithShadow(context, "§aXP Display", x + 5, y + 5);
 
-		if (!ignoreTimer && FaceConfig.xpDisplay.showTimebar)
-			RenderUtils.drawTimeBar(context, x, y, (int) remaining, FaceConfig.xpDisplay.duration, ColorUtils.hex2Int("34FD34", 0x90));
+		if (!ignoreTimer && config.general.xpDisplay.showTimebar)
+			RenderUtils.drawTimeBar(context, x, y, (int) remaining, config.general.xpDisplay.duration, ColorUtils.hex2Int("34FD34", 0x90));
 
 		int i = 0;
-		for (var display : FaceConfig.xpDisplays.values())
+		for (var display : config.general.xpDisplay.displays.values())
 			if (!display.draw(context, x, y, i, ignoreTimer))
 				continue;
 	}
@@ -119,7 +121,7 @@ public class XPDisplay {
 		if (getXP() == 0)
 			return false;
 
-		if (isVisible() && getTime() + FaceConfig.xpDisplay.duration < System.currentTimeMillis() && !ignoreTimer) {
+		if (isVisible() && getTime() + config.general.xpDisplay.duration < System.currentTimeMillis() && !ignoreTimer) {
 			this.reset();
 			return false;
 		}
@@ -129,13 +131,13 @@ public class XPDisplay {
 
 		var skill = this.getColor() + this.getKey();
 		var xp = NumberFormatter.format(this.getXP());
-		var gain = FaceConfig.xpDisplay.showLastGain ? "  +" + NumberFormatter.format(getGain()) : "";
+		var gain = config.general.xpDisplay.showLastGain ? " +" + NumberFormatter.format(getGain()) : "";
 
 		RenderUtils.drawTextWithShadow(context, skill, x + 5, y + 25 + (i * 10));
 
-		int type = FaceConfig.xpDisplay.displayType;
-		var perN = getTotalTime() / (1000.0 * 60 * (type == 2 ? 60 : 1));
-		if (type != 0)
+		var type = config.general.xpDisplay.displayType;
+		var perN = getTotalTime() / (1000.0 * 60 * (type == DisplayType.PER_HOUR ? 60 : 1));
+		if (type != DisplayType.DEFAULT)
 			xp = NumberFormatter.format((int) (getXP() / perN));
 
 		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + xp + gain, x + 107 - client.textRenderer.getWidth(xp), y + 25 + (i * 10));

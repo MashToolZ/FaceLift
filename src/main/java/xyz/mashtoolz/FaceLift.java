@@ -16,6 +16,7 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
 import net.minecraft.world.RaycastContext;
 import xyz.mashtoolz.config.FaceConfig;
+import xyz.mashtoolz.config.Keybinds;
 import xyz.mashtoolz.custom.FaceItem;
 import xyz.mashtoolz.custom.FaceStatus;
 import xyz.mashtoolz.helpers.ArenaTimer;
@@ -25,17 +26,24 @@ import xyz.mashtoolz.helpers.KeyHandler;
 import xyz.mashtoolz.mixins.InGameHudInterface;
 import xyz.mashtoolz.utils.PlayerUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Objects;
 
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
+
 public class FaceLift implements ClientModInitializer {
 
 	private static FaceLift instance;
-
 	public MinecraftClient client;
+	public FaceConfig config;
+	public Keybinds keybinds = new Keybinds();
 
 	private final HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
+	public ArrayList<String> combatUnicodes = new ArrayList<>(Arrays.asList("丞", "丟"));
 
 	@Override
 	public void onInitializeClient() {
@@ -43,7 +51,8 @@ public class FaceLift implements ClientModInitializer {
 		instance = this;
 		client = MinecraftClient.getInstance();
 
-		FaceConfig.load();
+		AutoConfig.register(FaceConfig.class, GsonConfigSerializer::new);
+		config = AutoConfig.getConfigHolder(FaceConfig.class).getConfig();
 
 		FaceStatus.registerEffects();
 
@@ -52,7 +61,7 @@ public class FaceLift implements ClientModInitializer {
 
 		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 
-			if (!FaceConfig.onFaceLand)
+			if (!config.general.onFaceLand)
 				return;
 
 			switch (entity.getName().getString()) {
@@ -65,35 +74,38 @@ public class FaceLift implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
-			if (!FaceConfig.onFaceLand || client == null || client.player == null)
+			if (!config.general.onFaceLand || client == null || client.player == null)
 				return;
 
 			CombatCheck();
 			DPSNumbersCheck();
 			MountCheck();
 
-			if (FaceConfig.configKey.wasPressed())
+			if (Keybinds.instance == null)
+				Keybinds.instance = this;
+
+			if (Keybinds.menu.wasPressed())
 				KeyHandler.onConfigKey();
 
-			if (FaceConfig.mountKey.wasPressed())
+			if (Keybinds.mount.wasPressed())
 				KeyHandler.onMountKey(this.isMounted());
 
-			if (FaceConfig.spell1Key.wasPressed())
+			if (Keybinds.spell1.wasPressed())
 				KeyHandler.onSpell1Key();
 
-			if (FaceConfig.spell2Key.wasPressed())
+			if (Keybinds.spell2.wasPressed())
 				KeyHandler.onSpell2Key();
 
-			if (FaceConfig.spell3Key.wasPressed())
+			if (Keybinds.spell3.wasPressed())
 				KeyHandler.onSpell3Key();
 
-			if (FaceConfig.spell4Key.wasPressed())
+			if (Keybinds.spell4.wasPressed())
 				KeyHandler.onSpell4Key();
 
-			if (FaceConfig.isPressed(FaceConfig.setToolKey))
+			if (Keybinds.isPressed(Keybinds.setToolSlot))
 				KeyHandler.onSetToolKey();
 
-			if (FaceConfig.arenaTimer.enabled && ArenaTimer.isActive() && (client.player != null && client.player.getHealth() <= 0))
+			if (config.combat.arenaTimer.enabled && ArenaTimer.isActive() && (client.player != null && client.player.getHealth() <= 0))
 				ArenaTimer.end();
 
 			if (client.options.attackKey.isPressed())
@@ -105,13 +117,13 @@ public class FaceLift implements ClientModInitializer {
 				ClientConnection connection = Objects.requireNonNull(client.getNetworkHandler()).getConnection();
 				if (connection != null && connection.getAddress() != null) {
 					String serverAddress = connection.getAddress().toString().toLowerCase();
-					FaceConfig.onFaceLand = serverAddress.startsWith("local") || serverAddress.contains("face.land");
+					config.general.onFaceLand = serverAddress.startsWith("local") || serverAddress.contains("face.land");
 				}
 			});
 		});
 
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-			FaceConfig.onFaceLand = false;
+			config.general.onFaceLand = false;
 			ArenaTimer.end();
 		});
 	}
@@ -126,13 +138,13 @@ public class FaceLift implements ClientModInitializer {
 	}
 
 	private void MountCheck() {
-		if (FaceConfig.general.mountThirdPerson) {
-			if (this.isMounted() && !FaceConfig.isMounted && client.options.getPerspective() != Perspective.THIRD_PERSON_BACK) {
+		if (config.general.mountThirdPerson) {
+			if (this.isMounted() && !config.general.isMounted && client.options.getPerspective() != Perspective.THIRD_PERSON_BACK) {
 				client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
-				FaceConfig.isMounted = true;
-			} else if (!this.isMounted() && FaceConfig.isMounted && client.options.getPerspective() != Perspective.FIRST_PERSON) {
+				config.general.isMounted = true;
+			} else if (!this.isMounted() && config.general.isMounted && client.options.getPerspective() != Perspective.FIRST_PERSON) {
 				client.options.setPerspective(Perspective.FIRST_PERSON);
-				FaceConfig.isMounted = false;
+				config.general.isMounted = false;
 			}
 		}
 	}
@@ -145,26 +157,26 @@ public class FaceLift implements ClientModInitializer {
 
 		var overlayMessage = inGameHud.getOverlayMessage();
 		if (overlayMessage != null) {
-			for (var unicode : FaceConfig.combatUnicodes) {
+			for (var unicode : combatUnicodes) {
 				if (overlayMessage.getString().contains(unicode)) {
-					FaceConfig.lastHurtTime = System.currentTimeMillis();
+					config.general.lastHurtTime = System.currentTimeMillis();
 					break;
 				}
 			}
 		}
 
-		if (FaceConfig.hurtTime == 0 && client.player.hurtTime != 0)
-			FaceConfig.hurtTime = client.player.hurtTime;
+		if (config.general.hurtTime == 0 && client.player.hurtTime != 0)
+			config.general.hurtTime = client.player.hurtTime;
 
-		if (FaceConfig.hurtTime == -1 && client.player.hurtTime == 0)
-			FaceConfig.hurtTime = 0;
+		if (config.general.hurtTime == -1 && client.player.hurtTime == 0)
+			config.general.hurtTime = 0;
 
-		if (FaceConfig.hurtTime > 0) {
-			FaceConfig.hurtTime = -1;
+		if (config.general.hurtTime > 0) {
+			config.general.hurtTime = -1;
 
 			var recentDamageSource = client.player.getRecentDamageSource();
 			if (recentDamageSource != null && !recentDamageSource.getType().msgId().toString().equals("fall"))
-				FaceConfig.lastHurtTime = System.currentTimeMillis();
+				config.general.lastHurtTime = System.currentTimeMillis();
 		}
 	}
 
@@ -207,7 +219,7 @@ public class FaceLift implements ClientModInitializer {
 			var data = FaceItem.getItemData(stack);
 			var currentTool = PlayerUtils.getCurrentTool(data);
 
-			if (data == null || (data != null && FaceConfig.inventory.toolSlots.getTool(data.get("tier").getAsString()) == null)) {
+			if (data == null || (data != null && config.inventory.autoTool.get(data.get("tier").getAsString()) == null)) {
 				if (targetTool != null && !inventory.getStack(targetTool.getSlot()).isEmpty())
 					this.clickSlot(targetTool.getSlot(), hotbarSlot, SlotActionType.SWAP);
 				else if (targetTool != null)
