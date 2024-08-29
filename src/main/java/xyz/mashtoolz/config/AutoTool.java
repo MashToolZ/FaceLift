@@ -43,5 +43,6 @@ public class AutoTool {
 				this.hoe = slot;
 				break;
 		}
+		FaceConfig.save();
 	}
 }

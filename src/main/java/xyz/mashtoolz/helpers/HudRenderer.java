@@ -91,7 +91,12 @@ public class HudRenderer {
 			var inventory = config.inventory;
 			searchBar = new SearchFieldWidget(client.textRenderer, width / 2 - 90, height - 25, 180, 20, searchBar,
 					Text.literal(inventory.searchbar.query));
-			searchBar.setChangedListener(text -> inventory.searchbar.query = text);
+			searchBar.setText(inventory.searchbar.query);
+
+			searchBar.setChangedListener(text -> {
+				inventory.searchbar.query = text;
+				FaceConfig.save();
+			});
 
 			if (inventory.searchbar.highlight) {
 				searchBar.highlighted = true;
@@ -103,11 +108,13 @@ public class HudRenderer {
 			dropdown.addButton(" Case: " + inventory.searchbar.caseSensitive, button -> {
 				inventory.searchbar.caseSensitive = !inventory.searchbar.caseSensitive;
 				button.setMessage(Text.literal(" Case: " + inventory.searchbar.caseSensitive));
+				FaceConfig.save();
 			}, inventory.searchbar.caseSensitive);
 
 			dropdown.addButton("Regex: " + inventory.searchbar.regex, button -> {
 				inventory.searchbar.regex = !inventory.searchbar.regex;
 				button.setMessage(Text.literal("Regex: " + inventory.searchbar.regex));
+				FaceConfig.save();
 			}, inventory.searchbar.regex);
 
 			((ScreenInterface) screen).invokeAddDrawableChild(searchBar);

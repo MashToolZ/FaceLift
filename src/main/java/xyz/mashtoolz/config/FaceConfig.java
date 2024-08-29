@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import me.shedaniel.autoconfig.ConfigData;
+import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import xyz.mashtoolz.helpers.XPDisplay;
@@ -12,6 +13,10 @@ import xyz.mashtoolz.utils.Pos2D;
 
 @Config(name = "facelift")
 public class FaceConfig implements ConfigData {
+
+	@ConfigEntry.Category("general")
+	@ConfigEntry.Gui.Excluded
+	public static ConfigHolder<FaceConfig> holder;
 
 	@ConfigEntry.Category("general")
 	@ConfigEntry.Gui.TransitiveObject
@@ -134,5 +139,9 @@ public class FaceConfig implements ConfigData {
 			@ConfigEntry.Gui.TransitiveObject
 			public Pos2D position = new Pos2D(122, 20);
 		}
+	}
+
+	public static void save() {
+		holder.save();
 	}
 }

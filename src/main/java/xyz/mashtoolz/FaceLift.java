@@ -52,7 +52,9 @@ public class FaceLift implements ClientModInitializer {
 		client = MinecraftClient.getInstance();
 
 		AutoConfig.register(FaceConfig.class, GsonConfigSerializer::new);
-		config = AutoConfig.getConfigHolder(FaceConfig.class).getConfig();
+		var holder = AutoConfig.getConfigHolder(FaceConfig.class);
+		config = holder.getConfig();
+		FaceConfig.holder = holder;
 
 		FaceStatus.registerEffects();
 

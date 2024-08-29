@@ -31,6 +31,7 @@ public class SearchFieldWidget extends TextFieldWidget {
 			highlighted = !highlighted;
 			config.inventory.searchbar.highlight = highlighted;
 			this.setEditableColor(highlighted ? 0xFFFF78 : 0xE0E0E0);
+			FaceConfig.save();
 		}
 		lastClickTime = currentTime;
 		super.onClick(mouseX, mouseY);
