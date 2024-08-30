@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.helpers.AdvancementInfo;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.client.toast.AdvancementToast;
@@ -18,7 +17,7 @@ import net.minecraft.client.toast.ToastManager;
 @Mixin(ToastManager.class)
 public class ToastManagerMixin {
 
-	private static FaceConfig config;
+	private static FaceLift instance = FaceLift.getInstance();
 
 	public HashMap<String, AdvancementInfo> advancementInfos = new HashMap<String, AdvancementInfo>() {
 		{
@@ -44,14 +43,8 @@ public class ToastManagerMixin {
 	@Inject(method = "add", at = @At("HEAD"))
 	public void add(Toast toast, CallbackInfo ci) {
 
-		if (!(toast instanceof AdvancementToast))
+		if (!(toast instanceof AdvancementToast) || instance.config == null)
 			return;
-
-		if (FaceLift.getInstance() == null)
-			return;
-
-		if (config == null)
-			config = FaceLift.getInstance().config;
 
 		try {
 
@@ -65,12 +58,12 @@ public class ToastManagerMixin {
 
 			switch (advancementInfo.getName()) {
 				case "CombatStart": {
-					config.general.inCombat = true;
+					instance.config.general.inCombat = true;
 					break;
 				}
 
 				case "CombatEnd": {
-					config.general.inCombat = false;
+					instance.config.general.inCombat = false;
 					break;
 				}
 			}

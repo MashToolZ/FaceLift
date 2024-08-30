@@ -5,14 +5,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.custom.FaceStatus;
 import xyz.mashtoolz.utils.TextUtils;
 
 public class ChatHandler {
 
 	private static FaceLift instance = FaceLift.getInstance();
-	private static FaceConfig config = instance.config;
 
 	public static void addMessage(Text text, CallbackInfo ci) {
 
@@ -20,7 +18,7 @@ public class ChatHandler {
 		if (TextUtils.escapeStringToUnicode(message, false).startsWith("\\uf804"))
 			return;
 
-		if (config.general.xpDisplay.enabled)
+		if (instance.config.general.xpDisplay.enabled)
 			handleXPMessage(text, message, ci);
 
 		try {
@@ -64,10 +62,10 @@ public class ChatHandler {
 						color = Formatting.byName(color).toString();
 
 					var key = match.group(1);
-					if (!config.general.xpDisplay.displays.containsKey(key))
-						config.general.xpDisplay.displays.put(key, new XPDisplay(key, color, 0, System.currentTimeMillis(), false));
+					if (!instance.config.general.xpDisplay.displays.containsKey(key))
+						instance.config.general.xpDisplay.displays.put(key, new XPDisplay(key, color, 0, System.currentTimeMillis(), false));
 
-					var display = config.general.xpDisplay.displays.get(key);
+					var display = instance.config.general.xpDisplay.displays.get(key);
 					display.setXP(Integer.parseInt(match.group(2)) + display.getXP());
 					display.setTime(System.currentTimeMillis());
 					display.setColor(color);
@@ -76,10 +74,10 @@ public class ChatHandler {
 
 				case "combatXP": {
 					var key = "Combat";
-					if (!config.general.xpDisplay.displays.containsKey(key))
-						config.general.xpDisplay.displays.put(key, new XPDisplay(key, "<#8AF828>", 0, System.currentTimeMillis(), false));
+					if (!instance.config.general.xpDisplay.displays.containsKey(key))
+						instance.config.general.xpDisplay.displays.put(key, new XPDisplay(key, "<#8AF828>", 0, System.currentTimeMillis(), false));
 
-					var display = config.general.xpDisplay.displays.get(key);
+					var display = instance.config.general.xpDisplay.displays.get(key);
 					display.setXP(Integer.parseInt(match.group(1)) + display.getXP());
 					display.setTime(System.currentTimeMillis());
 					display.setColor("<#8AF828>");

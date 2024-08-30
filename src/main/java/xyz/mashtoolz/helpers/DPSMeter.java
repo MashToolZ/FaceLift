@@ -3,18 +3,14 @@ package xyz.mashtoolz.helpers;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.RenderUtils;
 
 public class DPSMeter {
 
 	private static FaceLift instance = FaceLift.getInstance();
-	private static MinecraftClient client = instance.client;
-	private static FaceConfig config = instance.config;
 
 	public static final ArrayList<String> damageNumbers = new ArrayList<>(
 			Arrays.asList("０", "１", "２", "３", "４", "５", "６", "７", "８", "９"));
@@ -73,11 +69,11 @@ public class DPSMeter {
 	}
 
 	public static void draw(DrawContext context) {
-		var remaining = config.combat.dpsMeter.duration - (System.currentTimeMillis() - getLastHitTime());
+		var remaining = instance.config.combat.dpsMeter.duration - (System.currentTimeMillis() - getLastHitTime());
 		if (getStartTime() == 0)
 			return;
 
-		var ignoreTimer = config.combat.dpsMeter.duration == -1;
+		var ignoreTimer = instance.config.combat.dpsMeter.duration == -1;
 		if (remaining <= 0 && !ignoreTimer) {
 			reset();
 			return;
@@ -87,18 +83,18 @@ public class DPSMeter {
 		String hitsFormat = NumberFormatter.format(getHits());
 		String dpsFormat = NumberFormatter.format(getDPS());
 
-		int damageWidth = client.textRenderer.getWidth(damageFormat);
-		int hitsWidth = client.textRenderer.getWidth(hitsFormat);
-		int dpsWidth = client.textRenderer.getWidth(dpsFormat);
+		int damageWidth = instance.client.textRenderer.getWidth(damageFormat);
+		int hitsWidth = instance.client.textRenderer.getWidth(hitsFormat);
+		int dpsWidth = instance.client.textRenderer.getWidth(dpsFormat);
 
-		int x = config.combat.dpsMeter.position.x;
-		int y = config.combat.dpsMeter.position.y;
+		int x = instance.config.combat.dpsMeter.position.x;
+		int y = instance.config.combat.dpsMeter.position.y;
 
 		context.fill(x, y, x + 112, y + RenderUtils.h(5) + 2, 0x80000000);
 		RenderUtils.drawTextWithShadow(context, "§cDPS Meter", x + 5, y + 5);
 
-		if (!ignoreTimer && config.combat.dpsMeter.showTimebar)
-			RenderUtils.drawTimeBar(context, x, y, (int) remaining, config.combat.dpsMeter.duration, ColorUtils.hex2Int("FD3434", 0x90));
+		if (!ignoreTimer && instance.config.combat.dpsMeter.showTimebar)
+			RenderUtils.drawTimeBar(context, x, y, (int) remaining, instance.config.combat.dpsMeter.duration, ColorUtils.hex2Int("FD3434", 0x90));
 
 		RenderUtils.drawTextWithShadow(context, "<#FFB2CC>Damage <#FDFDFD>", x + 5, y + 25 + RenderUtils.lh(0));
 		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + damageFormat, x + 107 - damageWidth, y + 25 + RenderUtils.lh(0));

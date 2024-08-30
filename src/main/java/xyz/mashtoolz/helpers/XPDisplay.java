@@ -1,9 +1,7 @@
 package xyz.mashtoolz.helpers;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.config.FaceConfig.General.Display.DisplayType;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.RenderUtils;
@@ -11,8 +9,6 @@ import xyz.mashtoolz.utils.RenderUtils;
 public class XPDisplay {
 
 	private static FaceLift instance = FaceLift.getInstance();
-	private static MinecraftClient client = instance.client;
-	private static FaceConfig config = instance.config;
 
 	private String key;
 	private String color;
@@ -71,7 +67,7 @@ public class XPDisplay {
 		if (this.totalTime == 0 && time > 0)
 			this.totalTime = time;
 		this.time = time;
-		config.general.xpDisplay.lastDisplay = this;
+		instance.config.general.xpDisplay.lastDisplay = this;
 	}
 
 	public boolean isVisible() {
@@ -89,31 +85,33 @@ public class XPDisplay {
 	}
 
 	public static void draw(DrawContext context) {
-		if (config.general.xpDisplay.lastDisplay == null)
+		if (instance.config.general.xpDisplay.lastDisplay == null)
 			return;
 
-		var ignoreTimer = config.general.xpDisplay.duration == -1;
-		var remaining = config.general.xpDisplay.duration - (System.currentTimeMillis() - config.general.xpDisplay.lastDisplay.getTime());
+		var ignoreTimer = instance.config.general.xpDisplay.duration == -1;
+		var remaining = instance.config.general.xpDisplay.duration - (System.currentTimeMillis() - instance.config.general.xpDisplay.lastDisplay.getTime());
 		if (remaining <= 0 && !ignoreTimer) {
-			if (config.general.xpDisplay.lastDisplay.getXP() != 0)
-				config.general.xpDisplay.lastDisplay.reset();
+			if (instance.config.general.xpDisplay.lastDisplay.getXP() != 0)
+				instance.config.general.xpDisplay.lastDisplay.reset();
 			return;
 		}
 
-		int height = config.general.xpDisplay.displays.values().stream().filter(display -> display.getXP() > 0).mapToInt(display -> 10).sum();
-		int x = config.general.xpDisplay.position.x;
-		int y = config.general.xpDisplay.position.y;
+		int height = instance.config.general.xpDisplay.displays.values().stream().filter(display -> display.getXP() > 0).mapToInt(display -> 10).sum();
+		int x = instance.config.general.xpDisplay.position.x;
+		int y = instance.config.general.xpDisplay.position.y;
 
 		context.fill(x, y, x + 112, y + height + RenderUtils.h(2) + 2, 0x80000000);
 		RenderUtils.drawTextWithShadow(context, "§aXP Display", x + 5, y + 5);
 
-		if (!ignoreTimer && config.general.xpDisplay.showTimebar)
-			RenderUtils.drawTimeBar(context, x, y, (int) remaining, config.general.xpDisplay.duration, ColorUtils.hex2Int("34FD34", 0x90));
+		if (!ignoreTimer && instance.config.general.xpDisplay.showTimebar)
+			RenderUtils.drawTimeBar(context, x, y, (int) remaining, instance.config.general.xpDisplay.duration, ColorUtils.hex2Int("34FD34", 0x90));
 
 		int i = 0;
-		for (var display : config.general.xpDisplay.displays.values())
+		for (var display : instance.config.general.xpDisplay.displays.values()) {
 			if (!display.draw(context, x, y, i, ignoreTimer))
 				continue;
+			i++;
+		}
 	}
 
 	public boolean draw(DrawContext context, int x, int y, int i, boolean ignoreTimer) {
@@ -121,7 +119,7 @@ public class XPDisplay {
 		if (getXP() == 0)
 			return false;
 
-		if (isVisible() && getTime() + config.general.xpDisplay.duration < System.currentTimeMillis() && !ignoreTimer) {
+		if (isVisible() && getTime() + instance.config.general.xpDisplay.duration < System.currentTimeMillis() && !ignoreTimer) {
 			this.reset();
 			return false;
 		}
@@ -131,18 +129,16 @@ public class XPDisplay {
 
 		var skill = this.getColor() + this.getKey();
 		var xp = NumberFormatter.format(this.getXP());
-		var gain = config.general.xpDisplay.showLastGain ? " +" + NumberFormatter.format(getGain()) : "";
+		var gain = instance.config.general.xpDisplay.showLastGain ? " +" + NumberFormatter.format(getGain()) : "";
 
 		RenderUtils.drawTextWithShadow(context, skill, x + 5, y + 25 + (i * 10));
 
-		var type = config.general.xpDisplay.displayType;
+		var type = instance.config.general.xpDisplay.displayType;
 		var perN = getTotalTime() / (1000.0 * 60 * (type == DisplayType.PER_HOUR ? 60 : 1));
 		if (type != DisplayType.DEFAULT)
 			xp = NumberFormatter.format((int) (getXP() / perN));
 
-		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + xp + gain, x + 107 - client.textRenderer.getWidth(xp), y + 25 + (i * 10));
-
-		i++;
+		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + xp + gain, x + 107 - instance.client.textRenderer.getWidth(xp), y + 25 + (i * 10));
 
 		return true;
 	}

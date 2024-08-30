@@ -1,7 +1,6 @@
 package xyz.mashtoolz.config;
 
 import java.util.Map;
-
 import java.util.HashMap;
 
 import me.shedaniel.autoconfig.ConfigData;

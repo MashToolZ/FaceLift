@@ -3,22 +3,18 @@ package xyz.mashtoolz.helpers;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.RenderUtils;
 
 public class CombatTimer {
 
 	private static FaceLift instance = FaceLift.getInstance();
-	private static MinecraftClient client = instance.client;
-	private static FaceConfig config = instance.config;
 
 	public static void draw(DrawContext context) {
 
-		var time = Math.max(DPSMeter.getLastHitTime(), config.general.lastHurtTime);
+		var time = Math.max(DPSMeter.getLastHitTime(), instance.config.general.lastHurtTime);
 		var remaining = 12000 - (System.currentTimeMillis() - time);
 		if (remaining <= 0)
 			return;
@@ -27,15 +23,15 @@ public class CombatTimer {
 		var seconds = decimal.setScale(1, RoundingMode.HALF_UP).toPlainString();
 		var percent = remaining / 12000f;
 
-		int secondsWidth = client.textRenderer.getWidth(seconds);
+		int secondsWidth = instance.client.textRenderer.getWidth(seconds);
 
 		if (seconds.length() == 3) {
-			secondsWidth = client.textRenderer.getWidth("0" + seconds);
+			secondsWidth = instance.client.textRenderer.getWidth("0" + seconds);
 			seconds = "<#00D1D1D1>0<#FDFDFD>" + seconds;
 		}
 
-		int x = config.combat.combatTimer.position.x;
-		int y = config.combat.combatTimer.position.y;
+		int x = instance.config.combat.combatTimer.position.x;
+		int y = instance.config.combat.combatTimer.position.y;
 
 		context.fill(x, y, x + 112, y + RenderUtils.h(2) + 2, 0x80000000);
 		RenderUtils.drawTextWithShadow(context, "§eCombat Timer", x + 5, y + 5);

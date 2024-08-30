@@ -3,11 +3,9 @@ package xyz.mashtoolz.helpers;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.mixins.InGameHudInterface;
 import xyz.mashtoolz.utils.RenderUtils;
 import xyz.mashtoolz.utils.TimeUtils;
@@ -15,8 +13,6 @@ import xyz.mashtoolz.utils.TimeUtils;
 public class ArenaTimer {
 
 	private static FaceLift instance = FaceLift.getInstance();
-	private static MinecraftClient client = instance.client;
-	private static FaceConfig config = instance.config;
 
 	public static RegexPattern[] regexes = new RegexPattern[] {
 			new RegexPattern("subtitle.waveStart", "Wave (\\d+) has begun!"),
@@ -93,7 +89,7 @@ public class ArenaTimer {
 
 	public static void updateTimer(DrawContext context) {
 
-		var inGameHud = (InGameHudInterface) client.inGameHud;
+		var inGameHud = (InGameHudInterface) instance.client.inGameHud;
 		if (inGameHud == null)
 			return;
 
@@ -147,14 +143,14 @@ public class ArenaTimer {
 
 		var totalHMS = TimeUtils.timeToHMS(totalTime);
 		var totalStr = String.format("%02d:%02d.%d", totalHMS[1], totalHMS[2], totalHMS[3]);
-		var totalStrWidth = client.textRenderer.getWidth(totalStr);
+		var totalStrWidth = instance.client.textRenderer.getWidth(totalStr);
 
 		var waveHMS = TimeUtils.timeToHMS(getCurrentWaveTime());
 		var waveStr = String.format("%02d:%02d.%d", waveHMS[1], waveHMS[2], waveHMS[3]);
-		var waveStrWidth = client.textRenderer.getWidth(waveStr);
+		var waveStrWidth = instance.client.textRenderer.getWidth(waveStr);
 
-		int x = config.combat.arenaTimer.position.x;
-		int y = config.combat.arenaTimer.position.y;
+		int x = instance.config.combat.arenaTimer.position.x;
+		int y = instance.config.combat.arenaTimer.position.y;
 
 		context.fill(x, y, x + 112, y + RenderUtils.h(2) + 2, 0x80000000);
 		RenderUtils.drawTextWithShadow(context, "§3Arena Timer", x + 5, y + 5);
