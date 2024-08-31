@@ -22,6 +22,8 @@ public class Keybinds {
 
 	public static KeyBinding setToolSlot = add("facelift.key.setToolSlot");
 
+	public static KeyBinding compare = add("facelift.key.compare");
+
 	public static KeyBinding add(String key) {
 		return KeyBindingHelper.registerKeyBinding(new KeyBinding(key, InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "facelift.title"));
 	}

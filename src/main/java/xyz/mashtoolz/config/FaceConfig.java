@@ -1,13 +1,9 @@
 package xyz.mashtoolz.config;
 
-import java.util.Map;
-import java.util.HashMap;
-
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
-import xyz.mashtoolz.helpers.XPDisplay;
 import xyz.mashtoolz.utils.Pos2D;
 
 @Config(name = "facelift")
@@ -24,18 +20,21 @@ public class FaceConfig implements ConfigData {
 	public static class General {
 
 		@ConfigEntry.Gui.Excluded
-		public boolean onFaceLand = false;
+		public static boolean onFaceLand = false;
 		@ConfigEntry.Gui.Excluded
-		public boolean isMounted = false;
+		public static boolean isMounted = false;
 		@ConfigEntry.Gui.Excluded
-		public boolean inCombat = false;
+		public static boolean inCombat = false;
 		@ConfigEntry.Gui.Excluded
-		public float hurtTime = 0;
+		public static float hurtTime = 0;
 		@ConfigEntry.Gui.Excluded
-		public long lastHurtTime = 0;
+		public static long lastHurtTime = 0;
 
 		@ConfigEntry.Gui.Tooltip
 		public boolean mountThirdPerson = true;
+
+		@ConfigEntry.Gui.Tooltip
+		public boolean instantBowZoom = true;
 
 		@ConfigEntry.Gui.Tooltip
 		public int playerListHeightOffset = 25;
@@ -44,12 +43,6 @@ public class FaceConfig implements ConfigData {
 		public Display xpDisplay = new Display();
 
 		public static class Display {
-
-			@ConfigEntry.Gui.Excluded
-			public Map<String, XPDisplay> displays = new HashMap<String, XPDisplay>();
-
-			@ConfigEntry.Gui.Excluded
-			public XPDisplay lastDisplay;
 
 			public boolean enabled = true;
 			public boolean showTimebar = true;

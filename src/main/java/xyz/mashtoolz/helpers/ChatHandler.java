@@ -3,9 +3,9 @@ package xyz.mashtoolz.helpers;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.custom.FaceStatus;
+import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.TextUtils;
 
 public class ChatHandler {
@@ -21,13 +21,8 @@ public class ChatHandler {
 		if (instance.config.general.xpDisplay.enabled)
 			handleXPMessage(text, message, ci);
 
-		try {
-
-			if (message.equals("RISE AND SHINE! You're well rested and had a pretty good meal!"))
-				FaceStatus.WELL_RESTED.applyEffect();
-		} catch (Exception e) {
-			System.out.println(e);
-		}
+		if (message.equals("RISE AND SHINE! You're well rested and had a pretty good meal!"))
+			FaceStatus.WELL_RESTED.applyEffect();
 	}
 
 	private static RegexPattern[] xpRegexes = new RegexPattern[] {
@@ -40,51 +35,24 @@ public class ChatHandler {
 
 		for (var regex : xpRegexes) {
 			var match = regex.getPattern().matcher(message);
-
 			if (!match.find())
 				continue;
 
 			ci.cancel();
 
-			switch (regex.getKey()) {
-				case "skillXP": {
+			String key = regex.getKey().equals("combatXP") ? "Combat" : match.group(1);
+			String xpValue = regex.getKey().equals("combatXP") ? match.group(1) : match.group(2);
+			String color = regex.getKey().equals("combatXP") ? "<#8AF828>" : ColorUtils.getTextColor(text);
 
-					var color = "#D1D1D1";
-
-					try {
-						color = text.getSiblings().get(0).getStyle().getColor().toString();
-					} catch (Exception e) {
-					}
-
-					if (color.matches("#[0-9A-Fa-f]{6}"))
-						color = "<" + color + ">";
-					else
-						color = Formatting.byName(color).toString();
-
-					var key = match.group(1);
-					if (!instance.config.general.xpDisplay.displays.containsKey(key))
-						instance.config.general.xpDisplay.displays.put(key, new XPDisplay(key, color, 0, System.currentTimeMillis(), false));
-
-					var display = instance.config.general.xpDisplay.displays.get(key);
-					display.setXP(Integer.parseInt(match.group(2)) + display.getXP());
-					display.setTime(System.currentTimeMillis());
-					display.setColor(color);
-					break;
-				}
-
-				case "combatXP": {
-					var key = "Combat";
-					if (!instance.config.general.xpDisplay.displays.containsKey(key))
-						instance.config.general.xpDisplay.displays.put(key, new XPDisplay(key, "<#8AF828>", 0, System.currentTimeMillis(), false));
-
-					var display = instance.config.general.xpDisplay.displays.get(key);
-					display.setXP(Integer.parseInt(match.group(1)) + display.getXP());
-					display.setTime(System.currentTimeMillis());
-					display.setColor("<#8AF828>");
-					break;
-				}
-			}
+			handleXP(key, xpValue, color);
 			return;
 		}
+	}
+
+	private static void handleXP(String key, String xpValue, String color) {
+		XPDisplay display = XPDisplay.displays.computeIfAbsent(key, k -> new XPDisplay(k, color, 0, System.currentTimeMillis(), false));
+		display.setXP(display.getXP() + Integer.parseInt(xpValue));
+		display.setTime(System.currentTimeMillis());
+		display.setColor(color);
 	}
 }

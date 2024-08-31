@@ -6,17 +6,24 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
+import xyz.mashtoolz.config.Keybinds;
+import xyz.mashtoolz.custom.FaceEquipment;
 import xyz.mashtoolz.custom.FaceItem;
 import xyz.mashtoolz.custom.FaceRarity;
+import xyz.mashtoolz.custom.FaceSlot;
 import xyz.mashtoolz.custom.FaceTexture;
+import xyz.mashtoolz.custom.FaceTool;
+import xyz.mashtoolz.custom.FaceSlotType;
 import xyz.mashtoolz.mixins.HandledScreenAccessor;
 import xyz.mashtoolz.mixins.ScreenInterface;
 import xyz.mashtoolz.utils.ColorUtils;
+import xyz.mashtoolz.utils.RenderUtils;
 import xyz.mashtoolz.widget.DropDownMenu;
 import xyz.mashtoolz.widget.SearchFieldWidget;
 import net.minecraft.client.MinecraftClient;
@@ -28,12 +35,13 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.BowItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 
 public class HudRenderer {
 
@@ -47,22 +55,26 @@ public class HudRenderer {
 	private static int glintFrame = 0;
 	private static long glintTime = System.currentTimeMillis();
 
-	public static final ArrayList<Item> ABILITY_ITEMS = new ArrayList<>(
-			Arrays.asList(Items.DIAMOND_CHESTPLATE, Items.GOLDEN_CHESTPLATE));
-	public static final ArrayList<Item> IGNORED_ITEMS = new ArrayList<>(Arrays.asList(Items.BARRIER,
-			Items.IRON_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.PLAYER_HEAD, Items.BARRIER));
-	public static final ArrayList<Item> HIDDEN_ITEMS = new ArrayList<>(
-			Arrays.asList(Items.SHIELD, Items.TRIPWIRE_HOOK));
+	public static final ArrayList<Item> ABILITY_ITEMS = new ArrayList<>(Arrays.asList(Items.DIAMOND_CHESTPLATE, Items.GOLDEN_CHESTPLATE));
+	public static final ArrayList<Item> IGNORED_ITEMS = new ArrayList<>(Arrays.asList(Items.BARRIER, Items.IRON_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.PLAYER_HEAD, Items.BARRIER));
+	public static final ArrayList<Item> HIDDEN_ITEMS = new ArrayList<>(Arrays.asList(Items.SHIELD, Items.TRIPWIRE_HOOK));
+	public static final ArrayList<FaceSlotType> TOOL_TYPES = new ArrayList<>(Arrays.asList(FaceSlotType.PICKAXE, FaceSlotType.WOODCUTTINGAXE, FaceSlotType.HOE));
 
 	public static void onHudRender(DrawContext context, float delta) {
 
-		if (!config.general.onFaceLand)
+		if (!FaceConfig.General.onFaceLand)
 			return;
+
+		if (!FaceEquipment.updateCache && FaceEquipment.handler != null && (client.currentScreen == null || !client.currentScreen.getTitle().getString().contains("库"))) {
+			FaceEquipment.updateCachedEquipment();
+			FaceEquipment.handler = null;
+		}
 
 		if (client.currentScreen == null)
 			HudRenderer.searchBar = null;
 
-		context.getMatrices().push();
+		var matrices = context.getMatrices();
+		matrices.push();
 
 		if (config.combat.combatTimer.enabled)
 			CombatTimer.draw(context);
@@ -78,20 +90,84 @@ public class HudRenderer {
 		if (config.general.xpDisplay.enabled)
 			XPDisplay.draw(context);
 
-		context.getMatrices().pop();
+		matrices.pop();
+	}
+
+	public static void onHandledScreenRenderTail(DrawContext context, int mouseX, int mouseY, float delta) {
+
+		if (!FaceConfig.General.onFaceLand || client.currentScreen == null || !(client.currentScreen instanceof HandledScreen))
+			return;
+
+		var screen = (HandledScreenAccessor) client.currentScreen;
+		var handler = screen.getHandler();
+		if (handler == null)
+			return;
+
+		if (FaceEquipment.updateCache && client.currentScreen.getTitle().getString().contains("库")) {
+			FaceEquipment.updateCache = false;
+			FaceEquipment.handler = handler;
+		}
+
+		if (Keybinds.isPressed(Keybinds.compare))
+			compareAndRenderTooltip(screen, context, mouseX, mouseY);
+	}
+
+	private static boolean compareStacks(ItemStack stack1, ItemStack stack2) {
+		return stack1.getNbt().asString().equals(stack2.getNbt().asString());
+	}
+
+	private static FaceSlot getComparisonSlot(FaceItem item) {
+		var slot = item.getFaceSlot(false);
+		if (slot == null)
+			return null;
+
+		if (slot.getFaceType().equals(FaceSlotType.MAINHAND)) {
+			var offHandStack = FaceSlot.OFFHAND.getStack();
+			if (!offHandStack.isEmpty() && !new FaceItem(offHandStack).invalid) {
+				var offHandSlot = new FaceItem(offHandStack).getFaceSlot(false);
+				if (offHandSlot.getFaceType().equals(FaceSlotType.MAINHAND))
+					slot = item.getFaceSlot(true);
+			}
+		}
+		return slot;
+	}
+
+	private static void compareAndRenderTooltip(HandledScreenAccessor screen, DrawContext context, int mouseX, int mouseY) {
+		var focusedSlot = screen.getFocusedSlot();
+		if (focusedSlot == null || focusedSlot.getStack().isEmpty())
+			return;
+
+		var focusedItem = new FaceItem(focusedSlot.getStack());
+		if (focusedItem.invalid)
+			return;
+
+		var compareSlot = getComparisonSlot(focusedItem);
+		if (compareSlot == null)
+			return;
+
+		var compareStack = compareSlot.getStack();
+		if (compareStack.isEmpty() || compareStacks(focusedSlot.getStack(), compareStack))
+			return;
+
+		RenderUtils.drawTooltip(context, compareStack, mouseX, mouseY);
 	}
 
 	public static void afterInitScreen(MinecraftClient client, Screen screen, int width, int height) {
 
-		if (!config.general.onFaceLand)
+		if (!FaceConfig.General.onFaceLand)
 			return;
 
 		if (screen instanceof HandledScreen) {
 
+			if (client.currentScreen.getTitle().getString().contains("库")) {
+				FaceEquipment.clearCache();
+				FaceEquipment.updateCache = true;
+			}
+
 			var inventory = config.inventory;
-			searchBar = new SearchFieldWidget(client.textRenderer, width / 2 - 90, height - 25, 180, 20, searchBar,
-					Text.literal(inventory.searchbar.query));
+			searchBar = new SearchFieldWidget(client.textRenderer, width / 2 - 90, height - 25, 180, 20, searchBar, Text.literal(inventory.searchbar.query));
 			searchBar.setText(inventory.searchbar.query);
+			searchBar.setMaxLength(255);
 
 			searchBar.setChangedListener(text -> {
 				inventory.searchbar.query = text;
@@ -239,15 +315,9 @@ public class HudRenderer {
 		matrices.pop();
 	}
 
-	public static void drawToolSlot(DrawContext context, Identifier texture, int x, int y) {
-		RenderSystem.setShaderTexture(0, texture);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		context.drawTexture(texture, x, y, 0, 0, 16, 16, 16, 16);
-	}
-
 	public static void preDrawItemSlot(DrawContext context, Slot slot, CallbackInfo ci) {
 
-		if (!config.general.onFaceLand)
+		if (!FaceConfig.General.onFaceLand)
 			return;
 
 		MatrixStack matrices = context.getMatrices();
@@ -262,9 +332,11 @@ public class HudRenderer {
 			var screen = (HandledScreenAccessor) client.currentScreen;
 			var handler = screen.getHandler();
 			if (handler.slots.size() == 46 && client.currentScreen.getTitle().getString().length() != 0) {
-				for (var entry : config.inventory.autoTool.map().entrySet()) {
-					if (slot.id == entry.getValue().getSlot()) {
-						drawToolSlot(context, entry.getKey(), x, y);
+				for (var tool : FaceTool.values()) {
+					if (slot.id == tool.getSlotIndex()) {
+						RenderSystem.setShaderTexture(0, tool.getTexture());
+						RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+						context.drawTexture(tool.getTexture(), x, y, 0, 0, 16, 16, 16, 16);
 						break;
 					}
 				}
@@ -275,7 +347,7 @@ public class HudRenderer {
 
 		FaceItem item = new FaceItem(stack);
 		boolean hideItem = searchbarCheck(item);
-		var rarity = item.getRarity();
+		var rarity = item.getFaceRarity();
 		var color = item.getColor();
 		if (color != null && !rarity.equals(FaceRarity.UNKNOWN)) {
 			float[] rgb = ColorUtils.getRGB(color);
@@ -291,9 +363,9 @@ public class HudRenderer {
 
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, hideItem ? 0.25F : 1.0F);
 
-			if (rarity.getName().startsWith("MATERIAL_")) {
+			if (rarity.getString().startsWith("MATERIAL_")) {
 				matrices.translate(0.0f, 0.0f, 300.0f);
-				var stars = Integer.parseInt(rarity.getName().split("_")[1]);
+				var stars = Integer.parseInt(rarity.getString().split("_")[1]);
 				RenderSystem.setShaderTexture(0, FaceTexture.ITEM_STAR);
 				context.drawTexture(FaceTexture.ITEM_STAR, x, y, 0, 0, 3 * stars, 3, 3, 3);
 				matrices.translate(0.0f, 0.0f, -300.0f);
@@ -309,9 +381,32 @@ public class HudRenderer {
 	}
 
 	public static void postDrawItemSlot(DrawContext context, Slot slot) {
-		if (!config.general.onFaceLand)
+		if (!FaceConfig.General.onFaceLand)
+			return;
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+	}
+
+	public static void getFovMultiplierReturn(CallbackInfoReturnable<Float> cir) {
+
+		if (!config.general.instantBowZoom)
 			return;
 
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		var player = instance.client.player;
+		if (player == null || player.getActiveItem() == null)
+			return;
+
+		float f = 1.0F;
+
+		ItemStack itemStack = player.getActiveItem();
+		if (player.isUsingItem()) {
+			if (itemStack.getItem() instanceof BowItem) {
+				int i = player.getItemUseTime();
+				float g = (float) i / 1.0F;
+				g = (g > 1.0F ? 1.0F : g * g);
+				f *= 1.0F - g * 0.061F;
+
+				cir.setReturnValue(MathHelper.lerp(instance.client.options.getFovEffectScale().getValue().floatValue(), 1.0F, f));
+			}
+		}
 	}
 }

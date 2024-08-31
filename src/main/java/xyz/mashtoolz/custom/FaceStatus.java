@@ -44,18 +44,18 @@ public enum FaceStatus {
 		instance.client.player.removeStatusEffect(this.effect);
 	}
 
+	public static void registerEffects() {
+		for (FaceStatus status : FaceStatus.values()) {
+			effects.add(status);
+			Registry.register(Registries.STATUS_EFFECT, new Identifier("facelift", status.name().toLowerCase()), status.effect);
+		}
+	}
+
 	public static void update() {
 		for (FaceStatus faceStatus : effects) {
 			var effectInstance = instance.client.player.getStatusEffect(faceStatus.getEffect());
 			if (effectInstance != null && effectInstance.getDuration() <= 0)
 				faceStatus.removeEffect();
-		}
-	}
-
-	public static void registerEffects() {
-		for (FaceStatus status : FaceStatus.values()) {
-			effects.add(status);
-			Registry.register(Registries.STATUS_EFFECT, new Identifier("facelift", status.name().toLowerCase()), status.effect);
 		}
 	}
 

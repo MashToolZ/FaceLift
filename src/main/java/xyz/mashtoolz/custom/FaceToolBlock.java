@@ -1,52 +1,54 @@
 package xyz.mashtoolz.custom;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import xyz.mashtoolz.FaceLift;
 
 public enum FaceToolBlock {
 
-	COAL_ORE("minecraft:coal_ore", "pickaxe"),
-	IRON_ORE("minecraft:iron_ore", "pickaxe"),
-	GOLD_ORE("minecraft:gold_ore", "pickaxe"),
-	DIAMOND_ORE("minecraft:diamond_ore", "pickaxe"),
-	EMERALD_ORE("minecraft:emerald_ore", "pickaxe"),
-	LAPIS_ORE("minecraft:lapis_ore", "pickaxe"),
-	REDSTONE_ORE("minecraft:redstone_ore", "pickaxe"),
-	DEAD_TUBE_CORAL_WALL_FAN("minecraft:dead_tube_coral_wall_fan", "pickaxe"),
+	COAL_ORE(Blocks.COAL_ORE, FaceToolType.PICKAXE),
+	IRON_ORE(Blocks.IRON_ORE, FaceToolType.PICKAXE),
+	GOLD_ORE(Blocks.GOLD_ORE, FaceToolType.PICKAXE),
+	DIAMOND_ORE(Blocks.DIAMOND_ORE, FaceToolType.PICKAXE),
+	EMERALD_ORE(Blocks.EMERALD_ORE, FaceToolType.PICKAXE),
+	LAPIS_ORE(Blocks.LAPIS_ORE, FaceToolType.PICKAXE),
+	REDSTONE_ORE(Blocks.REDSTONE_ORE, FaceToolType.PICKAXE),
+	DEAD_TUBE_CORAL_WALL_FAN(Blocks.DEAD_TUBE_CORAL_WALL_FAN, FaceToolType.PICKAXE),
 
-	OAK_WOOD("minecraft:oak_wood", "woodcuttingaxe"),
-	DARK_OAK_WOOD("minecraft:dark_oak_wood", "woodcuttingaxe"),
-	SPRUCE_WOOD("minecraft:spruce_wood", "woodcuttingaxe"),
-	JUNGLE_WOOD("minecraft:jungle_wood", "woodcuttingaxe"),
-	ACACIA_WOOD("minecraft:acacia_wood", "woodcuttingaxe"),
+	OAK_WOOD(Blocks.OAK_WOOD, FaceToolType.WOODCUTTINGAXE),
+	DARK_OAK_WOOD(Blocks.DARK_OAK_WOOD, FaceToolType.WOODCUTTINGAXE),
+	SPRUCE_WOOD(Blocks.SPRUCE_WOOD, FaceToolType.WOODCUTTINGAXE),
+	JUNGLE_WOOD(Blocks.JUNGLE_WOOD, FaceToolType.WOODCUTTINGAXE),
+	ACACIA_WOOD(Blocks.ACACIA_WOOD, FaceToolType.WOODCUTTINGAXE),
 
-	WHEAT("minecraft:wheat", "hoe"),
-	AZURE_BLUET("minecraft:azure_bluet", "hoe"),
-	BROWN_MUSHROOM("minecraft:brown_mushroom", "hoe"),
-	RED_MUSHROOM("minecraft:red_mushroom", "hoe"),
-	JUNGLE_SAPLING("minecraft:jungle_sapling", "hoe");
+	WHEAT(Blocks.WHEAT, FaceToolType.HOE),
+	AZURE_BLUET(Blocks.AZURE_BLUET, FaceToolType.HOE),
+	BROWN_MUSHROOM(Blocks.BROWN_MUSHROOM, FaceToolType.HOE),
+	RED_MUSHROOM(Blocks.RED_MUSHROOM, FaceToolType.HOE),
+	JUNGLE_SAPLING(Blocks.JUNGLE_SAPLING, FaceToolType.HOE);
 
 	private static FaceLift instance = FaceLift.getInstance();
 
-	private final String id;
-	private final String name;
+	private final Block block;
+	private final FaceToolType type;
 
-	private FaceToolBlock(String id, String name) {
-		this.id = id;
-		this.name = name;
+	private FaceToolBlock(Block block, FaceToolType type) {
+		this.block = block;
+		this.type = type;
 	}
 
-	public String getId() {
-		return id;
+	public Block getBlock() {
+		return block;
 	}
 
-	public FaceTool getTool() {
-		return instance.config.inventory.autoTool.get(name);
+	public FaceTool getFaceTool() {
+		return instance.config.inventory.autoTool.get(type);
 	}
 
-	public static FaceTool getById(String id) {
-		for (FaceToolBlock block : FaceToolBlock.values()) {
-			if (block.getId().equals(id))
-				return block.getTool();
+	public static FaceTool getFaceToolByBlock(Block block) {
+		for (FaceToolBlock toolBlock : FaceToolBlock.values()) {
+			if (toolBlock.getBlock().equals(block))
+				return toolBlock.getFaceTool();
 		}
 		return null;
 	}

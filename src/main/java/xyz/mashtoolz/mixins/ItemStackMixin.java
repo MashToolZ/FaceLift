@@ -17,7 +17,7 @@ public abstract class ItemStackMixin {
 	public abstract Item getItem();
 
 	@Inject(method = "hasGlint", at = @At("HEAD"), cancellable = true)
-	public void hasGlint(CallbackInfoReturnable<Boolean> cir) {
+	public void FL_hasGlint(CallbackInfoReturnable<Boolean> cir) {
 		if (HudRenderer.ABILITY_ITEMS.contains(this.getItem())) {
 			cir.setReturnValue(false);
 			return;
@@ -25,7 +25,7 @@ public abstract class ItemStackMixin {
 	}
 
 	@Inject(method = "isItemBarVisible", at = @At("HEAD"), cancellable = true)
-	public void isItemBarVisible(CallbackInfoReturnable<Boolean> cir) {
+	public void FL_isItemBarVisible(CallbackInfoReturnable<Boolean> cir) {
 		if (HudRenderer.ABILITY_ITEMS.contains(this.getItem())) {
 			cir.setReturnValue(false);
 			return;

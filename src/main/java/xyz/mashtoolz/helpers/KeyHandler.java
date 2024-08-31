@@ -3,6 +3,7 @@ package xyz.mashtoolz.helpers;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.custom.FaceItem;
+import xyz.mashtoolz.custom.FaceTool;
 import xyz.mashtoolz.mixins.HandledScreenAccessor;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -60,20 +61,17 @@ public class KeyHandler {
 			return;
 
 		var focusedSlot = screen.getFocusedSlot();
-		if (focusedSlot == null || focusedSlot.id < 9 || handler.slots.size() != 46)
+		if (focusedSlot == null || focusedSlot.id < 9 || focusedSlot.id >= 40 || handler.slots.size() != 46)
 			return;
 
-		var stringData = FaceItem.getItemData(focusedSlot.getStack());
-		if (stringData == null)
-			return;
-
-		var tier = stringData.get("tier").getAsString();
-		for (var entry : instance.config.inventory.autoTool.map().entrySet()) {
-			var tool = entry.getValue();
-			if (tool.getName().equals(tier) && tool.getSlot() != focusedSlot.id) {
-				instance.config.inventory.autoTool.update(tool, focusedSlot.id);
+		var item = new FaceItem(focusedSlot.getStack());
+		var tooltip = item.getTooltip();
+		for (var tool : FaceTool.values()) {
+			if (tooltip.contains(tool.getFaceToolType().getName()) && tool.getSlotIndex() != focusedSlot.id) {
+				tool.setSlotIndex(focusedSlot.id);
 				break;
 			}
 		}
+
 	}
 }

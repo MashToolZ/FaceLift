@@ -1,9 +1,8 @@
 package xyz.mashtoolz.utils;
 
-import com.google.gson.JsonObject;
-
+import net.minecraft.block.Blocks;
 import net.minecraft.block.CropBlock;
-import net.minecraft.registry.Registries;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.hit.BlockHitResult;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.custom.FaceTool;
@@ -13,14 +12,9 @@ public class PlayerUtils {
 
 	public static FaceLift instance = FaceLift.getInstance();
 
-	public static FaceTool getCurrentTool(JsonObject itemData) {
-		try {
-			var tier = itemData.get("tier").getAsString();
-			var currentTool = instance.config.inventory.autoTool.get(tier);
-			return currentTool;
-		} catch (Exception e) {
-			return null;
-		}
+	public static void clickSlot(int slotId, int button, SlotActionType actionType) {
+		var syncId = instance.client.player.currentScreenHandler.syncId;
+		instance.client.interactionManager.clickSlot(syncId, slotId, button, actionType, instance.client.player);
 	}
 
 	public static FaceTool getTargetTool(BlockHitResult blockHitResult) {
@@ -32,10 +26,9 @@ public class PlayerUtils {
 				return null;
 		}
 
-		var blockId = Registries.BLOCK.getId(block).toString();
-		if (blockId.equals("minecraft:bedrock"))
-			return new FaceTool("bedrock", -1, null);
+		if (block.equals(Blocks.BEDROCK))
+			return FaceTool.BEDROCK;
 
-		return FaceToolBlock.getById(blockId);
+		return FaceToolBlock.getFaceToolByBlock(block);
 	}
 }

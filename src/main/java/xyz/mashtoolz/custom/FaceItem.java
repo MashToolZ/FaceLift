@@ -1,37 +1,38 @@
 package xyz.mashtoolz.custom;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.helpers.HudRenderer;
 
 public class FaceItem {
 
 	private static FaceLift instance = FaceLift.getInstance();
-	private static MinecraftClient client = instance.client;
 
 	private ItemStack stack;
 	private String name;
 	private String tooltip;
 	private FaceRarity rarity;
+	private FaceTool tool = null;
+	public boolean invalid;
+
+	private List<FaceSlot> DUALWIELD_SLOTS = new ArrayList<FaceSlot>(Arrays.asList(FaceSlot.MAINHAND, FaceSlot.OFFHAND));
+	private List<FaceSlot> TOOL_SLOTS = new ArrayList<FaceSlot>(Arrays.asList(FaceSlot.PICKAXE, FaceSlot.WOODCUTTINGAXE, FaceSlot.HOE));
 
 	public FaceItem(ItemStack stack) {
-
 		this.stack = stack;
 		this.name = stack.getName().getString();
-		this.tooltip = parseTooltip(Screen.getTooltipFromItem(client, stack));
+		this.tooltip = parseTooltip(Screen.getTooltipFromItem(instance.client, stack));
 		for (FaceRarity rarity : FaceRarity.values()) {
-			if (rarity.getName().equals("UNKNOWN"))
+			if (rarity.getString().equals("UNKNOWN"))
 				continue;
 
 			if (tooltip.contains(rarity.getUnicode())) {
@@ -42,6 +43,12 @@ public class FaceItem {
 
 		if (this.rarity == null)
 			this.rarity = FaceRarity.UNKNOWN;
+
+		for (var tool : FaceTool.values())
+			if (tooltip.contains(tool.getFaceToolType().getName()))
+				this.tool = tool;
+
+		this.invalid = this.rarity.equals(FaceRarity.UNKNOWN);
 	}
 
 	public ItemStack getStack() {
@@ -56,8 +63,26 @@ public class FaceItem {
 		return tooltip;
 	}
 
-	public FaceRarity getRarity() {
+	public FaceRarity getFaceRarity() {
 		return rarity;
+	}
+
+	public FaceTool getFaceTool() {
+		return tool;
+	}
+
+	public FaceSlot getFaceSlot(boolean isDualWielding) {
+		var shiftDown = Screen.hasShiftDown();
+
+		if (isDualWielding)
+			return DUALWIELD_SLOTS.get(shiftDown ? 1 : 0);
+
+		if (tool != null) {
+			return TOOL_SLOTS.get(tool.getFaceToolType().ordinal());
+		}
+
+		var id = Registries.ITEM.getId(stack.getItem()).toString();
+		return FaceEquipment.getSlot(id, shiftDown);
 	}
 
 	public TextColor getColor() {
@@ -87,7 +112,7 @@ public class FaceItem {
 				.replace("", "")
 				.replace("乚", " ");
 
-		char start = 'a';
+		char start = 'A';
 		for (int i = 0; i < 26; i++) {
 			text = text.replace(FaceCode.list1[i], String.valueOf((char) (start + i)));
 			text = text.replace(FaceCode.list2[i], String.valueOf((char) (start + i)));
@@ -98,24 +123,5 @@ public class FaceItem {
 			text = text.replace(code.getUnicode(), code.getText());
 
 		return text;
-	}
-
-	public static JsonObject getItemData(ItemStack stack) {
-		var item = stack.getItem();
-		if (stack.isEmpty() || HudRenderer.IGNORED_ITEMS.contains(item) || HudRenderer.ABILITY_ITEMS.contains(item))
-			return null;
-
-		var nbt = stack.getNbt();
-		if (nbt == null || !nbt.contains("PublicBukkitValues"))
-			return null;
-
-		var publicValues = nbt.getCompound("PublicBukkitValues");
-		var itemData = publicValues.getString("loot:loot.item_data");
-		if (itemData.length() <= 2)
-			return null;
-
-		var jsonObject = JsonParser.parseString(itemData).getAsJsonObject();
-		var stringData = jsonObject.getAsJsonObject("stringData");
-		return stringData;
 	}
 }

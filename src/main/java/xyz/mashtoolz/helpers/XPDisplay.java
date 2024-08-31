@@ -1,5 +1,8 @@
 package xyz.mashtoolz.helpers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig.General.Display.DisplayType;
@@ -9,6 +12,8 @@ import xyz.mashtoolz.utils.RenderUtils;
 public class XPDisplay {
 
 	private static FaceLift instance = FaceLift.getInstance();
+	public static Map<String, XPDisplay> displays = new HashMap<String, XPDisplay>();
+	public static XPDisplay lastDisplay;
 
 	private String key;
 	private String color;
@@ -67,7 +72,7 @@ public class XPDisplay {
 		if (this.totalTime == 0 && time > 0)
 			this.totalTime = time;
 		this.time = time;
-		instance.config.general.xpDisplay.lastDisplay = this;
+		lastDisplay = this;
 	}
 
 	public boolean isVisible() {
@@ -85,18 +90,18 @@ public class XPDisplay {
 	}
 
 	public static void draw(DrawContext context) {
-		if (instance.config.general.xpDisplay.lastDisplay == null)
+		if (lastDisplay == null)
 			return;
 
 		var ignoreTimer = instance.config.general.xpDisplay.duration == -1;
-		var remaining = instance.config.general.xpDisplay.duration - (System.currentTimeMillis() - instance.config.general.xpDisplay.lastDisplay.getTime());
+		var remaining = instance.config.general.xpDisplay.duration - (System.currentTimeMillis() - lastDisplay.getTime());
 		if (remaining <= 0 && !ignoreTimer) {
-			if (instance.config.general.xpDisplay.lastDisplay.getXP() != 0)
-				instance.config.general.xpDisplay.lastDisplay.reset();
+			if (lastDisplay.getXP() != 0)
+				lastDisplay.reset();
 			return;
 		}
 
-		int height = instance.config.general.xpDisplay.displays.values().stream().filter(display -> display.getXP() > 0).mapToInt(display -> 10).sum();
+		int height = displays.values().stream().filter(display -> display.getXP() > 0).mapToInt(display -> 10).sum();
 		int x = instance.config.general.xpDisplay.position.x;
 		int y = instance.config.general.xpDisplay.position.y;
 
@@ -107,7 +112,7 @@ public class XPDisplay {
 			RenderUtils.drawTimeBar(context, x, y, (int) remaining, instance.config.general.xpDisplay.duration, ColorUtils.hex2Int("34FD34", 0x90));
 
 		int i = 0;
-		for (var display : instance.config.general.xpDisplay.displays.values()) {
+		for (var display : displays.values()) {
 			if (!display.draw(context, x, y, i, ignoreTimer))
 				continue;
 			i++;

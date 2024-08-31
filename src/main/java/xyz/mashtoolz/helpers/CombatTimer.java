@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 
 import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
+import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.RenderUtils;
 
@@ -14,7 +15,7 @@ public class CombatTimer {
 
 	public static void draw(DrawContext context) {
 
-		var time = Math.max(DPSMeter.getLastHitTime(), instance.config.general.lastHurtTime);
+		var time = Math.max(DPSMeter.getLastHitTime(), FaceConfig.General.lastHurtTime);
 		var remaining = 12000 - (System.currentTimeMillis() - time);
 		if (remaining <= 0)
 			return;

@@ -15,7 +15,7 @@ import xyz.mashtoolz.helpers.HudRenderer;
 public abstract class DrawContextMixin {
 
 	@Inject(method = "drawItemInSlot(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V", at = @At("HEAD"), cancellable = true)
-	public void drawItemInSlotHead(TextRenderer textRenderer, ItemStack stack, int x, int y, @Nullable String countOverride, CallbackInfo ci) {
+	public void FL_drawItemInSlotHead(TextRenderer textRenderer, ItemStack stack, int x, int y, @Nullable String countOverride, CallbackInfo ci) {
 		HudRenderer.preDrawHotbarItemSlot((DrawContext) (Object) this, stack, x, y, ci);
 	}
 }

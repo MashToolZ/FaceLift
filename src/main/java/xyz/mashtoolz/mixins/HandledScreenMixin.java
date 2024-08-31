@@ -14,12 +14,17 @@ import xyz.mashtoolz.helpers.HudRenderer;
 public abstract class HandledScreenMixin {
 
 	@Inject(method = "drawSlot", at = @At("HEAD"), cancellable = true)
-	public void drawSlotHead(DrawContext context, Slot slot, CallbackInfo ci) {
+	public void FL_drawSlotHead(DrawContext context, Slot slot, CallbackInfo ci) {
 		HudRenderer.preDrawItemSlot(context, slot, ci);
 	}
 
 	@Inject(method = "drawSlot", at = @At("TAIL"))
-	public void drawSlotTail(DrawContext context, Slot slot, CallbackInfo ci) {
+	public void FL_drawSlotTail(DrawContext context, Slot slot, CallbackInfo ci) {
 		HudRenderer.postDrawItemSlot(context, slot);
+	}
+
+	@Inject(method = "render", at = @At("TAIL"))
+	public void FL_renderTail(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+		HudRenderer.onHandledScreenRenderTail(context, mouseX, mouseY, delta);
 	}
 }

@@ -1,28 +1,63 @@
 package xyz.mashtoolz.custom;
 
 import net.minecraft.util.Identifier;
+import xyz.mashtoolz.FaceLift;
+import xyz.mashtoolz.config.FaceConfig;
 
-public class FaceTool {
+public enum FaceTool {
 
-	private String name;
-	private int slot;
+	PICKAXE(FaceToolType.PICKAXE, 15, FaceTexture.EMPTY_PICKAXE),
+	WOODCUTTINGAXE(FaceToolType.WOODCUTTINGAXE, 16, FaceTexture.EMPTY_WOODCUTTINGAXE),
+	HOE(FaceToolType.HOE, 17, FaceTexture.EMPTY_HOE),
+	BEDROCK(FaceToolType.BEDROCK, -1, null);
+
+	private static FaceLift instance = FaceLift.getInstance();
+
+	private FaceToolType type;
+	private int slotIndex;
 	private Identifier texture;
 
-	public FaceTool(String name, int slot, Identifier texture) {
-		this.name = name;
-		this.slot = slot;
+	private FaceTool(FaceToolType type, int slotIndex, Identifier texture) {
+		this.type = type;
+		this.slotIndex = slotIndex;
 		this.texture = texture;
+	}
+
+	public FaceToolType getFaceToolType() {
+		return type;
+	}
+
+	public void setSlotIndex(int slotIndex) {
+		this.slotIndex = slotIndex;
+		var autoTool = instance.config.inventory.autoTool;
+		switch (type) {
+			case PICKAXE:
+				autoTool.pickaxe = slotIndex;
+				break;
+			case WOODCUTTINGAXE:
+				autoTool.woodcuttingaxe = slotIndex;
+				break;
+			case HOE:
+				autoTool.hoe = slotIndex;
+				break;
+			default:
+				break;
+		}
+		FaceConfig.save();
+	}
+
+	public int getSlotIndex() {
+		return slotIndex;
 	}
 
 	public Identifier getTexture() {
 		return texture;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public int getSlot() {
-		return slot;
+	public static FaceTool getByType(FaceToolType type) {
+		for (FaceTool tool : FaceTool.values())
+			if (tool.type == type)
+				return tool;
+		return null;
 	}
 }

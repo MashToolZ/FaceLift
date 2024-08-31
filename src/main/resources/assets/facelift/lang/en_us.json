@@ -1,13 +1,14 @@
 {
     "facelift.title": "FaceLift",
 
-    "facelift.key.config": "Open Config",
+    "facelift.key.menu": "Open Config",
     "facelift.key.mount": "Mount",
     "facelift.key.spell1": "Spell 1",
     "facelift.key.spell2": "Spell 2",
     "facelift.key.spell3": "Spell 3",
     "facelift.key.spell4": "Spell 4",
     "facelift.key.setToolSlot": "Set Tool Slot",
+    "facelift.key.compare": "Compare Equipment",
 
     "text.autoconfig.facelift.category.general": "General",
     "text.autoconfig.facelift.category.inventory": "Inventory",
@@ -15,6 +16,8 @@
 
     "text.autoconfig.facelift.option.general.mountThirdPerson": "3rd Person Mount",
     "text.autoconfig.facelift.option.general.mountThirdPerson.@Tooltip": "Automatically toggles between 1st/3rd Person Camera when mounting",
+    "text.autoconfig.facelift.option.general.instantBowZoom": "Instant Bow/Pistol Zoom",
+    "text.autoconfig.facelift.option.general.instantBowZoom.@Tooltip": "Increases the zoom speed to match the minimum charge time",
     "text.autoconfig.facelift.option.general.playerListHeightOffset": "Playerlist Height Offset",
     "text.autoconfig.facelift.option.general.playerListHeightOffset.@Tooltip": "Offset of the Playerlist height from the top of the screen",
 

@@ -15,7 +15,9 @@
         "ToastManagerMixin",
         "ItemStackMixin",
         "KeyBindingInterface",
-        "KeyBindingMixin"
+        "KeyBindingMixin",
+        "OrderedTextTooltipComponentInterface",
+        "AbstractClientPlayerEntityMixin"
     ],
     "injectors": {
         "defaultRequire": 1

@@ -69,7 +69,7 @@ public enum FaceRarity {
 
 	public static FaceRarity fromName(String name) {
 		for (FaceRarity rarity : FaceRarity.values())
-			if (rarity.getName().equals(name))
+			if (rarity.getString().equals(name))
 				return rarity;
 		return null;
 	}
@@ -86,7 +86,7 @@ public enum FaceRarity {
 		return tier;
 	}
 
-	public String getName() {
+	public String getString() {
 		return this.toString();
 	}
 }

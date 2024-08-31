@@ -9,7 +9,7 @@ public class FaceTexture {
 	public static final Identifier ABILITY_GLINT = id("textures/gui/ability_glint.png");
 
 	public static final Identifier EMPTY_PICKAXE = id("textures/gui/empty_slot/pickaxe.png");
-	public static final Identifier EMPTY_AXE = id("textures/gui/empty_slot/axe.png");
+	public static final Identifier EMPTY_WOODCUTTINGAXE = id("textures/gui/empty_slot/woodcuttingaxe.png");
 	public static final Identifier EMPTY_HOE = id("textures/gui/empty_slot/hoe.png");
 
 	private static Identifier id(String path) {

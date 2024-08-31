@@ -17,13 +17,13 @@ public class PlayerListHudMixin {
 	private static FaceLift instance = FaceLift.getInstance();
 
 	@Inject(method = "render", at = @At("HEAD"))
-	private void onRender(DrawContext context, int scaledWindowWidth, Scoreboard scoreboard, ScoreboardObjective objective, CallbackInfo ci) {
+	private void FL_onRender(DrawContext context, int scaledWindowWidth, Scoreboard scoreboard, ScoreboardObjective objective, CallbackInfo ci) {
 		context.getMatrices().push();
 		context.getMatrices().translate(0, instance.config.general.playerListHeightOffset, 0);
 	}
 
 	@Inject(method = "render", at = @At("RETURN"))
-	private void onRenderReturn(DrawContext context, int scaledWindowWidth, Scoreboard scoreboard, ScoreboardObjective objective, CallbackInfo ci) {
+	private void FL_onRenderReturn(DrawContext context, int scaledWindowWidth, Scoreboard scoreboard, ScoreboardObjective objective, CallbackInfo ci) {
 		context.getMatrices().pop();
 	}
 }

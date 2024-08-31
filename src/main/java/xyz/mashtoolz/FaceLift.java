@@ -7,24 +7,20 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
-import net.minecraft.world.RaycastContext;
+import xyz.mashtoolz.config.AutoTool;
 import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.config.Keybinds;
-import xyz.mashtoolz.custom.FaceItem;
 import xyz.mashtoolz.custom.FaceStatus;
 import xyz.mashtoolz.helpers.ArenaTimer;
 import xyz.mashtoolz.helpers.DPSMeter;
 import xyz.mashtoolz.helpers.HudRenderer;
 import xyz.mashtoolz.helpers.KeyHandler;
 import xyz.mashtoolz.mixins.InGameHudInterface;
-import xyz.mashtoolz.utils.PlayerUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +59,7 @@ public class FaceLift implements ClientModInitializer {
 
 		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 
-			if (!config.general.onFaceLand)
+			if (!FaceConfig.General.onFaceLand)
 				return;
 
 			switch (entity.getName().getString()) {
@@ -76,12 +72,13 @@ public class FaceLift implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
-			if (!config.general.onFaceLand || client == null || client.player == null)
+			if (!FaceConfig.General.onFaceLand || client == null || client.player == null)
 				return;
 
 			CombatCheck();
 			DPSNumbersCheck();
 			MountCheck();
+			FaceStatus.update();
 
 			if (Keybinds.instance == null)
 				Keybinds.instance = this;
@@ -111,7 +108,17 @@ public class FaceLift implements ClientModInitializer {
 				ArenaTimer.end();
 
 			if (client.options.attackKey.isPressed())
-				AutoTool();
+				AutoTool.update();
+
+			// automatically let go off rightclick for pistols
+			// if (client.options.useKey.isPressed()) {
+			// var remaining = ((LivingEntity) client.player).getItemUseTimeLeft();
+			// var stack = client.player.getMainHandStack();
+			// var bow = (BowItem) stack.getItem();
+			// var progress = BowItem.getPullProgress(bow.getMaxUseTime(stack) - remaining);
+			// if (progress >= 0.08)
+			// client.options.useKey.setPressed(false);
+			// }
 		});
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
@@ -119,13 +126,13 @@ public class FaceLift implements ClientModInitializer {
 				ClientConnection connection = Objects.requireNonNull(client.getNetworkHandler()).getConnection();
 				if (connection != null && connection.getAddress() != null) {
 					String serverAddress = connection.getAddress().toString().toLowerCase();
-					config.general.onFaceLand = serverAddress.startsWith("local") || serverAddress.contains("face.land");
+					FaceConfig.General.onFaceLand = serverAddress.startsWith("local") || serverAddress.contains("face.land");
 				}
 			});
 		});
 
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-			config.general.onFaceLand = false;
+			FaceConfig.General.onFaceLand = false;
 			ArenaTimer.end();
 		});
 	}
@@ -141,12 +148,12 @@ public class FaceLift implements ClientModInitializer {
 
 	private void MountCheck() {
 		if (config.general.mountThirdPerson) {
-			if (this.isMounted() && !config.general.isMounted && client.options.getPerspective() != Perspective.THIRD_PERSON_BACK) {
+			if (this.isMounted() && !FaceConfig.General.isMounted && client.options.getPerspective() != Perspective.THIRD_PERSON_BACK) {
 				client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
-				config.general.isMounted = true;
-			} else if (!this.isMounted() && config.general.isMounted && client.options.getPerspective() != Perspective.FIRST_PERSON) {
+				FaceConfig.General.isMounted = true;
+			} else if (!this.isMounted() && FaceConfig.General.isMounted && client.options.getPerspective() != Perspective.FIRST_PERSON) {
 				client.options.setPerspective(Perspective.FIRST_PERSON);
-				config.general.isMounted = false;
+				FaceConfig.General.isMounted = false;
 			}
 		}
 	}
@@ -161,24 +168,24 @@ public class FaceLift implements ClientModInitializer {
 		if (overlayMessage != null) {
 			for (var unicode : combatUnicodes) {
 				if (overlayMessage.getString().contains(unicode)) {
-					config.general.lastHurtTime = System.currentTimeMillis();
+					FaceConfig.General.lastHurtTime = System.currentTimeMillis();
 					break;
 				}
 			}
 		}
 
-		if (config.general.hurtTime == 0 && client.player.hurtTime != 0)
-			config.general.hurtTime = client.player.hurtTime;
+		if (FaceConfig.General.hurtTime == 0 && client.player.hurtTime != 0)
+			FaceConfig.General.hurtTime = client.player.hurtTime;
 
-		if (config.general.hurtTime == -1 && client.player.hurtTime == 0)
-			config.general.hurtTime = 0;
+		if (FaceConfig.General.hurtTime == -1 && client.player.hurtTime == 0)
+			FaceConfig.General.hurtTime = 0;
 
-		if (config.general.hurtTime > 0) {
-			config.general.hurtTime = -1;
+		if (FaceConfig.General.hurtTime > 0) {
+			FaceConfig.General.hurtTime = -1;
 
 			var recentDamageSource = client.player.getRecentDamageSource();
 			if (recentDamageSource != null && !recentDamageSource.getType().msgId().toString().equals("fall"))
-				config.general.lastHurtTime = System.currentTimeMillis();
+				FaceConfig.General.lastHurtTime = System.currentTimeMillis();
 		}
 	}
 
@@ -203,69 +210,14 @@ public class FaceLift implements ClientModInitializer {
 		}
 	}
 
-	private void AutoTool() {
-
-		try {
-
-			var eyePos = client.player.getEyePos();
-			var reach = ClientPlayerEntity.getReachDistance(false);
-			var rayEnd = eyePos.add(client.player.getRotationVector().multiply(reach));
-			var blockHitResult = client.world.raycast(new RaycastContext(eyePos, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, client.player));
-			var targetTool = PlayerUtils.getTargetTool(blockHitResult);
-			if (targetTool != null && targetTool.getName().equals("bedrock"))
-				return;
-
-			var inventory = client.player.getInventory();
-			var hotbarSlot = inventory.selectedSlot;
-			var stack = client.player.getMainHandStack();
-			var data = FaceItem.getItemData(stack);
-			var currentTool = PlayerUtils.getCurrentTool(data);
-
-			if (data == null || (data != null && config.inventory.autoTool.get(data.get("tier").getAsString()) == null)) {
-				if (targetTool != null && !inventory.getStack(targetTool.getSlot()).isEmpty())
-					this.clickSlot(targetTool.getSlot(), hotbarSlot, SlotActionType.SWAP);
-				else if (targetTool != null)
-					client.player.sendMessage(Text.literal("§7[§eFaceLift§7] §cMissing Tool: " + targetTool.getName()));
-				return;
-			}
-
-			var isSlotEmpty = inventory.getStack(currentTool.getSlot()).isEmpty();
-			if (targetTool == null) {
-				if (isSlotEmpty) {
-					this.clickSlot(36 + hotbarSlot, 0, SlotActionType.PICKUP);
-					this.clickSlot(currentTool.getSlot(), 0, SlotActionType.PICKUP);
-					return;
-				}
-				this.clickSlot(currentTool.getSlot(), hotbarSlot, SlotActionType.SWAP);
-				return;
-			}
-
-			if (currentTool.getName().equals(targetTool.getName()))
-				return;
-
-			if (isSlotEmpty) {
-				this.clickSlot(36 + hotbarSlot, 0, SlotActionType.PICKUP);
-				this.clickSlot(currentTool.getSlot(), 0, SlotActionType.PICKUP);
-				this.clickSlot(targetTool.getSlot(), hotbarSlot, SlotActionType.SWAP);
-			} else {
-				this.clickSlot(currentTool.getSlot(), hotbarSlot, SlotActionType.SWAP);
-				this.clickSlot(targetTool.getSlot(), hotbarSlot, SlotActionType.SWAP);
-			}
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-	}
-
-	public void clickSlot(int slotId, int button, SlotActionType actionType) {
-		var syncId = client.player.currentScreenHandler.syncId;
-		client.interactionManager.clickSlot(syncId, slotId, button, actionType, client.player);
-	}
-
 	public void sendCommand(String command) {
 		client.player.networkHandler.sendChatCommand(command);
 	}
 
-	// public void info(String message) {
-	// player.sendMessage(Text.literal("§7[§cFaceLift§7]"));
-	// }
+	public static void info(String message, boolean console) {
+		if (console)
+			System.out.println("[FaceLift] " + message);
+		else
+			instance.client.player.sendMessage(Text.literal("§7[§cFaceLift§7] " + message));
+	}
 }
