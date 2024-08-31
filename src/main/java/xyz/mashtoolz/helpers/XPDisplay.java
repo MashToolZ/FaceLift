@@ -134,7 +134,7 @@ public class XPDisplay {
 
 		var skill = this.getColor() + this.getKey();
 		var xp = NumberFormatter.format(this.getXP());
-		var gain = instance.config.general.xpDisplay.showLastGain ? " +" + NumberFormatter.format(getGain()) : "";
+		var gain = instance.config.general.xpDisplay.showLastGain ? "  +" + NumberFormatter.format(getGain()) : "";
 
 		RenderUtils.drawTextWithShadow(context, skill, x + 5, y + 25 + (i * 10));
 
