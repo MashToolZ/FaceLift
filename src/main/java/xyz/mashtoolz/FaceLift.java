@@ -214,7 +214,7 @@ public class FaceLift implements ClientModInitializer {
 		client.player.networkHandler.sendChatCommand(command);
 	}
 
-	public static void info(String message, boolean console) {
+	public static void info(boolean console, String message) {
 		if (console)
 			System.out.println("[FaceLift] " + message);
 		else

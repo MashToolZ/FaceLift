@@ -1,5 +1,8 @@
 package xyz.mashtoolz.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.annotation.Config;
@@ -68,6 +71,9 @@ public class FaceConfig implements ConfigData {
 	public Inventory inventory = new Inventory();
 
 	public static class Inventory {
+
+		@ConfigEntry.Gui.Excluded
+		public List<String[]> equipmentSlots = new ArrayList<>();
 
 		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
 		public Rarity rarity = new Rarity();

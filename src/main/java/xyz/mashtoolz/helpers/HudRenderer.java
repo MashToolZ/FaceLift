@@ -121,11 +121,11 @@ public class HudRenderer {
 		if (slot == null)
 			return null;
 
-		if (slot.getFaceType().equals(FaceSlotType.MAINHAND)) {
+		if (slot.getSlotType().equals(FaceSlotType.MAINHAND)) {
 			var offHandStack = FaceSlot.OFFHAND.getStack();
 			if (!offHandStack.isEmpty() && !new FaceItem(offHandStack).invalid) {
 				var offHandSlot = new FaceItem(offHandStack).getFaceSlot(false);
-				if (offHandSlot.getFaceType().equals(FaceSlotType.MAINHAND))
+				if (offHandSlot.getSlotType().equals(FaceSlotType.MAINHAND))
 					slot = item.getFaceSlot(true);
 			}
 		}
@@ -159,10 +159,8 @@ public class HudRenderer {
 
 		if (screen instanceof HandledScreen) {
 
-			if (client.currentScreen.getTitle().getString().contains("库")) {
-				FaceEquipment.clearCache();
+			if (client.currentScreen.getTitle().getString().contains("库"))
 				FaceEquipment.updateCache = true;
-			}
 
 			var inventory = config.inventory;
 			searchBar = new SearchFieldWidget(client.textRenderer, width / 2 - 90, height - 25, 180, 20, searchBar, Text.literal(inventory.searchbar.query));

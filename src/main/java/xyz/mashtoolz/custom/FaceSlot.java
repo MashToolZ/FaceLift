@@ -5,22 +5,22 @@ import xyz.mashtoolz.FaceLift;
 
 public enum FaceSlot {
 
-	EARRING_1(FaceSlotType.EARRING, 0),
-	EARRING_2(FaceSlotType.EARRING, 1),
-	NECKLACE(FaceSlotType.NECKLACE, 9),
-	RING_1(FaceSlotType.RING, 18),
-	RING_2(FaceSlotType.RING, 19),
 	HELMET(FaceSlotType.HELMET, 4),
 	CHESTPLATE(FaceSlotType.CHESTPLATE, 13),
 	LEGGINGS(FaceSlotType.LEGGINGS, 22),
 	BOOTS(FaceSlotType.BOOTS, 31),
-	MAINHAND(FaceSlotType.MAINHAND, null),
+	NECKLACE(FaceSlotType.NECKLACE, 9),
+	EARRING_1(FaceSlotType.EARRING, 0),
+	EARRING_2(FaceSlotType.EARRING, 1),
+	RING_1(FaceSlotType.RING, 18),
+	RING_2(FaceSlotType.RING, 19),
 	OFFHAND(FaceSlotType.OFFHAND, 14),
+	MAINHAND(FaceSlotType.MAINHAND, null),
+	PET(FaceSlotType.PET, 8),
+	MOUNT(FaceSlotType.MOUNT, 27),
 	PICKAXE(FaceSlotType.PICKAXE, FaceToolType.PICKAXE),
 	WOODCUTTINGAXE(FaceSlotType.WOODCUTTINGAXE, FaceToolType.WOODCUTTINGAXE),
-	HOE(FaceSlotType.HOE, FaceToolType.HOE),
-	MOUNT(FaceSlotType.MOUNT, 27),
-	PET(FaceSlotType.PET, 8);
+	HOE(FaceSlotType.HOE, FaceToolType.HOE);
 
 	private FaceLift instance = FaceLift.getInstance();
 
@@ -29,14 +29,14 @@ public enum FaceSlot {
 	private ItemStack stack = ItemStack.EMPTY;
 	private FaceToolType toolType;
 
-	private FaceSlot(FaceSlotType type, FaceToolType name) {
+	private FaceSlot(FaceSlotType type, FaceToolType toolType) {
 		this.type = type;
-		this.toolType = name;
+		this.toolType = toolType;
 		if (type.equals(FaceSlotType.MAINHAND)) {
 			var hotbarSlot = instance.client.player.getInventory().selectedSlot;
 			this.index = 36 + hotbarSlot;
 		} else {
-			var tool = instance.config.inventory.autoTool.get(name);
+			var tool = instance.config.inventory.autoTool.get(toolType);
 			this.index = tool != null ? tool.getSlotIndex() : -1;
 		}
 	}
@@ -54,7 +54,7 @@ public enum FaceSlot {
 		return stack;
 	}
 
-	public FaceSlotType getFaceType() {
+	public FaceSlotType getSlotType() {
 		return type;
 	}
 

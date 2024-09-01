@@ -54,7 +54,7 @@ public class AutoTool {
 
 			var targetItem = new FaceItem(inventory.getStack(targetTool.getSlotIndex()));
 			if (targetItem.getFaceTool() == null && (currentTool == null || !targetTool.getFaceToolType().equals(currentTool.getFaceToolType()))) {
-				FaceLift.info("§cMissing Tool: " + targetTool.getFaceToolType().getName(), false);
+				FaceLift.info(false, "§cMissing Tool: " + targetTool.getFaceToolType().getName());
 				return;
 			}
 		}
@@ -63,7 +63,7 @@ public class AutoTool {
 			if (targetTool != null && !inventory.getStack(targetTool.getSlotIndex()).isEmpty())
 				PlayerUtils.clickSlot(targetTool.getSlotIndex(), hotbarSlot, SlotActionType.SWAP);
 			else if (targetTool != null)
-				FaceLift.info("§cMissing Tool: " + targetTool.getFaceToolType().getName(), false);
+				FaceLift.info(false, "§cMissing Tool: " + targetTool.getFaceToolType().getName());
 			return;
 		}
 
