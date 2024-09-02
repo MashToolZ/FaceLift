@@ -23,6 +23,7 @@ import xyz.mashtoolz.custom.FaceSlotType;
 import xyz.mashtoolz.mixins.HandledScreenAccessor;
 import xyz.mashtoolz.mixins.ScreenInterface;
 import xyz.mashtoolz.utils.ColorUtils;
+import xyz.mashtoolz.utils.ItemUtils;
 import xyz.mashtoolz.utils.RenderUtils;
 import xyz.mashtoolz.widget.DropDownMenu;
 import xyz.mashtoolz.widget.SearchFieldWidget;
@@ -93,65 +94,6 @@ public class HudRenderer {
 		matrices.pop();
 	}
 
-	public static void onHandledScreenRenderTail(DrawContext context, int mouseX, int mouseY, float delta) {
-
-		if (!FaceConfig.General.onFaceLand || client.currentScreen == null || !(client.currentScreen instanceof HandledScreen))
-			return;
-
-		var screen = (HandledScreenAccessor) client.currentScreen;
-		var handler = screen.getHandler();
-		if (handler == null)
-			return;
-
-		if (FaceEquipment.updateCache && client.currentScreen.getTitle().getString().contains("库")) {
-			FaceEquipment.updateCache = false;
-			FaceEquipment.handler = handler;
-		}
-
-		if (Keybinds.isPressed(Keybinds.compare))
-			compareAndRenderTooltip(screen, context, mouseX, mouseY);
-	}
-
-	private static boolean compareStacks(ItemStack stack1, ItemStack stack2) {
-		return stack1.getNbt().asString().equals(stack2.getNbt().asString());
-	}
-
-	private static FaceSlot getComparisonSlot(FaceItem item) {
-		var slot = item.getFaceSlot(false);
-		if (slot == null)
-			return null;
-
-		if (slot.getSlotType().equals(FaceSlotType.MAINHAND)) {
-			var offHandStack = FaceSlot.OFFHAND.getStack();
-			if (!offHandStack.isEmpty() && !new FaceItem(offHandStack).invalid) {
-				var offHandSlot = new FaceItem(offHandStack).getFaceSlot(false);
-				if (offHandSlot.getSlotType().equals(FaceSlotType.MAINHAND))
-					slot = item.getFaceSlot(true);
-			}
-		}
-		return slot;
-	}
-
-	private static void compareAndRenderTooltip(HandledScreenAccessor screen, DrawContext context, int mouseX, int mouseY) {
-		var focusedSlot = screen.getFocusedSlot();
-		if (focusedSlot == null || focusedSlot.getStack().isEmpty())
-			return;
-
-		var focusedItem = new FaceItem(focusedSlot.getStack());
-		if (focusedItem.invalid)
-			return;
-
-		var compareSlot = getComparisonSlot(focusedItem);
-		if (compareSlot == null)
-			return;
-
-		var compareStack = compareSlot.getStack();
-		if (compareStack.isEmpty() || compareStacks(focusedSlot.getStack(), compareStack))
-			return;
-
-		RenderUtils.drawTooltip(context, compareStack, mouseX, mouseY);
-	}
-
 	public static void afterInitScreen(MinecraftClient client, Screen screen, int width, int height) {
 
 		if (!FaceConfig.General.onFaceLand)
@@ -159,7 +101,10 @@ public class HudRenderer {
 
 		if (screen instanceof HandledScreen) {
 
-			if (client.currentScreen.getTitle().getString().contains("库"))
+			var title = client.currentScreen.getTitle().getString();
+			// System.out.println(TextUtils.escapeStringToUnicode(title, false));
+
+			if (title.contains("库"))
 				FaceEquipment.updateCache = true;
 
 			var inventory = config.inventory;
@@ -194,6 +139,61 @@ public class HudRenderer {
 			((ScreenInterface) screen).invokeAddDrawableChild(searchBar);
 			((ScreenInterface) screen).invokeAddDrawableChild(dropdown.getButton());
 		}
+	}
+
+	public static void onHandledScreenRenderTail(DrawContext context, int mouseX, int mouseY, float delta) {
+
+		if (!FaceConfig.General.onFaceLand || client.currentScreen == null || !(client.currentScreen instanceof HandledScreen))
+			return;
+
+		var screen = (HandledScreenAccessor) client.currentScreen;
+		var handler = screen.getHandler();
+		if (handler == null)
+			return;
+
+		if (FaceEquipment.updateCache && client.currentScreen.getTitle().getString().contains("库")) {
+			FaceEquipment.updateCache = false;
+			FaceEquipment.handler = handler;
+		}
+
+		if (Keybinds.isPressed(Keybinds.compare))
+			compareAndRenderTooltip(screen, context, mouseX, mouseY);
+	}
+
+	private static FaceSlot getComparisonSlot(FaceItem item) {
+		var slot = item.getFaceSlot(false);
+		if (slot == null)
+			return null;
+
+		if (slot.getSlotType().equals(FaceSlotType.MAINHAND)) {
+			var offHandStack = FaceSlot.OFFHAND.getStack();
+			if (!offHandStack.isEmpty() && !new FaceItem(offHandStack).invalid) {
+				var offHandSlot = new FaceItem(offHandStack).getFaceSlot(false);
+				if (offHandSlot.getSlotType().equals(FaceSlotType.MAINHAND))
+					slot = item.getFaceSlot(true);
+			}
+		}
+		return slot;
+	}
+
+	private static void compareAndRenderTooltip(HandledScreenAccessor screen, DrawContext context, int mouseX, int mouseY) {
+		var focusedSlot = screen.getFocusedSlot();
+		if (focusedSlot == null || focusedSlot.getStack().isEmpty())
+			return;
+
+		var focusedItem = new FaceItem(focusedSlot.getStack());
+		if (focusedItem.invalid)
+			return;
+
+		var compareSlot = getComparisonSlot(focusedItem);
+		if (compareSlot == null)
+			return;
+
+		var compareStack = compareSlot.getStack();
+		if (compareStack.isEmpty() || ItemUtils.compareStacks(focusedSlot.getStack(), compareStack))
+			return;
+
+		RenderUtils.drawTooltip(context, compareStack, mouseX, mouseY);
 	}
 
 	private static boolean searchbarCheck(FaceItem item) {
