@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.Perspective;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.text.Text;
@@ -17,15 +16,12 @@ import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.config.Keybinds;
 import xyz.mashtoolz.custom.FaceStatus;
 import xyz.mashtoolz.helpers.ArenaTimer;
+import xyz.mashtoolz.helpers.CombatTimer;
 import xyz.mashtoolz.helpers.DPSMeter;
 import xyz.mashtoolz.helpers.HudRenderer;
 import xyz.mashtoolz.helpers.KeyHandler;
-import xyz.mashtoolz.mixins.InGameHudInterface;
+import xyz.mashtoolz.utils.PlayerUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Objects;
 
 import me.shedaniel.autoconfig.AutoConfig;
@@ -37,9 +33,6 @@ public class FaceLift implements ClientModInitializer {
 	public MinecraftClient client;
 	public FaceConfig config;
 	public Keybinds keybinds = new Keybinds();
-
-	private final HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
-	public ArrayList<String> combatUnicodes = new ArrayList<>(Arrays.asList("丞", "丟"));
 
 	@Override
 	public void onInitializeClient() {
@@ -64,7 +57,7 @@ public class FaceLift implements ClientModInitializer {
 
 			switch (entity.getName().getString()) {
 				case "Text Display": {
-					textDisplayEntities.put(entity.getUuid().toString(), (TextDisplayEntity) entity);
+					DPSMeter.textDisplayEntities.put(entity.getUuid().toString(), (TextDisplayEntity) entity);
 					break;
 				}
 			}
@@ -75,9 +68,9 @@ public class FaceLift implements ClientModInitializer {
 			if (!FaceConfig.General.onFaceLand || client == null || client.player == null)
 				return;
 
-			CombatCheck();
-			DPSNumbersCheck();
 			MountCheck();
+			CombatTimer.update();
+			DPSMeter.update();
 			FaceStatus.update();
 
 			if (Keybinds.instance == null)
@@ -87,7 +80,7 @@ public class FaceLift implements ClientModInitializer {
 				KeyHandler.onConfigKey();
 
 			if (Keybinds.mount.wasPressed())
-				KeyHandler.onMountKey(this.isMounted());
+				KeyHandler.onMountKey(PlayerUtils.isMounted());
 
 			if (Keybinds.spell1.wasPressed())
 				KeyHandler.onSpell1Key();
@@ -109,16 +102,6 @@ public class FaceLift implements ClientModInitializer {
 
 			if (client.options.attackKey.isPressed())
 				AutoTool.update();
-
-			// automatically let go off rightclick for pistols
-			// if (client.options.useKey.isPressed()) {
-			// var remaining = ((LivingEntity) client.player).getItemUseTimeLeft();
-			// var stack = client.player.getMainHandStack();
-			// var bow = (BowItem) stack.getItem();
-			// var progress = BowItem.getPullProgress(bow.getMaxUseTime(stack) - remaining);
-			// if (progress >= 0.08)
-			// client.options.useKey.setPressed(false);
-			// }
 		});
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
@@ -141,72 +124,15 @@ public class FaceLift implements ClientModInitializer {
 		return instance;
 	}
 
-	public boolean isMounted() {
-		Entity ridingEntity = client.player.getVehicle();
-		return ridingEntity != null && ridingEntity != client.player;
-	}
-
 	private void MountCheck() {
 		if (config.general.mountThirdPerson) {
-			if (this.isMounted() && !FaceConfig.General.isMounted && client.options.getPerspective() != Perspective.THIRD_PERSON_BACK) {
+			if (PlayerUtils.isMounted() && !FaceConfig.General.isMounted && client.options.getPerspective() != Perspective.THIRD_PERSON_BACK) {
 				client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
 				FaceConfig.General.isMounted = true;
-			} else if (!this.isMounted() && FaceConfig.General.isMounted && client.options.getPerspective() != Perspective.FIRST_PERSON) {
+			} else if (!PlayerUtils.isMounted() && FaceConfig.General.isMounted && client.options.getPerspective() != Perspective.FIRST_PERSON) {
 				client.options.setPerspective(Perspective.FIRST_PERSON);
 				FaceConfig.General.isMounted = false;
 			}
-		}
-	}
-
-	private void CombatCheck() {
-
-		var inGameHud = (InGameHudInterface) client.inGameHud;
-		if (inGameHud == null)
-			return;
-
-		var overlayMessage = inGameHud.getOverlayMessage();
-		if (overlayMessage != null) {
-			for (var unicode : combatUnicodes) {
-				if (overlayMessage.getString().contains(unicode)) {
-					FaceConfig.General.lastHurtTime = System.currentTimeMillis();
-					break;
-				}
-			}
-		}
-
-		if (FaceConfig.General.hurtTime == 0 && client.player.hurtTime != 0)
-			FaceConfig.General.hurtTime = client.player.hurtTime;
-
-		if (FaceConfig.General.hurtTime == -1 && client.player.hurtTime == 0)
-			FaceConfig.General.hurtTime = 0;
-
-		if (FaceConfig.General.hurtTime > 0) {
-			FaceConfig.General.hurtTime = -1;
-
-			var recentDamageSource = client.player.getRecentDamageSource();
-			if (recentDamageSource != null && !recentDamageSource.getType().msgId().toString().equals("fall"))
-				FaceConfig.General.lastHurtTime = System.currentTimeMillis();
-		}
-	}
-
-	private void DPSNumbersCheck() {
-		for (Iterator<TextDisplayEntity> iterator = textDisplayEntities.values().iterator(); iterator.hasNext();) {
-			TextDisplayEntity textDisplayEntity = iterator.next();
-
-			if (textDisplayEntity.getData() == null)
-				continue;
-
-			iterator.remove();
-
-			var text = textDisplayEntity.getData().text();
-			if (text == null)
-				continue;
-
-			var damage = DPSMeter.parseDamage(text.getString());
-			if (damage <= 0)
-				continue;
-
-			DPSMeter.addDamage(damage);
 		}
 	}
 

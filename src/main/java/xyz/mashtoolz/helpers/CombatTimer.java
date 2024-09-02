@@ -2,16 +2,21 @@ package xyz.mashtoolz.helpers;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
+import xyz.mashtoolz.mixins.InGameHudInterface;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.RenderUtils;
 
 public class CombatTimer {
 
 	private static FaceLift instance = FaceLift.getInstance();
+
+	private static ArrayList<String> combatUnicodes = new ArrayList<>(Arrays.asList("丞", "丟"));
 
 	public static void draw(DrawContext context) {
 
@@ -40,5 +45,35 @@ public class CombatTimer {
 
 		var hex = String.format("%02x%02x%02x", (int) (255 * percent), (int) (255 * (1 - percent)), 0);
 		RenderUtils.drawTimeBar(context, x, y, (int) remaining, 12000, ColorUtils.hex2Int(hex, 0x90));
+	}
+
+	public static void update() {
+		var inGameHud = (InGameHudInterface) instance.client.inGameHud;
+		if (inGameHud == null)
+			return;
+
+		var overlayMessage = inGameHud.getOverlayMessage();
+		if (overlayMessage != null) {
+			for (var unicode : combatUnicodes) {
+				if (overlayMessage.getString().contains(unicode)) {
+					FaceConfig.General.lastHurtTime = System.currentTimeMillis();
+					break;
+				}
+			}
+		}
+
+		if (FaceConfig.General.hurtTime == 0 && instance.client.player.hurtTime != 0)
+			FaceConfig.General.hurtTime = instance.client.player.hurtTime;
+
+		if (FaceConfig.General.hurtTime == -1 && instance.client.player.hurtTime == 0)
+			FaceConfig.General.hurtTime = 0;
+
+		if (FaceConfig.General.hurtTime > 0) {
+			FaceConfig.General.hurtTime = -1;
+
+			var recentDamageSource = instance.client.player.getRecentDamageSource();
+			if (recentDamageSource != null && !recentDamageSource.getType().msgId().toString().equals("fall"))
+				FaceConfig.General.lastHurtTime = System.currentTimeMillis();
+		}
 	}
 }

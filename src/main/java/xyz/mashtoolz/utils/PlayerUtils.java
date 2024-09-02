@@ -2,6 +2,7 @@ package xyz.mashtoolz.utils;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.block.CropBlock;
+import net.minecraft.entity.Entity;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.hit.BlockHitResult;
 import xyz.mashtoolz.FaceLift;
@@ -11,6 +12,11 @@ import xyz.mashtoolz.custom.FaceToolBlock;
 public class PlayerUtils {
 
 	public static FaceLift instance = FaceLift.getInstance();
+
+	public static boolean isMounted() {
+		Entity ridingEntity = instance.client.player.getVehicle();
+		return ridingEntity != null && ridingEntity != instance.client.player;
+	}
 
 	public static void clickSlot(int slotId, int button, SlotActionType actionType) {
 		var syncId = instance.client.player.currentScreenHandler.syncId;

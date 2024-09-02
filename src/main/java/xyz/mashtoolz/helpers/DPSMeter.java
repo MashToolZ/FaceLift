@@ -2,8 +2,11 @@ package xyz.mashtoolz.helpers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.RenderUtils;
@@ -11,6 +14,8 @@ import xyz.mashtoolz.utils.RenderUtils;
 public class DPSMeter {
 
 	private static FaceLift instance = FaceLift.getInstance();
+
+	public static final HashMap<String, TextDisplayEntity> textDisplayEntities = new HashMap<>();
 
 	public static final ArrayList<String> damageNumbers = new ArrayList<>(
 			Arrays.asList("０", "１", "２", "３", "４", "５", "６", "７", "８", "９"));
@@ -104,5 +109,26 @@ public class DPSMeter {
 
 		RenderUtils.drawTextWithShadow(context, "<#FFB2CC>DPS <#FDFDFD>", x + 5, y + 25 + RenderUtils.lh(2));
 		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + dpsFormat, x + 107 - dpsWidth, y + 25 + RenderUtils.lh(2));
+	}
+
+	public static void update() {
+		for (Iterator<TextDisplayEntity> iterator = textDisplayEntities.values().iterator(); iterator.hasNext();) {
+			TextDisplayEntity textDisplayEntity = iterator.next();
+
+			if (textDisplayEntity.getData() == null)
+				continue;
+
+			iterator.remove();
+
+			var text = textDisplayEntity.getData().text();
+			if (text == null)
+				continue;
+
+			var damage = DPSMeter.parseDamage(text.getString());
+			if (damage <= 0)
+				continue;
+
+			DPSMeter.addDamage(damage);
+		}
 	}
 }
