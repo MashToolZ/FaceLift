@@ -13,9 +13,9 @@ public class AutoTool {
 
 	private static FaceLift instance = FaceLift.getInstance();
 
-	public int pickaxe = FaceTool.PICKAXE.getSlotIndex();
-	public int woodcuttingaxe = FaceTool.WOODCUTTINGAXE.getSlotIndex();
-	public int hoe = FaceTool.HOE.getSlotIndex();
+	public int pickaxe = 15;
+	public int woodcuttingaxe = 16;
+	public int hoe = 17;
 
 	public FaceTool get(FaceToolType type) {
 		return FaceTool.getByType(type);

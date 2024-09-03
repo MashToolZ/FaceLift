@@ -4,14 +4,14 @@ import net.minecraft.util.Identifier;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
 
-public enum FaceTool {
-
-	PICKAXE(FaceToolType.PICKAXE, 15, FaceTexture.EMPTY_PICKAXE),
-	WOODCUTTINGAXE(FaceToolType.WOODCUTTINGAXE, 16, FaceTexture.EMPTY_WOODCUTTINGAXE),
-	HOE(FaceToolType.HOE, 17, FaceTexture.EMPTY_HOE),
-	BEDROCK(FaceToolType.BEDROCK, -1, null);
+public class FaceTool {
 
 	private static FaceLift instance = FaceLift.getInstance();
+
+	public static FaceTool PICKAXE = new FaceTool(FaceToolType.PICKAXE, instance.config.inventory.autoTool.pickaxe, FaceTexture.EMPTY_PICKAXE);
+	public static FaceTool WOODCUTTINGAXE = new FaceTool(FaceToolType.WOODCUTTINGAXE, instance.config.inventory.autoTool.woodcuttingaxe, FaceTexture.EMPTY_WOODCUTTINGAXE);
+	public static FaceTool HOE = new FaceTool(FaceToolType.HOE, instance.config.inventory.autoTool.hoe, FaceTexture.EMPTY_HOE);
+	public static FaceTool BEDROCK = new FaceTool(FaceToolType.BEDROCK, -1, null);
 
 	private FaceToolType type;
 	private int slotIndex;
@@ -21,6 +21,10 @@ public enum FaceTool {
 		this.type = type;
 		this.slotIndex = slotIndex;
 		this.texture = texture;
+	}
+
+	public static FaceTool[] values() {
+		return new FaceTool[] { PICKAXE, WOODCUTTINGAXE, HOE, BEDROCK };
 	}
 
 	public FaceToolType getFaceToolType() {
