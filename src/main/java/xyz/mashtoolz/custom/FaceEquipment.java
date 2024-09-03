@@ -10,7 +10,6 @@ import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.screen.ScreenHandler;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
-import xyz.mashtoolz.helpers.HudRenderer;
 
 public class FaceEquipment {
 
@@ -21,6 +20,7 @@ public class FaceEquipment {
 	public static List<Integer> indices = new ArrayList<>();
 
 	private static final ArrayList<FaceSlotType> DOUBLE_SLOTS = new ArrayList<>(Arrays.asList(FaceSlotType.EARRING, FaceSlotType.RING));
+	public static final ArrayList<FaceSlotType> TOOL_TYPES = new ArrayList<>(Arrays.asList(FaceSlotType.PICKAXE, FaceSlotType.WOODCUTTINGAXE, FaceSlotType.HOE));
 
 	public static FaceSlot getSlot(String id, boolean shiftDown) {
 		var matches = new ArrayList<FaceSlot>();
@@ -69,7 +69,7 @@ public class FaceEquipment {
 
 		var size = handler.slots.size();
 		for (var slot : FaceEquipment.slots) {
-			var isTool = HudRenderer.TOOL_TYPES.contains(slot.getSlotType());
+			var isTool = TOOL_TYPES.contains(slot.getSlotType());
 			var index = getSlotIndex(slot, size);
 			var stack = handler.getSlot(index).getStack();
 			if (stack.isEmpty())
@@ -96,7 +96,7 @@ public class FaceEquipment {
 	private static int getSlotIndex(FaceSlot slot, int size) {
 		if (slot.getSlotType().equals(FaceSlotType.MAINHAND))
 			return size - slot.getIndex() - 1;
-		else if (HudRenderer.TOOL_TYPES.contains(slot.getSlotType()))
+		else if (TOOL_TYPES.contains(slot.getSlotType()))
 			return slot.getIndex() + (size - 45);
 		else
 			return slot.getIndex();

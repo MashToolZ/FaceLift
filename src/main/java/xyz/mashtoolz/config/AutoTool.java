@@ -47,7 +47,7 @@ public class AutoTool {
 				}
 		}
 
-		var targetTool = PlayerUtils.getTargetTool(blockHitResult);
+		var targetTool = PlayerUtils.getTargetTool(blockHitResult, stack);
 		if (targetTool != null) {
 			if (targetTool.getFaceToolType().equals(FaceToolType.BEDROCK))
 				return;

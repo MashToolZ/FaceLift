@@ -77,9 +77,8 @@ public class FaceItem {
 		if (isDualWielding)
 			return DUALWIELD_SLOTS.get(shiftDown ? 1 : 0);
 
-		if (tool != null) {
+		if (tool != null)
 			return TOOL_SLOTS.get(tool.getFaceToolType().ordinal());
-		}
 
 		var id = Registries.ITEM.getId(stack.getItem()).toString();
 		return FaceEquipment.getSlot(id, shiftDown);
