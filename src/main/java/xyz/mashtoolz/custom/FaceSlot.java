@@ -14,8 +14,8 @@ public enum FaceSlot {
 	EARRING_2(FaceSlotType.EARRING, 1),
 	RING_1(FaceSlotType.RING, 18),
 	RING_2(FaceSlotType.RING, 19),
-	OFFHAND(FaceSlotType.OFFHAND, 14),
 	MAINHAND(FaceSlotType.MAINHAND, null),
+	OFFHAND(FaceSlotType.OFFHAND, 14),
 	PET(FaceSlotType.PET, 8),
 	MOUNT(FaceSlotType.MOUNT, 27),
 	PICKAXE(FaceSlotType.PICKAXE, FaceToolType.PICKAXE),
@@ -24,13 +24,13 @@ public enum FaceSlot {
 
 	private FaceLift instance = FaceLift.getInstance();
 
-	private final FaceSlotType type;
+	private final FaceSlotType slotType;
 	private int index;
 	private ItemStack stack = ItemStack.EMPTY;
 	private FaceToolType toolType;
 
 	private FaceSlot(FaceSlotType type, FaceToolType toolType) {
-		this.type = type;
+		this.slotType = type;
 		this.toolType = toolType;
 		if (type.equals(FaceSlotType.MAINHAND)) {
 			var hotbarSlot = instance.client.player.getInventory().selectedSlot;
@@ -42,7 +42,7 @@ public enum FaceSlot {
 	}
 
 	private FaceSlot(FaceSlotType type, int index) {
-		this.type = type;
+		this.slotType = type;
 		this.index = index;
 	}
 
@@ -54,12 +54,12 @@ public enum FaceSlot {
 		return stack;
 	}
 
-	public FaceSlotType getSlotType() {
-		return type;
+	public FaceSlotType getFaceSlotType() {
+		return slotType;
 	}
 
 	public int getIndex() {
-		if (type.equals(FaceSlotType.MAINHAND)) {
+		if (slotType.equals(FaceSlotType.MAINHAND)) {
 			var hotbarSlot = FaceLift.getInstance().client.player.getInventory().selectedSlot;
 			this.index = 8 - hotbarSlot;
 		} else if (toolType != null) {

@@ -52,7 +52,7 @@ public class PlayerUtils {
 
 		List<FaceTool> possibleTools = new ArrayList<FaceTool>();
 		for (var slot : FaceEquipment.slots) {
-			if (!FaceEquipment.TOOL_TYPES.contains(slot.getSlotType()))
+			if (!FaceEquipment.TOOL_TYPES.contains(slot.getFaceSlotType()))
 				continue;
 
 			var stack = inventory.getStack(slot.getIndex());

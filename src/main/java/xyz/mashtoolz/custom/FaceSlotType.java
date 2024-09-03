@@ -22,8 +22,15 @@ public enum FaceSlotType {
 			Items.WOODEN_SWORD, Items.STONE_SWORD, Items.IRON_SWORD,
 			Items.STONE_SHOVEL, Items.IRON_SHOVEL,
 			Items.IRON_AXE,
+			Items.SHIELD, Items.BOOK, Items.ARROW
 	}),
-	OFFHAND(new Item[] { Items.SHIELD, Items.BOOK, Items.ARROW }),
+	OFFHAND(new Item[] {
+			Items.BOW,
+			Items.WOODEN_SWORD, Items.STONE_SWORD, Items.IRON_SWORD,
+			Items.STONE_SHOVEL, Items.IRON_SHOVEL,
+			Items.IRON_AXE,
+			Items.SHIELD, Items.BOOK, Items.ARROW
+	}),
 	PICKAXE(FaceToolType.PICKAXE),
 	WOODCUTTINGAXE(FaceToolType.WOODCUTTINGAXE),
 	HOE(FaceToolType.HOE),

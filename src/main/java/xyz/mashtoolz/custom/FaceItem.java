@@ -24,7 +24,6 @@ public class FaceItem {
 	private FaceTool tool = null;
 	public boolean invalid;
 
-	private List<FaceSlot> DUALWIELD_SLOTS = new ArrayList<FaceSlot>(Arrays.asList(FaceSlot.MAINHAND, FaceSlot.OFFHAND));
 	private List<FaceSlot> TOOL_SLOTS = new ArrayList<FaceSlot>(Arrays.asList(FaceSlot.PICKAXE, FaceSlot.WOODCUTTINGAXE, FaceSlot.HOE));
 
 	public FaceItem(ItemStack stack) {
@@ -71,11 +70,8 @@ public class FaceItem {
 		return tool;
 	}
 
-	public FaceSlot getFaceSlot(boolean isDualWielding) {
+	public FaceSlot getFaceSlot() {
 		var shiftDown = Screen.hasShiftDown();
-
-		if (isDualWielding)
-			return DUALWIELD_SLOTS.get(shiftDown ? 1 : 0);
 
 		if (tool != null)
 			return TOOL_SLOTS.get(tool.getFaceToolType().ordinal());
