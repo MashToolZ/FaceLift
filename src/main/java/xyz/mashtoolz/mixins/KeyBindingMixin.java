@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.client.option.KeyBinding;
-import xyz.mashtoolz.helpers.HudRenderer;
+import xyz.mashtoolz.handlers.RenderHandler;
 
 @Mixin(KeyBinding.class)
 public class KeyBindingMixin {
@@ -17,7 +17,7 @@ public class KeyBindingMixin {
 
 	@Inject(method = "isPressed", at = @At("HEAD"), cancellable = true)
 	public void FL_isPressed(CallbackInfoReturnable<Boolean> cir) {
-		if (HudRenderer.searchBar != null && HudRenderer.searchBar.isFocused()) {
+		if (RenderHandler.searchBar != null && RenderHandler.searchBar.isFocused()) {
 			cir.setReturnValue(false);
 			return;
 		}

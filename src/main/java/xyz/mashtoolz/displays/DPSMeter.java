@@ -1,4 +1,4 @@
-package xyz.mashtoolz.helpers;
+package xyz.mashtoolz.displays;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +9,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.utils.ColorUtils;
+import xyz.mashtoolz.utils.NumberUtils;
 import xyz.mashtoolz.utils.RenderUtils;
 
 public class DPSMeter {
@@ -84,9 +85,9 @@ public class DPSMeter {
 			return;
 		}
 
-		String damageFormat = NumberFormatter.format(getDamage());
-		String hitsFormat = NumberFormatter.format(getHits());
-		String dpsFormat = NumberFormatter.format(getDPS());
+		String damageFormat = NumberUtils.format(getDamage());
+		String hitsFormat = NumberUtils.format(getHits());
+		String dpsFormat = NumberUtils.format(getDPS());
 
 		int damageWidth = instance.client.textRenderer.getWidth(damageFormat);
 		int hitsWidth = instance.client.textRenderer.getWidth(hitsFormat);

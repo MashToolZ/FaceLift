@@ -1,4 +1,4 @@
-package xyz.mashtoolz.helpers;
+package xyz.mashtoolz.displays;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

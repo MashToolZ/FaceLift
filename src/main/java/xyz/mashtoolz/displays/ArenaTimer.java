@@ -1,4 +1,4 @@
-package xyz.mashtoolz.helpers;
+package xyz.mashtoolz.displays;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.mixins.InGameHudInterface;
+import xyz.mashtoolz.utils.RegexPattern;
 import xyz.mashtoolz.utils.RenderUtils;
 import xyz.mashtoolz.utils.TimeUtils;
 

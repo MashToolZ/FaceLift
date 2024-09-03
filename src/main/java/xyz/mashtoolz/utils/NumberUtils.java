@@ -1,6 +1,6 @@
-package xyz.mashtoolz.helpers;
+package xyz.mashtoolz.utils;
 
-public class NumberFormatter {
+public class NumberUtils {
 
 	public static String format(int number) {
 		if (number >= 100000000)
@@ -15,4 +15,5 @@ public class NumberFormatter {
 			return String.format("%.1fk", number / 1000f);
 		return String.valueOf(number);
 	}
+
 }

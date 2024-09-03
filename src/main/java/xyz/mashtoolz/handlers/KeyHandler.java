@@ -1,4 +1,4 @@
-package xyz.mashtoolz.helpers;
+package xyz.mashtoolz.handlers;
 
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;

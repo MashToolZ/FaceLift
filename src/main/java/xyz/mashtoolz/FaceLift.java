@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.Perspective;
@@ -15,11 +16,11 @@ import xyz.mashtoolz.config.AutoTool;
 import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.config.Keybinds;
 import xyz.mashtoolz.custom.FaceStatus;
-import xyz.mashtoolz.helpers.ArenaTimer;
-import xyz.mashtoolz.helpers.CombatTimer;
-import xyz.mashtoolz.helpers.DPSMeter;
-import xyz.mashtoolz.helpers.HudRenderer;
-import xyz.mashtoolz.helpers.KeyHandler;
+import xyz.mashtoolz.displays.ArenaTimer;
+import xyz.mashtoolz.displays.CombatTimer;
+import xyz.mashtoolz.displays.DPSMeter;
+import xyz.mashtoolz.handlers.KeyHandler;
+import xyz.mashtoolz.handlers.RenderHandler;
 import xyz.mashtoolz.utils.PlayerUtils;
 
 import java.util.Objects;
@@ -47,8 +48,9 @@ public class FaceLift implements ClientModInitializer {
 
 		FaceStatus.registerEffects();
 
-		ScreenEvents.AFTER_INIT.register(HudRenderer::afterInitScreen);
-		HudRenderCallback.EVENT.register(HudRenderer::onHudRender);
+		ScreenEvents.AFTER_INIT.register(RenderHandler::afterInitScreen);
+		HudRenderCallback.EVENT.register(RenderHandler::onHudRender);
+		WorldRenderEvents.BEFORE_ENTITIES.register(RenderHandler::beforeEntities);
 
 		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 

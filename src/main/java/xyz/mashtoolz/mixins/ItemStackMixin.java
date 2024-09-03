@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import xyz.mashtoolz.helpers.HudRenderer;
+import xyz.mashtoolz.handlers.RenderHandler;
 
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin {
@@ -18,7 +18,7 @@ public abstract class ItemStackMixin {
 
 	@Inject(method = "hasGlint", at = @At("HEAD"), cancellable = true)
 	public void FL_hasGlint(CallbackInfoReturnable<Boolean> cir) {
-		if (HudRenderer.ABILITY_ITEMS.contains(this.getItem())) {
+		if (RenderHandler.ABILITY_ITEMS.contains(this.getItem())) {
 			cir.setReturnValue(false);
 			return;
 		}
@@ -26,7 +26,7 @@ public abstract class ItemStackMixin {
 
 	@Inject(method = "isItemBarVisible", at = @At("HEAD"), cancellable = true)
 	public void FL_isItemBarVisible(CallbackInfoReturnable<Boolean> cir) {
-		if (HudRenderer.ABILITY_ITEMS.contains(this.getItem())) {
+		if (RenderHandler.ABILITY_ITEMS.contains(this.getItem())) {
 			cir.setReturnValue(false);
 			return;
 		}

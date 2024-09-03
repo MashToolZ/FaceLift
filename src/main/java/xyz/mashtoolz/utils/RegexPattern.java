@@ -1,4 +1,4 @@
-package xyz.mashtoolz.helpers;
+package xyz.mashtoolz.utils;
 
 import java.util.regex.Pattern;
 

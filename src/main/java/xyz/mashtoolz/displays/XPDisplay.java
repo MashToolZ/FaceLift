@@ -1,4 +1,4 @@
-package xyz.mashtoolz.helpers;
+package xyz.mashtoolz.displays;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +7,7 @@ import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig.General.Display.DisplayType;
 import xyz.mashtoolz.utils.ColorUtils;
+import xyz.mashtoolz.utils.NumberUtils;
 import xyz.mashtoolz.utils.RenderUtils;
 
 public class XPDisplay {
@@ -133,15 +134,15 @@ public class XPDisplay {
 			this.setVisible(true);
 
 		var skill = this.getColor() + this.getKey();
-		var xp = NumberFormatter.format(this.getXP());
-		var gain = instance.config.general.xpDisplay.showLastGain ? "  +" + NumberFormatter.format(getGain()) : "";
+		var xp = NumberUtils.format(this.getXP());
+		var gain = instance.config.general.xpDisplay.showLastGain ? "  +" + NumberUtils.format(getGain()) : "";
 
 		RenderUtils.drawTextWithShadow(context, skill, x + 5, y + 25 + (i * 10));
 
 		var type = instance.config.general.xpDisplay.displayType;
 		var perN = getTotalTime() / (1000.0 * 60 * (type == DisplayType.PER_HOUR ? 60 : 1));
 		if (type != DisplayType.DEFAULT)
-			xp = NumberFormatter.format((int) (getXP() / perN));
+			xp = NumberUtils.format((int) (getXP() / perN));
 
 		RenderUtils.drawTextWithShadow(context, "<#FDFDFD>" + xp + gain, x + 107 - instance.client.textRenderer.getWidth(xp), y + 25 + (i * 10));
 
