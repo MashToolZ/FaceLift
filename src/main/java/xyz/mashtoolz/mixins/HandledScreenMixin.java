@@ -34,7 +34,7 @@ public abstract class HandledScreenMixin {
 
 	@Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
 	public void FL_keyPressedHead(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-		if (RenderHandler.searchBar.isFocused() && instance.client.options.inventoryKey.matchesKey(keyCode, scanCode))
+		if (RenderHandler.searchBar != null && RenderHandler.searchBar.isFocused() && instance.client.options.inventoryKey.matchesKey(keyCode, scanCode))
 			cir.setReturnValue(true);
 	}
 }

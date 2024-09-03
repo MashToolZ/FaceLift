@@ -53,6 +53,11 @@ public class FaceLift implements ClientModInitializer {
 		HudRenderCallback.EVENT.register(RenderHandler::onHudRender);
 		WorldRenderEvents.BEFORE_ENTITIES.register(RenderHandler::beforeEntities);
 
+		ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> {
+			AutoTool.update();
+			return false;
+		});
+
 		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 
 			if (!FaceConfig.General.onFaceLand)
@@ -64,11 +69,6 @@ public class FaceLift implements ClientModInitializer {
 					break;
 				}
 			}
-		});
-
-		ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> {
-			AutoTool.update();
-			return false;
 		});
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {

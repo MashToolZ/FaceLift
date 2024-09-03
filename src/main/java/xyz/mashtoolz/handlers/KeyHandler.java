@@ -8,10 +8,13 @@ import xyz.mashtoolz.mixins.HandledScreenAccessor;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
+import net.minecraft.screen.ScreenHandler;
 
 public class KeyHandler {
 
 	private static FaceLift instance = FaceLift.getInstance();
+
+	public static ScreenHandler handler;
 
 	public static void onConfigKey() {
 		instance.client.setScreen(AutoConfig.getConfigScreen(FaceConfig.class, instance.client.currentScreen).get());
