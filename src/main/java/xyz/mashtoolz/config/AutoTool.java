@@ -48,22 +48,12 @@ public class AutoTool {
 		}
 
 		var targetTool = PlayerUtils.getTargetTool(blockHitResult, stack);
-		if (targetTool != null) {
-			if (targetTool.getFaceToolType().equals(FaceToolType.BEDROCK))
-				return;
-
-			var targetItem = new FaceItem(inventory.getStack(targetTool.getSlotIndex()));
-			if (targetItem.getFaceTool() == null && (currentTool == null || !targetTool.getFaceToolType().equals(currentTool.getFaceToolType()))) {
-				FaceLift.info(false, "§cMissing Tool: " + targetTool.getFaceToolType().getName());
-				return;
-			}
-		}
+		if (targetTool != null && targetTool.getFaceToolType().equals(FaceToolType.BEDROCK))
+			return;
 
 		if (tooltip == null || currentTool == null) {
 			if (targetTool != null && !inventory.getStack(targetTool.getSlotIndex()).isEmpty())
 				PlayerUtils.clickSlot(targetTool.getSlotIndex(), hotbarSlot, SlotActionType.SWAP);
-			else if (targetTool != null)
-				FaceLift.info(false, "§cMissing Tool: " + targetTool.getFaceToolType().getName());
 			return;
 		}
 

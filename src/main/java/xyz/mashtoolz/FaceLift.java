@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
+import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
@@ -65,6 +66,11 @@ public class FaceLift implements ClientModInitializer {
 			}
 		});
 
+		ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> {
+			AutoTool.update();
+			return false;
+		});
+
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
 			if (!FaceConfig.General.onFaceLand || client == null || client.player == null)
@@ -101,9 +107,6 @@ public class FaceLift implements ClientModInitializer {
 
 			if (config.combat.arenaTimer.enabled && ArenaTimer.isActive() && (client.player != null && client.player.getHealth() <= 0))
 				ArenaTimer.end();
-
-			if (client.options.attackKey.isPressed())
-				AutoTool.update();
 		});
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
