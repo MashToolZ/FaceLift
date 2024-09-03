@@ -4,9 +4,9 @@
     "package": "xyz.mashtoolz.mixins",
     "compatibilityLevel": "JAVA_17",
     "client": [
-        "AdvancementToastInterface",
-        "InGameHudInterface",
-        "ScreenInterface",
+        "AdvancementToastAccessor",
+        "InGameHudAccessor",
+        "ScreenAccessor",
         "HandledScreenAccessor",
         "HandledScreenMixin",
         "DrawContextMixin",
@@ -14,10 +14,11 @@
         "PlayerListHudMixin",
         "ToastManagerMixin",
         "ItemStackMixin",
-        "KeyBindingInterface",
+        "KeyBindingAccessor",
         "KeyBindingMixin",
-        "OrderedTextTooltipComponentInterface",
-        "AbstractClientPlayerEntityMixin"
+        "OrderedTextTooltipComponentAccessor",
+        "AbstractClientPlayerEntityMixin",
+        "EntityMixin"
     ],
     "injectors": {
         "defaultRequire": 1

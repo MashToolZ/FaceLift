@@ -7,7 +7,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ButtonWidget.PressAction;
 import net.minecraft.text.Text;
-import xyz.mashtoolz.mixins.ScreenInterface;
+import xyz.mashtoolz.mixins.ScreenAccessor;
 
 public class DropDownMenu {
 
@@ -45,7 +45,7 @@ public class DropDownMenu {
 				.build();
 		btn.visible = active;
 		buttons.add(btn);
-		((ScreenInterface) screen).invokeAddDrawableChild(btn);
+		((ScreenAccessor) screen).invokeAddDrawableChild(btn);
 	}
 
 	public Text getText() {

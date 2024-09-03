@@ -8,7 +8,7 @@ import java.util.Arrays;
 import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
-import xyz.mashtoolz.mixins.InGameHudInterface;
+import xyz.mashtoolz.mixins.InGameHudAccessor;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.RenderUtils;
 
@@ -48,7 +48,7 @@ public class CombatTimer {
 	}
 
 	public static void update() {
-		var inGameHud = (InGameHudInterface) instance.client.inGameHud;
+		var inGameHud = (InGameHudAccessor) instance.client.inGameHud;
 		if (inGameHud == null)
 			return;
 

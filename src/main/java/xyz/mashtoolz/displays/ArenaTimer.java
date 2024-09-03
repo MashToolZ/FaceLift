@@ -6,7 +6,7 @@ import java.util.List;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.mixins.InGameHudInterface;
+import xyz.mashtoolz.mixins.InGameHudAccessor;
 import xyz.mashtoolz.utils.RegexPattern;
 import xyz.mashtoolz.utils.RenderUtils;
 import xyz.mashtoolz.utils.TimeUtils;
@@ -90,7 +90,7 @@ public class ArenaTimer {
 
 	public static void updateTimer(DrawContext context) {
 
-		var inGameHud = (InGameHudInterface) instance.client.inGameHud;
+		var inGameHud = (InGameHudAccessor) instance.client.inGameHud;
 		if (inGameHud == null)
 			return;
 

@@ -7,7 +7,7 @@ import net.minecraft.client.gui.tooltip.OrderedTextTooltipComponent;
 import net.minecraft.text.OrderedText;
 
 @Mixin(OrderedTextTooltipComponent.class)
-public interface OrderedTextTooltipComponentInterface {
+public interface OrderedTextTooltipComponentAccessor {
 
 	@Accessor("text")
 	OrderedText getText();

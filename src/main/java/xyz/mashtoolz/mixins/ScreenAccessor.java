@@ -8,7 +8,7 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
 
 @Mixin(Screen.class)
-public interface ScreenInterface {
+public interface ScreenAccessor {
 
 	@Invoker("addDrawableChild")
 	<T extends Element & Drawable> T invokeAddDrawableChild(T drawableElement);

@@ -6,7 +6,7 @@ import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.client.toast.AdvancementToast;
 import net.minecraft.client.toast.Toast;
 import xyz.mashtoolz.config.FaceConfig;
-import xyz.mashtoolz.mixins.AdvancementToastInterface;
+import xyz.mashtoolz.mixins.AdvancementToastAccessor;
 
 public class ToastHandler {
 
@@ -38,7 +38,7 @@ public class ToastHandler {
 
 		try {
 
-			var advancementToast = (AdvancementToastInterface) toast;
+			var advancementToast = (AdvancementToastAccessor) toast;
 			AdvancementEntry advancement = advancementToast.getAdvancement();
 
 			var id = advancement.id().toString();

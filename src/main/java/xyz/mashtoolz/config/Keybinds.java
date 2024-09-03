@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.mixins.KeyBindingInterface;
+import xyz.mashtoolz.mixins.KeyBindingAccessor;
 
 public class Keybinds {
 
@@ -29,7 +29,7 @@ public class Keybinds {
 	}
 
 	public static boolean isPressed(KeyBinding key) {
-		var code = ((KeyBindingInterface) key).getBoundKey().getCode();
+		var code = ((KeyBindingAccessor) key).getBoundKey().getCode();
 		if (code == -1)
 			return false;
 		return InputUtil.isKeyPressed(instance.client.getWindow().getHandle(), code);

@@ -7,7 +7,7 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 
 @Mixin(KeyBinding.class)
-public interface KeyBindingInterface {
+public interface KeyBindingAccessor {
 
 	@Accessor("boundKey")
 	InputUtil.Key getBoundKey();
