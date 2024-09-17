@@ -17,7 +17,7 @@ public class KeyBindingMixin {
 
 	@Inject(method = "isPressed", at = @At("HEAD"), cancellable = true)
 	public void FL_isPressed(CallbackInfoReturnable<Boolean> cir) {
-		if (RenderHandler.searchBar != null && RenderHandler.searchBar.isFocused()) {
+		if (RenderHandler.SEARCHBAR != null && RenderHandler.SEARCHBAR.isFocused()) {
 			cir.setReturnValue(false);
 			return;
 		}

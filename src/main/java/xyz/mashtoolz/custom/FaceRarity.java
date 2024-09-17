@@ -1,5 +1,6 @@
 package xyz.mashtoolz.custom;
 
+import java.util.Arrays;
 import net.minecraft.text.TextColor;
 
 public enum FaceRarity {
@@ -10,7 +11,7 @@ public enum FaceRarity {
 	UNCOMMON(0x2F88E1, "丿", "II"),
 	RARE(0xA63FC9, "乛", "III"),
 	EPIC(0xFC3D38, "乜", "IV"),
-	DIVINE(0x6D00FF, "九", ""),
+	DIVINE(0xFFBFCA, "九", ""),
 	UNIQUE(0xF8842C, "乞", ""),
 	PAWN_1(0xC48800, "俍", ""),
 	PAWN_2(0xCFCFCF, "懓", ""),
@@ -47,31 +48,31 @@ public enum FaceRarity {
 	}
 
 	public static FaceRarity fromColor(TextColor color) {
-		for (FaceRarity rarity : FaceRarity.values())
-			if (rarity.getColor().equals(color))
-				return rarity;
-		return null;
+		return Arrays.stream(values())
+				.filter(rarity -> rarity.color.equals(color))
+				.findFirst()
+				.orElse(null);
 	}
 
 	public static FaceRarity fromUnicode(String unicode) {
-		for (FaceRarity color : FaceRarity.values())
-			if (color.getUnicode().equals(unicode))
-				return color;
-		return null;
+		return Arrays.stream(values())
+				.filter(rarity -> rarity.unicode.equals(unicode))
+				.findFirst()
+				.orElse(null);
 	}
 
 	public static FaceRarity fromTier(String tier) {
-		for (FaceRarity rarity : FaceRarity.values())
-			if (rarity.getTier().equals(tier))
-				return rarity;
-		return null;
+		return Arrays.stream(values())
+				.filter(rarity -> rarity.tier.equals(tier))
+				.findFirst()
+				.orElse(null);
 	}
 
 	public static FaceRarity fromName(String name) {
-		for (FaceRarity rarity : FaceRarity.values())
-			if (rarity.getString().equals(name))
-				return rarity;
-		return null;
+		return Arrays.stream(values())
+				.filter(rarity -> rarity.toString().equals(name))
+				.findFirst()
+				.orElse(null);
 	}
 
 	public TextColor getColor() {

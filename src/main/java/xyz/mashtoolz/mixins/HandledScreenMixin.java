@@ -15,26 +15,26 @@ import xyz.mashtoolz.handlers.RenderHandler;
 @Mixin(HandledScreen.class)
 public abstract class HandledScreenMixin {
 
-	private static FaceLift instance = FaceLift.getInstance();
+	private static FaceLift INSTANCE = FaceLift.getInstance();
 
 	@Inject(method = "drawSlot", at = @At("HEAD"), cancellable = true)
-	public void FL_drawSlotHead(DrawContext context, Slot slot, CallbackInfo ci) {
-		RenderHandler.preDrawItemSlot(context, slot, ci);
+	public void FL_drawSlot_start(DrawContext context, Slot slot, CallbackInfo ci) {
+		RenderHandler.drawSlot_start(context, slot, ci);
 	}
 
 	@Inject(method = "drawSlot", at = @At("TAIL"))
-	public void FL_drawSlotTail(DrawContext context, Slot slot, CallbackInfo ci) {
-		RenderHandler.postDrawItemSlot(context, slot);
+	public void FL_drawSlot_end(DrawContext context, Slot slot, CallbackInfo ci) {
+		RenderHandler.drawSlot_end(context, slot);
 	}
 
 	@Inject(method = "render", at = @At("TAIL"))
-	public void FL_renderTail(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-		RenderHandler.onHandledScreenRenderTail(context, mouseX, mouseY, delta);
+	public void FL_render(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+		RenderHandler.onHandledScreenRender(context, mouseX, mouseY, delta);
 	}
 
 	@Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
-	public void FL_keyPressedHead(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-		if (RenderHandler.searchBar != null && RenderHandler.searchBar.isFocused() && instance.client.options.inventoryKey.matchesKey(keyCode, scanCode))
+	public void FL_keyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
+		if (RenderHandler.SEARCHBAR != null && RenderHandler.SEARCHBAR.isFocused() && INSTANCE.CLIENT.options.inventoryKey.matchesKey(keyCode, scanCode))
 			cir.setReturnValue(true);
 	}
 }

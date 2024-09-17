@@ -1,6 +1,7 @@
 package xyz.mashtoolz.config;
 
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.world.RaycastContext;
 import xyz.mashtoolz.FaceLift;
@@ -11,11 +12,11 @@ import xyz.mashtoolz.utils.PlayerUtils;
 
 public class AutoTool {
 
-	private static FaceLift instance = FaceLift.getInstance();
+	private static FaceLift INSTANCE = FaceLift.getInstance();
 
-	public int pickaxe = 15;
-	public int woodcuttingaxe = 16;
-	public int hoe = 17;
+	public int PICKAXE = 15;
+	public int WOODCUTTINGAXE = 16;
+	public int HOE = 17;
 
 	public FaceTool get(FaceToolType type) {
 		return FaceTool.getByType(type);
@@ -23,61 +24,75 @@ public class AutoTool {
 
 	public static void update() {
 
-		var client = instance.client;
+		var client = INSTANCE.CLIENT;
 		var player = client.player;
+		var inventory = player.getInventory();
+		var hotbarSlot = inventory.selectedSlot;
+		var mainHandStack = player.getMainHandStack();
 
 		var eyePos = player.getEyePos();
 		var reach = ClientPlayerEntity.getReachDistance(false);
 		var rayEnd = eyePos.add(player.getRotationVector().multiply(reach));
 		var blockHitResult = client.world.raycast(new RaycastContext(eyePos, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, player));
 
-		var inventory = player.getInventory();
+		var faceItem = new FaceItem(mainHandStack);
+		var tooltip = faceItem.isInvalid() ? null : faceItem.getTooltip();
+		var currentTool = getCurrentToolFromTooltip(tooltip);
+		var targetTool = PlayerUtils.getTargetTool(blockHitResult, mainHandStack);
 
-		var hotbarSlot = inventory.selectedSlot;
-		var stack = player.getMainHandStack();
-
-		var item = new FaceItem(stack);
-		var tooltip = item.invalid ? null : item.getTooltip();
-		FaceTool currentTool = null;
-		if (tooltip != null) {
-			for (var tool : FaceTool.values())
-				if (tooltip.contains(tool.getFaceToolType().getName())) {
-					currentTool = tool;
-					break;
-				}
-		}
-
-		var targetTool = PlayerUtils.getTargetTool(blockHitResult, stack);
 		if (targetTool != null && targetTool.getFaceToolType().equals(FaceToolType.BEDROCK))
 			return;
 
 		if (tooltip == null || currentTool == null) {
-			if (targetTool != null && !inventory.getStack(targetTool.getSlotIndex()).isEmpty())
-				PlayerUtils.clickSlot(targetTool.getSlotIndex(), hotbarSlot, SlotActionType.SWAP);
+			handleNullTool(targetTool, hotbarSlot, inventory);
 			return;
 		}
 
-		var isSlotEmpty = inventory.getStack(currentTool.getSlotIndex()).isEmpty();
+		handleToolSwap(targetTool, currentTool, hotbarSlot, inventory);
+	}
+
+	private static FaceTool getCurrentToolFromTooltip(String tooltip) {
+		if (tooltip == null)
+			return null;
+
+		for (var tool : FaceTool.values())
+			if (tooltip.contains(tool.getFaceToolType().getName()))
+				return tool;
+
+		return null;
+	}
+
+	private static void handleNullTool(FaceTool targetTool, int hotbarSlot, PlayerInventory inventory) {
+		if (targetTool != null && !inventory.getStack(targetTool.getSlotIndex()).isEmpty())
+			PlayerUtils.clickSlot(targetTool.getSlotIndex(), hotbarSlot, SlotActionType.SWAP);
+	}
+
+	private static void handleToolSwap(FaceTool targetTool, FaceTool currentTool, int hotbarSlot, PlayerInventory inventory) {
+		boolean isCurrentToolSlotEmpty = inventory.getStack(currentTool.getSlotIndex()).isEmpty();
+
 		if (targetTool == null) {
-			if (isSlotEmpty) {
-				PlayerUtils.clickSlot(36 + hotbarSlot, 0, SlotActionType.PICKUP);
-				PlayerUtils.clickSlot(currentTool.getSlotIndex(), 0, SlotActionType.PICKUP);
-				return;
-			}
-			PlayerUtils.clickSlot(currentTool.getSlotIndex(), hotbarSlot, SlotActionType.SWAP);
+			if (isCurrentToolSlotEmpty)
+				swap(hotbarSlot, currentTool);
+			else
+				PlayerUtils.clickSlot(currentTool.getSlotIndex(), hotbarSlot, SlotActionType.SWAP);
+
 			return;
 		}
 
 		if (currentTool.getFaceToolType().equals(targetTool.getFaceToolType()))
 			return;
 
-		if (isSlotEmpty) {
-			PlayerUtils.clickSlot(36 + hotbarSlot, 0, SlotActionType.PICKUP);
-			PlayerUtils.clickSlot(currentTool.getSlotIndex(), 0, SlotActionType.PICKUP);
+		if (isCurrentToolSlotEmpty) {
+			swap(hotbarSlot, currentTool);
 			PlayerUtils.clickSlot(targetTool.getSlotIndex(), hotbarSlot, SlotActionType.SWAP);
 		} else {
 			PlayerUtils.clickSlot(currentTool.getSlotIndex(), hotbarSlot, SlotActionType.SWAP);
 			PlayerUtils.clickSlot(targetTool.getSlotIndex(), hotbarSlot, SlotActionType.SWAP);
 		}
+	}
+
+	private static void swap(int hotbarSlot, FaceTool tool) {
+		PlayerUtils.clickSlot(36 + hotbarSlot, 0, SlotActionType.PICKUP);
+		PlayerUtils.clickSlot(tool.getSlotIndex(), 0, SlotActionType.PICKUP);
 	}
 }

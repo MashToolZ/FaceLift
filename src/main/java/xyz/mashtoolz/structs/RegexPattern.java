@@ -1,4 +1,4 @@
-package xyz.mashtoolz.utils;
+package xyz.mashtoolz.structs;
 
 import java.util.regex.Pattern;
 

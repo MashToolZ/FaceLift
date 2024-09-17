@@ -13,11 +13,12 @@ import xyz.mashtoolz.FaceLift;
 
 public enum FaceStatus {
 
-	WELL_RESTED(12000, StatusEffectCategory.BENEFICIAL);
+	WELL_RESTED(12000, StatusEffectCategory.BENEFICIAL),
+	ESCAPE_COOLDOWN(6000, StatusEffectCategory.HARMFUL);
 
-	private static final FaceLift instance = FaceLift.getInstance();
+	private static FaceLift INSTANCE = FaceLift.getInstance();
 
-	private static final List<FaceStatus> effects = new ArrayList<>();
+	private static final List<FaceStatus> EFFECTS = new ArrayList<>();
 
 	private final int duration;
 	private final StatusEffect effect;
@@ -37,26 +38,27 @@ public enum FaceStatus {
 
 	public void applyEffect() {
 		var effect = new StatusEffectInstance(this.effect, this.duration, 0, false, false, true);
-		instance.client.player.addStatusEffect(effect);
+		INSTANCE.CLIENT.player.addStatusEffect(effect);
 	}
 
 	public void removeEffect() {
-		instance.client.player.removeStatusEffect(this.effect);
+		INSTANCE.CLIENT.player.removeStatusEffect(this.effect);
 	}
 
 	public static void registerEffects() {
 		for (FaceStatus status : FaceStatus.values()) {
-			effects.add(status);
+			EFFECTS.add(status);
 			Registry.register(Registries.STATUS_EFFECT, new Identifier("facelift", status.name().toLowerCase()), status.effect);
 		}
 	}
 
 	public static void update() {
-		for (FaceStatus faceStatus : effects) {
-			var effectInstance = instance.client.player.getStatusEffect(faceStatus.getEffect());
+		var player = INSTANCE.CLIENT.player;
+		EFFECTS.forEach(faceStatus -> {
+			var effectInstance = player.getStatusEffect(faceStatus.getEffect());
 			if (effectInstance != null && effectInstance.getDuration() <= 0)
 				faceStatus.removeEffect();
-		}
+		});
 	}
 
 	private static class FaceStatusEffect extends StatusEffect {

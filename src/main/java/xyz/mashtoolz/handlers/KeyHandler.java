@@ -12,53 +12,53 @@ import net.minecraft.screen.ScreenHandler;
 
 public class KeyHandler {
 
-	private static FaceLift instance = FaceLift.getInstance();
+	private static FaceLift INSTANCE = FaceLift.getInstance();
 
 	public static ScreenHandler handler;
 
-	public static void onConfigKey() {
-		instance.client.setScreen(AutoConfig.getConfigScreen(FaceConfig.class, instance.client.currentScreen).get());
+	public static void MENU() {
+		INSTANCE.CLIENT.setScreen(AutoConfig.getConfigScreen(FaceConfig.class, INSTANCE.CLIENT.currentScreen).get());
 	}
 
-	public static void onMountKey(boolean isMounted) {
+	public static void MOUNT(boolean isMounted) {
 		if (!isMounted) {
-			instance.client.player.setSprinting(false);
-			while (instance.client.player.isSprinting()) {
-				try {
-					Thread.sleep(1);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			instance.sendCommand("mount");
+			INSTANCE.CLIENT.player.setSprinting(false);
+			INSTANCE.sendCommand("mount");
 		}
 	}
 
-	public static void onPotionKey(String category) {
+	public static void POTION() {
+
+		try {
+
+
+		} catch (Exception e) {
+			System.out.println(e);
+	}
 	}
 
-	public static void onSpell1Key() {
-		instance.client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(0));
+	public static void SPELL_1() {
+		INSTANCE.CLIENT.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(0));
 	}
 
-	public static void onSpell2Key() {
-		instance.client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(1));
+	public static void SPELL_2() {
+		INSTANCE.CLIENT.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(1));
 	}
 
-	public static void onSpell3Key() {
-		instance.client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(2));
+	public static void SPELL_3() {
+		INSTANCE.CLIENT.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(2));
 	}
 
-	public static void onSpell4Key() {
-		instance.client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(3));
+	public static void SPELL_4() {
+		INSTANCE.CLIENT.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(3));
 	}
 
-	public static void onSetToolKey() {
+	public static void SET_TOOL_SLOT() {
 
-		if (instance.client.currentScreen == null || !(instance.client.currentScreen instanceof HandledScreen))
+		if (INSTANCE.CLIENT.currentScreen == null || !(INSTANCE.CLIENT.currentScreen instanceof HandledScreen))
 			return;
 
-		var screen = (HandledScreenAccessor) instance.client.currentScreen;
+		var screen = (HandledScreenAccessor) INSTANCE.CLIENT.currentScreen;
 		var handler = screen.getHandler();
 		if (handler == null)
 			return;

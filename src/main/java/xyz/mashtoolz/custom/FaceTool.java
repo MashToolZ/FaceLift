@@ -6,16 +6,16 @@ import xyz.mashtoolz.config.FaceConfig;
 
 public class FaceTool {
 
-	private static FaceLift instance = FaceLift.getInstance();
+	private static FaceLift INSTANCE = FaceLift.getInstance();
 
-	public static FaceTool PICKAXE = new FaceTool(FaceToolType.PICKAXE, instance.config.inventory.autoTool.pickaxe, FaceTexture.EMPTY_PICKAXE);
-	public static FaceTool WOODCUTTINGAXE = new FaceTool(FaceToolType.WOODCUTTINGAXE, instance.config.inventory.autoTool.woodcuttingaxe, FaceTexture.EMPTY_WOODCUTTINGAXE);
-	public static FaceTool HOE = new FaceTool(FaceToolType.HOE, instance.config.inventory.autoTool.hoe, FaceTexture.EMPTY_HOE);
-	public static FaceTool BEDROCK = new FaceTool(FaceToolType.BEDROCK, -1, null);
+	public static final FaceTool PICKAXE = new FaceTool(FaceToolType.PICKAXE, INSTANCE.CONFIG.inventory.autoTool.PICKAXE, FaceTexture.EMPTY_PICKAXE);
+	public static final FaceTool WOODCUTTINGAXE = new FaceTool(FaceToolType.WOODCUTTINGAXE, INSTANCE.CONFIG.inventory.autoTool.WOODCUTTINGAXE, FaceTexture.EMPTY_WOODCUTTINGAXE);
+	public static final FaceTool HOE = new FaceTool(FaceToolType.HOE, INSTANCE.CONFIG.inventory.autoTool.HOE, FaceTexture.EMPTY_HOE);
+	public static final FaceTool BEDROCK = new FaceTool(FaceToolType.BEDROCK, -1, null);
 
-	private FaceToolType type;
+	private final FaceToolType type;
 	private int slotIndex;
-	private Identifier texture;
+	private final Identifier texture;
 
 	private FaceTool(FaceToolType type, int slotIndex, Identifier texture) {
 		this.type = type;
@@ -33,19 +33,17 @@ public class FaceTool {
 
 	public void setSlotIndex(int slotIndex) {
 		this.slotIndex = slotIndex;
-		var autoTool = instance.config.inventory.autoTool;
+		updateConfig();
+	}
+
+	private void updateConfig() {
+		var autoTool = INSTANCE.CONFIG.inventory.autoTool;
 		switch (type) {
-			case PICKAXE:
-				autoTool.pickaxe = slotIndex;
-				break;
-			case WOODCUTTINGAXE:
-				autoTool.woodcuttingaxe = slotIndex;
-				break;
-			case HOE:
-				autoTool.hoe = slotIndex;
-				break;
-			default:
-				break;
+			case PICKAXE -> autoTool.PICKAXE = slotIndex;
+			case WOODCUTTINGAXE -> autoTool.WOODCUTTINGAXE = slotIndex;
+			case HOE -> autoTool.HOE = slotIndex;
+			default -> {
+			}
 		}
 		FaceConfig.save();
 	}
@@ -59,8 +57,8 @@ public class FaceTool {
 	}
 
 	public static FaceTool getByType(FaceToolType type) {
-		for (FaceTool tool : FaceTool.values())
-			if (tool.type == type)
+		for (FaceTool tool : values())
+			if (tool.type.equals(type))
 				return tool;
 		return null;
 	}

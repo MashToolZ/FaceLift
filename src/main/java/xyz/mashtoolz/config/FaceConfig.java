@@ -7,7 +7,7 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
-import xyz.mashtoolz.utils.Pos2D;
+import xyz.mashtoolz.structs.Pos2D;
 
 @Config(name = "facelift")
 public class FaceConfig implements ConfigData {
@@ -90,7 +90,6 @@ public class FaceConfig implements ConfigData {
 		public Searchbar searchbar = new Searchbar();
 
 		public static class Searchbar {
-			public boolean regex = false;
 			public boolean caseSensitive = false;
 			public boolean highlight = false;
 			public String query = "";

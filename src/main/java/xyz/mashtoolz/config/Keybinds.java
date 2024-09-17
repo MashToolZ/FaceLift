@@ -10,19 +10,21 @@ import xyz.mashtoolz.mixins.KeyBindingAccessor;
 
 public class Keybinds {
 
-	public static FaceLift instance;
+	public static FaceLift INSTANCE;
 
-	public static KeyBinding menu = add("facelift.key.menu");
-	public static KeyBinding mount = add("facelift.key.mount");
+	public static KeyBinding MENU = add("facelift.key.menu");
+	public static KeyBinding MOUNT = add("facelift.key.mount");
 
-	public static KeyBinding spell1 = add("facelift.key.spell1");
-	public static KeyBinding spell2 = add("facelift.key.spell2");
-	public static KeyBinding spell3 = add("facelift.key.spell3");
-	public static KeyBinding spell4 = add("facelift.key.spell4");
+	public static KeyBinding SPELL_1 = add("facelift.key.spell_1");
+	public static KeyBinding SPELL_2 = add("facelift.key.spell_2");
+	public static KeyBinding SPELL_3 = add("facelift.key.spell_3");
+	public static KeyBinding SPELL_4 = add("facelift.key.spell_4");
 
-	public static KeyBinding setToolSlot = add("facelift.key.setToolSlot");
+	public static KeyBinding POTION = add("facelift.key.potion");
 
-	public static KeyBinding compare = add("facelift.key.compare");
+	public static KeyBinding SET_TOOL_SLOT = add("facelift.key.set_tool_slot");
+
+	public static KeyBinding COMPARE_TOOLTIP = add("facelift.key.compare_tooltip");
 
 	public static KeyBinding add(String key) {
 		return KeyBindingHelper.registerKeyBinding(new KeyBinding(key, InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "facelift.title"));
@@ -32,6 +34,6 @@ public class Keybinds {
 		var code = ((KeyBindingAccessor) key).getBoundKey().getCode();
 		if (code == -1)
 			return false;
-		return InputUtil.isKeyPressed(instance.client.getWindow().getHandle(), code);
+		return InputUtil.isKeyPressed(INSTANCE.CLIENT.getWindow().getHandle(), code);
 	}
 }

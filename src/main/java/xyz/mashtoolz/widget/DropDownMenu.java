@@ -11,7 +11,7 @@ import xyz.mashtoolz.mixins.ScreenAccessor;
 
 public class DropDownMenu {
 
-	private List<ButtonWidget> buttons = new ArrayList<>();
+	private List<ButtonWidget> BUTTONS = new ArrayList<>();
 
 	private Screen screen;
 	private Text text;
@@ -34,17 +34,17 @@ public class DropDownMenu {
 		this.inverted = inverted;
 		this.btn = ButtonWidget.builder(this.text, button -> {
 			active = !active;
-			buttons.forEach(b -> b.visible = active);
+			BUTTONS.forEach(b -> b.visible = active);
 		}).position(x, y).size(width, height).build();
 	}
 
 	public void addButton(String text, PressAction onPress, boolean bool) {
 		var btn = ButtonWidget.builder(Text.literal(text), onPress)
-				.position(x, y + ((inverted ? -1 : 1) * (buttons.size() + 1) * height))
+				.position(x, y + ((inverted ? -1 : 1) * (BUTTONS.size() + 1) * height))
 				.size(width, height)
 				.build();
 		btn.visible = active;
-		buttons.add(btn);
+		BUTTONS.add(btn);
 		((ScreenAccessor) screen).invokeAddDrawableChild(btn);
 	}
 

@@ -1,4 +1,4 @@
-package xyz.mashtoolz.utils;
+package xyz.mashtoolz.structs;
 
 public class Pos2D {
 	public int x;

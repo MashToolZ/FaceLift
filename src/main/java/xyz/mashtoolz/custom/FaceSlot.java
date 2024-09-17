@@ -22,7 +22,7 @@ public enum FaceSlot {
 	WOODCUTTINGAXE(FaceSlotType.WOODCUTTINGAXE, FaceToolType.WOODCUTTINGAXE),
 	HOE(FaceSlotType.HOE, FaceToolType.HOE);
 
-	private FaceLift instance = FaceLift.getInstance();
+	private FaceLift INSTANCE = FaceLift.getInstance();
 
 	private final FaceSlotType slotType;
 	private int index;
@@ -32,13 +32,7 @@ public enum FaceSlot {
 	private FaceSlot(FaceSlotType type, FaceToolType toolType) {
 		this.slotType = type;
 		this.toolType = toolType;
-		if (type.equals(FaceSlotType.MAINHAND)) {
-			var hotbarSlot = instance.client.player.getInventory().selectedSlot;
-			this.index = 36 + hotbarSlot;
-		} else {
-			var tool = instance.config.inventory.autoTool.get(toolType);
-			this.index = tool != null ? tool.getSlotIndex() : -1;
-		}
+		updateIndex(true);
 	}
 
 	private FaceSlot(FaceSlotType type, int index) {
@@ -59,13 +53,18 @@ public enum FaceSlot {
 	}
 
 	public int getIndex() {
+		updateIndex(false);
+		return index;
+	}
+
+	public void updateIndex(boolean init) {
+		var inventory = INSTANCE.CLIENT.player.getInventory();
 		if (slotType.equals(FaceSlotType.MAINHAND)) {
-			var hotbarSlot = FaceLift.getInstance().client.player.getInventory().selectedSlot;
-			this.index = 8 - hotbarSlot;
+			var hotbarSlot = inventory.selectedSlot;
+			this.index = (init ? (36 + hotbarSlot) : (8 - hotbarSlot));
 		} else if (toolType != null) {
-			var tool = FaceLift.getInstance().config.inventory.autoTool.get(toolType);
+			var tool = INSTANCE.CONFIG.inventory.autoTool.get(toolType);
 			this.index = tool != null ? tool.getSlotIndex() : -1;
 		}
-		return index;
 	}
 }

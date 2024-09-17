@@ -2,6 +2,7 @@ package xyz.mashtoolz.custom;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Arrays;
 
 import net.minecraft.item.ItemStack;
@@ -13,36 +14,22 @@ import xyz.mashtoolz.config.FaceConfig;
 
 public class FaceEquipment {
 
-	private static FaceLift instance = FaceLift.getInstance();
+	private static FaceLift INSTANCE = FaceLift.getInstance();
 
 	public static boolean updateCache = false;
-	public static List<FaceSlot> slots = new ArrayList<>();
-	public static List<Integer> indices = new ArrayList<>();
+	public static final List<FaceSlot> SLOTS = new ArrayList<>();
+	public static final List<Integer> INDICES = new ArrayList<>();
 
-	private static final ArrayList<FaceSlotType> DUALWIELD_SLOTS = new ArrayList<>(Arrays.asList(FaceSlotType.MAINHAND, FaceSlotType.OFFHAND));
-	private static final ArrayList<FaceSlotType> DOUBLE_SLOTS = new ArrayList<>(Arrays.asList(FaceSlotType.EARRING, FaceSlotType.RING));
-	public static final ArrayList<FaceSlotType> TOOL_TYPES = new ArrayList<>(Arrays.asList(FaceSlotType.PICKAXE, FaceSlotType.WOODCUTTINGAXE, FaceSlotType.HOE));
+	private static final List<FaceSlotType> DUALWIELD_SLOTS = List.of(FaceSlotType.MAINHAND, FaceSlotType.OFFHAND);
+	private static final List<FaceSlotType> DOUBLE_SLOTS = List.of(FaceSlotType.EARRING, FaceSlotType.RING);
+	public static final List<FaceSlotType> TOOL_TYPES = List.of(FaceSlotType.PICKAXE, FaceSlotType.WOODCUTTINGAXE, FaceSlotType.HOE);
 
-	public static FaceSlot getSlot(String id, boolean shiftDown) {
-		var matches = new ArrayList<FaceSlot>();
-		for (var slot : slots) {
-			var type = slot.getFaceSlotType();
-			if (Arrays.stream(type.getNames()).anyMatch(name -> name.equals(id))) {
-				if (DUALWIELD_SLOTS.contains(type) || DOUBLE_SLOTS.contains(type)) {
-					matches.add(slot);
-					if (matches.size() == 2)
-						return matches.get(shiftDown ? 1 : 0);
-				} else
-					return slot;
-			}
-		}
-		return null;
-	}
+	public static ScreenHandler handler;
 
 	static {
 		for (FaceSlot slot : FaceSlot.values()) {
-			slots.add(slot);
-			for (var eqSlot : instance.config.inventory.equipmentSlots) {
+			SLOTS.add(slot);
+			for (var eqSlot : INSTANCE.CONFIG.inventory.equipmentSlots) {
 				if (eqSlot[0].equals(slot.getFaceSlotType().toString())) {
 					try {
 						var compound = StringNbtReader.parse(eqSlot[1]);
@@ -52,26 +39,39 @@ public class FaceEquipment {
 					}
 				}
 			}
-			indices.add(slot.getIndex());
+			INDICES.add(slot.getIndex());
 		}
 	}
 
-	public static void clearCache() {
-		for (var slot : slots)
-			slot.setStack(ItemStack.EMPTY);
-		instance.config.inventory.equipmentSlots.clear();
+	public static FaceSlot getSlot(String id, boolean shiftDown) {
+		var matches = SLOTS.stream()
+				.filter(slot -> Arrays.stream(slot.getFaceSlotType().getNames()).anyMatch(name -> name.equals(id)))
+				.collect(Collectors.toList());
+
+		if (matches.isEmpty())
+			return null;
+
+		var slotType = matches.get(0).getFaceSlotType();
+		if (DUALWIELD_SLOTS.contains(slotType) || DOUBLE_SLOTS.contains(slotType))
+			return matches.size() == 2 ? matches.get(shiftDown ? 1 : 0) : matches.get(0);
+		else
+			return matches.get(0);
+
 	}
 
-	public static ScreenHandler handler;
+	public static void clearCache() {
+		SLOTS.forEach(slot -> slot.setStack(ItemStack.EMPTY));
+		INSTANCE.CONFIG.inventory.equipmentSlots.clear();
+	}
 
 	public static void updateCachedEquipment() {
 
 		clearCache();
 
-		var size = handler.slots.size();
-		for (var slot : FaceEquipment.slots) {
-			var isTool = TOOL_TYPES.contains(slot.getFaceSlotType());
-			var index = getSlotIndex(slot, size);
+		int size = handler.slots.size();
+		for (FaceSlot slot : FaceEquipment.SLOTS) {
+			boolean isTool = TOOL_TYPES.contains(slot.getFaceSlotType());
+			int index = getSlotIndex(slot, size);
 			var stack = handler.getSlot(index).getStack();
 			if (stack.isEmpty())
 				continue;
@@ -80,7 +80,7 @@ public class FaceEquipment {
 			if (isTool && item.getFaceTool() == null)
 				continue;
 
-			if (item.invalid)
+			if (item.isInvalid())
 				continue;
 
 			slot.setStack(stack);
@@ -88,16 +88,18 @@ public class FaceEquipment {
 			var compoundTag = new NbtCompound();
 			stack.writeNbt(compoundTag);
 			var eqSlot = new String[] { slot.getFaceSlotType().toString(), compoundTag.asString() };
-			instance.config.inventory.equipmentSlots.add(eqSlot);
+			INSTANCE.CONFIG.inventory.equipmentSlots.add(eqSlot);
 		}
 
 		FaceConfig.save();
 	}
 
 	private static int getSlotIndex(FaceSlot slot, int size) {
-		if (slot.getFaceSlotType().equals(FaceSlotType.MAINHAND))
+		FaceSlotType slotType = slot.getFaceSlotType();
+
+		if (slotType.equals(FaceSlotType.MAINHAND))
 			return size - slot.getIndex() - 1;
-		else if (TOOL_TYPES.contains(slot.getFaceSlotType()))
+		else if (TOOL_TYPES.contains(slotType))
 			return slot.getIndex() + (size - 45);
 		else
 			return slot.getIndex();

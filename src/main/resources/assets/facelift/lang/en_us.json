@@ -1,14 +1,14 @@
 {
     "facelift.title": "FaceLift",
 
-    "facelift.key.menu": "Open Config",
+    "facelift.key.menu": "Open Config Menu",
     "facelift.key.mount": "Mount",
-    "facelift.key.spell1": "Spell 1",
-    "facelift.key.spell2": "Spell 2",
-    "facelift.key.spell3": "Spell 3",
-    "facelift.key.spell4": "Spell 4",
-    "facelift.key.setToolSlot": "Set Tool Slot",
-    "facelift.key.compare": "Compare Equipment",
+    "facelift.key.spell_1": "Spell 1",
+    "facelift.key.spell_2": "Spell 2",
+    "facelift.key.spell_3": "Spell 3",
+    "facelift.key.spell_4": "Spell 4",
+    "facelift.key.set_tool_slot": "Set Tool Slot",
+    "facelift.key.compare_tooltip": "Compare Equipment",
 
     "text.autoconfig.facelift.category.general": "General",
     "text.autoconfig.facelift.category.inventory": "Inventory",
@@ -55,5 +55,6 @@
     "text.autoconfig.facelift.option.combat.arenaTimer.position.x": "X Position (px)",
     "text.autoconfig.facelift.option.combat.arenaTimer.position.y": "Y Position (px)",
 
-    "effect.facelift.well_rested": "Well Rested"
+    "effect.facelift.well_rested": "Well Rested",
+    "effect.facelift.escape_cooldown": "Escape Cooldown"
 }

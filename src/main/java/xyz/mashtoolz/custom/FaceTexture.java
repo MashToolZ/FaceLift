@@ -11,6 +11,7 @@ public class FaceTexture {
 	public static final Identifier EMPTY_PICKAXE = id("textures/gui/empty_slot/pickaxe.png");
 	public static final Identifier EMPTY_WOODCUTTINGAXE = id("textures/gui/empty_slot/woodcuttingaxe.png");
 	public static final Identifier EMPTY_HOE = id("textures/gui/empty_slot/hoe.png");
+	public static final Identifier EMPTY_POTION = id("textures/gui/empty_slot/potion.png");
 
 	private static Identifier id(String path) {
 		return new Identifier("facelift", path);

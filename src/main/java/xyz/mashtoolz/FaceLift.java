@@ -9,7 +9,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.text.Text;
@@ -31,83 +30,24 @@ import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 
 public class FaceLift implements ClientModInitializer {
 
-	private static FaceLift instance;
-	public MinecraftClient client;
-	public FaceConfig config;
-	public Keybinds keybinds = new Keybinds();
+	private static FaceLift INSTANCE;
+
+	public MinecraftClient CLIENT;
+	public FaceConfig CONFIG;
+	public Keybinds KEYBINDS = new Keybinds();
 
 	@Override
 	public void onInitializeClient() {
 
-		instance = this;
-		client = MinecraftClient.getInstance();
+		INSTANCE = this;
+		CLIENT = MinecraftClient.getInstance();
 
 		AutoConfig.register(FaceConfig.class, GsonConfigSerializer::new);
 		var holder = AutoConfig.getConfigHolder(FaceConfig.class);
-		config = holder.getConfig();
+		CONFIG = holder.getConfig();
 		FaceConfig.holder = holder;
 
 		FaceStatus.registerEffects();
-
-		ScreenEvents.AFTER_INIT.register(RenderHandler::afterInitScreen);
-		HudRenderCallback.EVENT.register(RenderHandler::onHudRender);
-		WorldRenderEvents.BEFORE_ENTITIES.register(RenderHandler::beforeEntities);
-
-		ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> {
-			AutoTool.update();
-			return false;
-		});
-
-		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
-
-			if (!FaceConfig.General.onFaceLand)
-				return;
-
-			switch (entity.getName().getString()) {
-				case "Text Display": {
-					DPSMeter.textDisplayEntities.put(entity.getUuid().toString(), (TextDisplayEntity) entity);
-					break;
-				}
-			}
-		});
-
-		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-
-			if (!FaceConfig.General.onFaceLand || client == null || client.player == null)
-				return;
-
-			MountCheck();
-			CombatTimer.update();
-			DPSMeter.update();
-			FaceStatus.update();
-
-			if (Keybinds.instance == null)
-				Keybinds.instance = this;
-
-			if (Keybinds.menu.wasPressed())
-				KeyHandler.onConfigKey();
-
-			if (Keybinds.mount.wasPressed())
-				KeyHandler.onMountKey(PlayerUtils.isMounted());
-
-			if (Keybinds.spell1.wasPressed())
-				KeyHandler.onSpell1Key();
-
-			if (Keybinds.spell2.wasPressed())
-				KeyHandler.onSpell2Key();
-
-			if (Keybinds.spell3.wasPressed())
-				KeyHandler.onSpell3Key();
-
-			if (Keybinds.spell4.wasPressed())
-				KeyHandler.onSpell4Key();
-
-			if (Keybinds.isPressed(Keybinds.setToolSlot))
-				KeyHandler.onSetToolKey();
-
-			if (config.combat.arenaTimer.enabled && ArenaTimer.isActive() && (client.player != null && client.player.getHealth() <= 0))
-				ArenaTimer.end();
-		});
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
 			client.execute(() -> {
@@ -123,32 +63,84 @@ public class FaceLift implements ClientModInitializer {
 			FaceConfig.General.onFaceLand = false;
 			ArenaTimer.end();
 		});
+
+		ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> {
+			AutoTool.update();
+			return false;
+		});
+
+		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+
+			if (!FaceConfig.General.onFaceLand)
+				return;
+
+			switch (entity.getName().getString()) {
+				case "Text Display" -> DPSMeter.TEXT_DISPLAYS.put(entity.getUuid().toString(), (TextDisplayEntity) entity);
+			}
+		});
+
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+
+			if (!FaceConfig.General.onFaceLand || client == null || client.player == null)
+				return;
+
+			PlayerUtils.update();
+			CombatTimer.update();
+			DPSMeter.update();
+			FaceStatus.update();
+
+			if (Keybinds.INSTANCE == null)
+				Keybinds.INSTANCE = this;
+
+			handleKeybinds(client);
+
+			if (CONFIG.combat.arenaTimer.enabled && ArenaTimer.isActive() && (client.player != null && client.player.getHealth() <= 0))
+				ArenaTimer.end();
+		});
+
+		ScreenEvents.AFTER_INIT.register(RenderHandler::afterInitScreen);
+		HudRenderCallback.EVENT.register(RenderHandler::onHudRender);
+		WorldRenderEvents.BEFORE_ENTITIES.register(RenderHandler::beforeEntities);
 	}
 
 	public static FaceLift getInstance() {
-		return instance;
-	}
-
-	private void MountCheck() {
-		if (config.general.mountThirdPerson) {
-			if (PlayerUtils.isMounted() && !FaceConfig.General.isMounted && client.options.getPerspective() != Perspective.THIRD_PERSON_BACK) {
-				client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
-				FaceConfig.General.isMounted = true;
-			} else if (!PlayerUtils.isMounted() && FaceConfig.General.isMounted && client.options.getPerspective() != Perspective.FIRST_PERSON) {
-				client.options.setPerspective(Perspective.FIRST_PERSON);
-				FaceConfig.General.isMounted = false;
-			}
-		}
+		return INSTANCE;
 	}
 
 	public void sendCommand(String command) {
-		client.player.networkHandler.sendChatCommand(command);
+		CLIENT.player.networkHandler.sendChatCommand(command);
 	}
 
 	public static void info(boolean console, String message) {
 		if (console)
 			System.out.println("[FaceLift] " + message);
 		else
-			instance.client.player.sendMessage(Text.literal("§7[§cFaceLift§7] " + message));
+			INSTANCE.CLIENT.player.sendMessage(Text.literal("§7[§cFaceLift§7] " + message));
+	}
+
+	private void handleKeybinds(MinecraftClient client) {
+		if (Keybinds.MENU.wasPressed())
+			KeyHandler.MENU();
+
+		if (Keybinds.MOUNT.wasPressed())
+			KeyHandler.MOUNT(PlayerUtils.isMounted());
+
+		if (Keybinds.POTION.wasPressed())
+			KeyHandler.POTION();
+
+		if (Keybinds.SPELL_1.wasPressed())
+			KeyHandler.SPELL_1();
+
+		if (Keybinds.SPELL_2.wasPressed())
+			KeyHandler.SPELL_2();
+
+		if (Keybinds.SPELL_3.wasPressed())
+			KeyHandler.SPELL_3();
+
+		if (Keybinds.SPELL_4.wasPressed())
+			KeyHandler.SPELL_4();
+
+		if (Keybinds.isPressed(Keybinds.SET_TOOL_SLOT))
+			KeyHandler.SET_TOOL_SLOT();
 	}
 }

@@ -14,12 +14,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerListHud.class)
 public class PlayerListHudMixin {
 
-	private static FaceLift instance = FaceLift.getInstance();
+	private static FaceLift INSTANCE = FaceLift.getInstance();
 
 	@Inject(method = "render", at = @At("HEAD"))
 	private void FL_onRender(DrawContext context, int scaledWindowWidth, Scoreboard scoreboard, ScoreboardObjective objective, CallbackInfo ci) {
 		context.getMatrices().push();
-		context.getMatrices().translate(0, instance.config.general.playerListHeightOffset, 0);
+		context.getMatrices().translate(0, INSTANCE.CONFIG.general.playerListHeightOffset, 0);
 	}
 
 	@Inject(method = "render", at = @At("RETURN"))

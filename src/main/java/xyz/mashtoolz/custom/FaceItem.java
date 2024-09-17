@@ -1,6 +1,5 @@
 package xyz.mashtoolz.custom;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 import java.util.regex.Pattern;
@@ -12,42 +11,48 @@ import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import xyz.mashtoolz.FaceLift;
+import xyz.mashtoolz.custom.FaceFont.FType;
+import xyz.mashtoolz.utils.TextUtils;
 
 public class FaceItem {
 
-	private static FaceLift instance = FaceLift.getInstance();
+	private static FaceLift INSTANCE = FaceLift.getInstance();
 
-	private ItemStack stack;
-	private String name;
-	private String tooltip;
-	private FaceRarity rarity;
-	private FaceTool tool = null;
-	public boolean invalid;
+	private static final List<FaceSlot> TOOL_SLOTS = Arrays.asList(FaceSlot.PICKAXE, FaceSlot.WOODCUTTINGAXE, FaceSlot.HOE);
+	private static final Pattern TIER_PATTERN = Pattern.compile("([IV]+)");
 
-	private List<FaceSlot> TOOL_SLOTS = new ArrayList<FaceSlot>(Arrays.asList(FaceSlot.PICKAXE, FaceSlot.WOODCUTTINGAXE, FaceSlot.HOE));
+	private final ItemStack stack;
+	private final String name;
+	private final String tooltip;
+	private final FaceRarity rarity;
+	private FaceTool tool;
+
+	public FaceItem(ItemStack stack, boolean ignoreExtras) {
+		this.stack = stack;
+		this.name = stack.getName().getString();
+		this.tooltip = parseTooltip(Screen.getTooltipFromItem(INSTANCE.CLIENT, stack));
+		this.rarity = FaceRarity.UNKNOWN;
+		this.tool = null;
+	}
 
 	public FaceItem(ItemStack stack) {
 		this.stack = stack;
 		this.name = stack.getName().getString();
-		this.tooltip = parseTooltip(Screen.getTooltipFromItem(instance.client, stack));
-		for (FaceRarity rarity : FaceRarity.values()) {
-			if (rarity.getString().equals("UNKNOWN"))
-				continue;
+		this.tooltip = parseTooltip(Screen.getTooltipFromItem(INSTANCE.CLIENT, stack));
 
-			if (tooltip.contains(rarity.getUnicode())) {
-				this.rarity = rarity;
-				break;
-			}
-		}
+		this.rarity = Arrays.stream(FaceRarity.values())
+				.filter(r -> !r.getString().equals("UNKNOWN") && tooltip.contains(r.getUnicode()))
+				.findFirst()
+				.orElse(FaceRarity.UNKNOWN);
 
-		if (this.rarity == null)
-			this.rarity = FaceRarity.UNKNOWN;
+		this.tool = Arrays.stream(FaceTool.values())
+				.filter(t -> tooltip.contains(t.getFaceToolType().getName()))
+				.findFirst()
+				.orElse(null);
+	}
 
-		for (var tool : FaceTool.values())
-			if (tooltip.contains(tool.getFaceToolType().getName()))
-				this.tool = tool;
-
-		this.invalid = this.rarity.equals(FaceRarity.UNKNOWN);
+	public boolean isInvalid() {
+		return this.rarity.equals(FaceRarity.UNKNOWN);
 	}
 
 	public ItemStack getStack() {
@@ -82,16 +87,14 @@ public class FaceItem {
 
 	public TextColor getColor() {
 		var color = rarity.getColor();
-		switch (rarity) {
-			case SOCKET_GEM:
-				var pattern = Pattern.compile("\\b[IV]+\\b");
-				var matcher = pattern.matcher(stack.getName().getString());
-				var _rarity = matcher.find() ? FaceRarity.fromTier(matcher.group()) : FaceRarity.UNIQUE;
-				return _rarity.getColor();
-
-			default:
-				return color;
+		if (rarity.equals(FaceRarity.SOCKET_GEM)) {
+			var name = stack.getName().getString();
+			var matcher = TIER_PATTERN.matcher(name);
+			var determinedRarity = matcher.find() ? FaceRarity.fromTier(matcher.group()) : FaceRarity.UNIQUE;
+			return determinedRarity.getColor();
 		}
+
+		return color;
 	}
 
 	private String parseTooltip(List<Text> tooltip) {
@@ -99,24 +102,14 @@ public class FaceItem {
 		if (tooltip.size() < 2)
 			return "";
 
-		var text = tooltip
-				.subList(1, tooltip.size() - 1)
-				.stream().map(Text::getString)
+		var textBuilder = new StringBuilder(tooltip.subList(1, tooltip.size() - 1)
+				.stream()
+				.map(Text::getString)
 				.filter(s -> !s.isBlank())
-				.collect(Collectors.joining("\n"))
-				.replace("", "")
-				.replace("乚", " ");
+				.collect(Collectors.joining("\n")));
 
-		char start = 'A';
-		for (int i = 0; i < 26; i++) {
-			text = text.replace(FaceCode.list1[i], String.valueOf((char) (start + i)));
-			text = text.replace(FaceCode.list2[i], String.valueOf((char) (start + i)));
-			text = text.replace(FaceCode.list3[i], String.valueOf((char) (start + i)));
-		}
+		TextUtils.replaceAll(textBuilder, FaceFont.get(FType.ITEM_TOOLTIP));
 
-		for (var code : FaceCode.values())
-			text = text.replace(code.getUnicode(), code.getText());
-
-		return text;
+		return textBuilder.toString();
 	}
 }

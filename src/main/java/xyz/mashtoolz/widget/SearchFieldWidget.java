@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class SearchFieldWidget extends TextFieldWidget {
 
-	private static FaceLift instance = FaceLift.getInstance();
+	private static FaceLift INSTANCE = FaceLift.getInstance();
 
 	private long lastClickTime = 0;
 	public boolean highlighted = false;
@@ -28,7 +28,7 @@ public class SearchFieldWidget extends TextFieldWidget {
 		long currentTime = System.currentTimeMillis();
 		if (currentTime - lastClickTime < 250) {
 			highlighted = !highlighted;
-			instance.config.inventory.searchbar.highlight = highlighted;
+			INSTANCE.CONFIG.inventory.searchbar.highlight = highlighted;
 			this.setEditableColor(highlighted ? 0xFFFF78 : 0xE0E0E0);
 			FaceConfig.save();
 		}
