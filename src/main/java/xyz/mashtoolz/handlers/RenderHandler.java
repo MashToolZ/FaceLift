@@ -1,11 +1,13 @@
 package xyz.mashtoolz.handlers;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -35,6 +37,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
@@ -206,6 +209,16 @@ public class RenderHandler {
 			RenderUtils.compareAndRenderTooltip(screen, context, mouseX, mouseY);
 	}
 
+	public static void onHandledScreenKeyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
+		if (RenderHandler.SEARCHBAR != null && RenderHandler.SEARCHBAR.isFocused()) {
+			var options = INSTANCE.CLIENT.options;
+			List<KeyBinding> keys = new ArrayList<>(List.of(options.inventoryKey, options.dropKey, options.pickItemKey));
+			keys.addAll(Arrays.asList(options.hotbarKeys));
+			if (keys.stream().anyMatch(key -> key.matchesKey(keyCode, scanCode)))
+				cir.setReturnValue(true);
+		}
+	}
+
 	public static void drawSlot_start(DrawContext context, Slot slot, CallbackInfo ci) {
 		if (!FaceConfig.General.onFaceLand)
 			return;
@@ -220,7 +233,7 @@ public class RenderHandler {
 		FaceItem item;
 		boolean hideItem = false;
 
-		if (stack.isEmpty() || IGNORED_ITEMS.contains(stack.getItem()) || ABILITY_ITEMS.contains(stack.getItem()))
+		if (stack.isEmpty() || IGNORED_ITEMS.contains(stack.getItem()))
 			renderToolSlot(context, slot, x, y);
 		else {
 			item = new FaceItem(stack);

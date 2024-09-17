@@ -9,13 +9,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.screen.slot.Slot;
-import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.handlers.RenderHandler;
 
 @Mixin(HandledScreen.class)
 public abstract class HandledScreenMixin {
-
-	private static FaceLift INSTANCE = FaceLift.getInstance();
 
 	@Inject(method = "drawSlot", at = @At("HEAD"), cancellable = true)
 	public void FL_drawSlot_start(DrawContext context, Slot slot, CallbackInfo ci) {
@@ -34,7 +31,6 @@ public abstract class HandledScreenMixin {
 
 	@Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
 	public void FL_keyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-		if (RenderHandler.SEARCHBAR != null && RenderHandler.SEARCHBAR.isFocused() && INSTANCE.CLIENT.options.inventoryKey.matchesKey(keyCode, scanCode))
-			cir.setReturnValue(true);
+		RenderHandler.onHandledScreenKeyPressed(keyCode, scanCode, modifiers, cir);
 	}
 }
