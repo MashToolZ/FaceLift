@@ -33,10 +33,14 @@
     "text.autoconfig.facelift.option.general.xpDisplay.displayType.@Tooltip": "0: Total\n1: Per Minute\n2: Per Hour",
 
     "text.autoconfig.facelift.option.inventory.rarity": "Rarity",
+    "text.autoconfig.facelift.option.inventory.rarity.enabled": "Enabled",
     "text.autoconfig.facelift.option.inventory.rarity.opacity": "Opacity",
     "text.autoconfig.facelift.option.inventory.rarity.opacity.@Tooltip": "How transparent the color should be",
     "text.autoconfig.facelift.option.inventory.rarity.useTexture": "Use Texture",
     "text.autoconfig.facelift.option.inventory.rarity.useTexture.@Tooltip": "Use the texture instead of a border",
+
+    "text.autoconfig.facelift.option.inventory.autoTool": "Auto Tool",
+    "text.autoconfig.facelift.option.inventory.autoTool.enabled": "Enabled",
 
     "text.autoconfig.facelift.option.combat.combatTimer": "Combat Timer",
     "text.autoconfig.facelift.option.combat.combatTimer.enabled": "Enabled",

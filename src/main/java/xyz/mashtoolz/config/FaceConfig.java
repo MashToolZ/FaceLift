@@ -95,11 +95,27 @@ public class FaceConfig implements ConfigData {
 		public Rarity rarity = new Rarity();
 
 		public static class Rarity {
+			public boolean enabled = true;
+
 			@ConfigEntry.Gui.Tooltip
 			public float opacity = 0.75F;
 
 			@ConfigEntry.Gui.Tooltip
 			public boolean useTexture = true;
+		}
+
+		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+		public AutoTool autoTool = new AutoTool();
+
+		public static class AutoTool {
+			public boolean enabled = true;
+
+			@ConfigEntry.Gui.Excluded
+			public int PICKAXE = 15;
+			@ConfigEntry.Gui.Excluded
+			public int WOODCUTTINGAXE = 16;
+			@ConfigEntry.Gui.Excluded
+			public int HOE = 17;
 		}
 
 		@ConfigEntry.Gui.Excluded
@@ -110,9 +126,6 @@ public class FaceConfig implements ConfigData {
 			public boolean highlight = false;
 			public String query = "";
 		}
-
-		@ConfigEntry.Gui.Excluded
-		public AutoTool autoTool = new AutoTool();
 	}
 
 	@ConfigEntry.Category("combat")

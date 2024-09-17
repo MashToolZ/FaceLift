@@ -63,7 +63,7 @@ public enum FaceSlot {
 			var hotbarSlot = inventory.selectedSlot;
 			this.index = (init ? (36 + hotbarSlot) : (8 - hotbarSlot));
 		} else if (toolType != null) {
-			var tool = INSTANCE.CONFIG.inventory.autoTool.get(toolType);
+			var tool = FaceTool.getByType(toolType);
 			this.index = tool != null ? tool.getSlotIndex() : -1;
 		}
 	}

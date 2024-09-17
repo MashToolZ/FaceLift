@@ -12,10 +12,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.text.Text;
-import xyz.mashtoolz.config.AutoTool;
 import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.config.Keybinds;
 import xyz.mashtoolz.custom.FaceStatus;
+import xyz.mashtoolz.custom.FaceTool;
 import xyz.mashtoolz.displays.ArenaTimer;
 import xyz.mashtoolz.displays.CombatTimer;
 import xyz.mashtoolz.displays.DPSMeter;
@@ -65,7 +65,8 @@ public class FaceLift implements ClientModInitializer {
 		});
 
 		ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> {
-			AutoTool.update();
+			if (CONFIG.inventory.autoTool.enabled)
+				FaceTool.update();
 			return false;
 		});
 

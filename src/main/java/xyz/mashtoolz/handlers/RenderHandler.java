@@ -359,6 +359,9 @@ public class RenderHandler {
 	}
 
 	private static void renderToolSlot(DrawContext context, Slot slot, int x, int y) {
+		if (!CONFIG.inventory.autoTool.enabled)
+			return;
+
 		var screen = (HandledScreenAccessor) CLIENT.currentScreen;
 		var handler = screen.getHandler();
 		if (handler.slots.size() == 46 && !CLIENT.currentScreen.getTitle().getString().isEmpty()) {
@@ -379,6 +382,9 @@ public class RenderHandler {
 	}
 
 	private static void renderNormalItem(DrawContext context, MatrixStack matrices, FaceItem item, int x, int y, boolean hideItem) {
+		if (!CONFIG.inventory.rarity.enabled)
+			return;
+
 		var rarity = item.getFaceRarity();
 		var color = item.getColor();
 

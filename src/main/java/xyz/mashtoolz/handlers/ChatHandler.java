@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.text.Text;
 import xyz.mashtoolz.FaceLift;
+import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.custom.FaceStatus;
 import xyz.mashtoolz.displays.XPDisplay;
 import xyz.mashtoolz.structs.RegexPattern;
@@ -30,11 +31,15 @@ public class ChatHandler {
 		switch (message.trim()) {
 			case "RISE AND SHINE! You're well rested and had a pretty good meal!" -> FaceStatus.WELL_RESTED.applyEffect();
 			case "Whoosh!" -> FaceStatus.ESCAPE_COOLDOWN.applyEffect();
-			case "Your curse has been broken!" -> INSTANCE.CONFIG.general.curseStacks = 0;
+			case "Your curse has been broken!" -> {
+				INSTANCE.CONFIG.general.curseStacks = 0;
+				FaceConfig.save();
+			}
 			default -> {
 				var curse_matcher = CURSE_STACK_PATTERN.matcher(message);
 				if (curse_matcher.find()) {
 					INSTANCE.CONFIG.general.curseStacks = Integer.parseInt(curse_matcher.group(1));
+					FaceConfig.save();
 					return;
 				}
 			}
