@@ -18,7 +18,8 @@
         "KeyBindingMixin",
         "OrderedTextTooltipComponentAccessor",
         "AbstractClientPlayerEntityMixin",
-        "EntityMixin"
+        "EntityMixin",
+        "AbstractInventoryScreenMixin"
     ],
     "injectors": {
         "defaultRequire": 1

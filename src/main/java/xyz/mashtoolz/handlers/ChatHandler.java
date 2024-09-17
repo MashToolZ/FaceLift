@@ -1,5 +1,7 @@
 package xyz.mashtoolz.handlers;
 
+import java.util.regex.Pattern;
+
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.text.Text;
@@ -14,6 +16,8 @@ public class ChatHandler {
 
 	private static FaceLift INSTANCE = FaceLift.getInstance();
 
+	private static Pattern CURSE_STACK_PATTERN = Pattern.compile("You have (\\d+) curse stacks");
+
 	public static void addMessage(Text text, CallbackInfo ci) {
 
 		var message = text.getString().replaceAll("[.,]", "");
@@ -26,6 +30,14 @@ public class ChatHandler {
 		switch (message.trim()) {
 			case "RISE AND SHINE! You're well rested and had a pretty good meal!" -> FaceStatus.WELL_RESTED.applyEffect();
 			case "Whoosh!" -> FaceStatus.ESCAPE_COOLDOWN.applyEffect();
+			case "Your curse has been broken!" -> INSTANCE.CONFIG.general.curseStacks = 0;
+			default -> {
+				var curse_matcher = CURSE_STACK_PATTERN.matcher(message);
+				if (curse_matcher.find()) {
+					INSTANCE.CONFIG.general.curseStacks = Integer.parseInt(curse_matcher.group(1));
+					return;
+				}
+			}
 		}
 	}
 
