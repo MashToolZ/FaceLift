@@ -59,10 +59,16 @@ public class FaceConfig implements ConfigData {
 		public int playerListHeightOffset = 25;
 
 		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
-		public Display xpDisplay = new Display();
+		public TeleportBar teleportBar = new TeleportBar();
 
-		public static class Display {
+		public static class TeleportBar {
+			public boolean enabled = true;
+		}
 
+		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+		public XPDisplay xpDisplay = new XPDisplay();
+
+		public static class XPDisplay {
 			public boolean enabled = true;
 			public boolean showTimebar = true;
 			public int duration = 5000;

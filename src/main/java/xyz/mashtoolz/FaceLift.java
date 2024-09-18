@@ -126,6 +126,9 @@ public class FaceLift implements ClientModInitializer {
 		if (Keybinds.MOUNT.wasPressed())
 			KeyHandler.MOUNT(PlayerUtils.isMounted());
 
+		if (Keybinds.ESCAPE.wasPressed())
+			KeyHandler.ESCAPE();
+
 		if (Keybinds.POTION.wasPressed())
 			KeyHandler.POTION();
 

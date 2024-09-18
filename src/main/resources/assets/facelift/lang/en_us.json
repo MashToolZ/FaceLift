@@ -3,6 +3,7 @@
 
     "facelift.key.menu": "Open Config Menu",
     "facelift.key.mount": "Mount",
+    "facelift.key.escape": "Escape",
     "facelift.key.spell_1": "Spell 1",
     "facelift.key.spell_2": "Spell 2",
     "facelift.key.spell_3": "Spell 3",
@@ -20,6 +21,9 @@
     "text.autoconfig.facelift.option.general.instantBowZoom.@Tooltip": "Increases the zoom speed to match the minimum charge time",
     "text.autoconfig.facelift.option.general.playerListHeightOffset": "Playerlist Height Offset",
     "text.autoconfig.facelift.option.general.playerListHeightOffset.@Tooltip": "Offset of the Playerlist height from the top of the screen",
+
+    "text.autoconfig.facelift.option.general.teleportBar": "Teleport Bar",
+    "text.autoconfig.facelift.option.general.teleportBar.enabled": "Enabled",
 
     "text.autoconfig.facelift.option.general.xpDisplay": "XP Display",
     "text.autoconfig.facelift.option.general.xpDisplay.enabled": "Enabled",

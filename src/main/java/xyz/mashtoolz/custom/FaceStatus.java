@@ -49,14 +49,12 @@ public enum FaceStatus {
 			duration = -1;
 		var effect = new StatusEffectInstance(status.effect, duration, 0, false, false, true);
 		INSTANCE.CLIENT.player.addStatusEffect(effect);
-		FaceLift.info(false, "Applying effect: " + status.name() + " for " + duration + " ticks");
 	}
 
 	public void removeEffect() {
 		INSTANCE.CLIENT.player.removeStatusEffect(this.effect);
 		INSTANCE.CONFIG.general.statusEffects.remove(this);
 		FaceConfig.save();
-		FaceLift.info(false, "Removed effect: " + this.name());
 	}
 
 	public static void getDescription(StatusEffectInstance statusEffect, CallbackInfoReturnable<Text> cir) {

@@ -13,7 +13,9 @@ public class Keybinds {
 	public static FaceLift INSTANCE;
 
 	public static KeyBinding MENU = add("facelift.key.menu");
+
 	public static KeyBinding MOUNT = add("facelift.key.mount");
+	public static KeyBinding ESCAPE = add("facelift.key.escape");
 
 	public static KeyBinding SPELL_1 = add("facelift.key.spell_1");
 	public static KeyBinding SPELL_2 = add("facelift.key.spell_2");

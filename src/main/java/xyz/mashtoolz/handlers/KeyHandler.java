@@ -3,12 +3,14 @@ package xyz.mashtoolz.handlers;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.custom.FaceItem;
+import xyz.mashtoolz.custom.FacePotion;
 import xyz.mashtoolz.custom.FaceTool;
 import xyz.mashtoolz.mixins.HandledScreenAccessor;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.util.Hand;
 
 public class KeyHandler {
 
@@ -27,14 +29,38 @@ public class KeyHandler {
 		}
 	}
 
+	public static void ESCAPE() {
+		INSTANCE.sendCommand("escape");
+	}
+
 	public static void POTION() {
 
 		try {
 
+			var player = INSTANCE.CLIENT.player;
+			var inventory = player.getInventory();
+			var stack = inventory.getStack(8);
+			if (stack.isEmpty())
+				return;
+
+			var item = new FaceItem(stack);
+			if (item.isInvalid())
+				return;
+
+			// var potion = new FacePotion(stack);
+			// if (potion.isInvalid())
+			// return;
+
+			// System.out.println("DRINK POTION: " + potion.getName() + " " + potion.getRemaining() + "/" + potion.getMax());
+
+			// int selectedSlot = inventory.selectedSlot;
+			// inventory.selectedSlot = 8;
+			// INSTANCE.CLIENT.interactionManager.interactItem(INSTANCE.CLIENT.player, Hand.MAIN_HAND);
+			// inventory.selectedSlot = selectedSlot;
 
 		} catch (Exception e) {
 			System.out.println(e);
-	}
+		}
 	}
 
 	public static void SPELL_1() {

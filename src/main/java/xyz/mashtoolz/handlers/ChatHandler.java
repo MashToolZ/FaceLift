@@ -8,6 +8,7 @@ import net.minecraft.text.Text;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.custom.FaceStatus;
+import xyz.mashtoolz.displays.TeleportBar;
 import xyz.mashtoolz.displays.XPDisplay;
 import xyz.mashtoolz.structs.RegexPattern;
 import xyz.mashtoolz.utils.ColorUtils;
@@ -30,12 +31,15 @@ public class ChatHandler {
 
 		switch (message.trim()) {
 			case "RISE AND SHINE! You're well rested and had a pretty good meal!" -> FaceStatus.WELL_RESTED.applyEffect();
+			case "Teleport started! You will be teleported in 10 seconds!" -> TeleportBar.start(11_000, "Escaping");
+			case "Teleport cancelled!" -> TeleportBar.stop();
 			case "Whoosh!" -> FaceStatus.ESCAPE_COOLDOWN.applyEffect();
 			case "Your curse has been broken!" -> {
 				INSTANCE.CONFIG.general.curseStacks = 0;
 				FaceConfig.save();
 			}
 			default -> {
+
 				var curse_matcher = CURSE_STACK_PATTERN.matcher(message);
 				if (curse_matcher.find()) {
 					INSTANCE.CONFIG.general.curseStacks = Integer.parseInt(curse_matcher.group(1));

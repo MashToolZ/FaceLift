@@ -24,6 +24,7 @@ import xyz.mashtoolz.custom.FaceFont.FType;
 import xyz.mashtoolz.displays.ArenaTimer;
 import xyz.mashtoolz.displays.CombatTimer;
 import xyz.mashtoolz.displays.DPSMeter;
+import xyz.mashtoolz.displays.TeleportBar;
 import xyz.mashtoolz.displays.XPDisplay;
 import xyz.mashtoolz.interfaces.EntityInterface;
 import xyz.mashtoolz.mixins.HandledScreenAccessor;
@@ -142,6 +143,9 @@ public class RenderHandler {
 
 		if (CONFIG.general.xpDisplay.enabled)
 			XPDisplay.draw(context);
+
+		if (CONFIG.general.teleportBar.enabled)
+			TeleportBar.draw(context);
 
 		matrices.pop();
 	}

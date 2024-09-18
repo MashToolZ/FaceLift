@@ -5,7 +5,7 @@ import java.util.Map;
 
 import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.config.FaceConfig.General.Display.DisplayType;
+import xyz.mashtoolz.config.FaceConfig.General.XPDisplay.DisplayType;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.NumberUtils;
 import xyz.mashtoolz.utils.RenderUtils;
