@@ -11,6 +11,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import xyz.mashtoolz.FaceLift;
+import xyz.mashtoolz.custom.FaceFont.FFont;
 import xyz.mashtoolz.custom.FaceFont.FType;
 import xyz.mashtoolz.utils.TextUtils;
 
@@ -19,40 +20,21 @@ public class FaceItem {
 	private static FaceLift INSTANCE = FaceLift.getInstance();
 
 	private static final List<FaceSlot> TOOL_SLOTS = Arrays.asList(FaceSlot.PICKAXE, FaceSlot.WOODCUTTINGAXE, FaceSlot.HOE);
-	private static final Pattern TIER_PATTERN = Pattern.compile("([IV]+)");
+	private static final Pattern TIER_PATTERN = Pattern.compile(".*\\b([IV]+)\\b$");
 
 	private final ItemStack stack;
 	private final String name;
-	private final String tooltip;
-	private final FaceRarity rarity;
-	private FaceTool tool;
-
-	public FaceItem(ItemStack stack, boolean ignoreExtras) {
-		this.stack = stack;
-		this.name = stack.getName().getString();
-		this.tooltip = parseTooltip(Screen.getTooltipFromItem(INSTANCE.CLIENT, stack));
-		this.rarity = FaceRarity.UNKNOWN;
-		this.tool = null;
-	}
+	private String tooltip = null;
+	private FaceType type = null;
+	private FaceTool tool = null;
 
 	public FaceItem(ItemStack stack) {
 		this.stack = stack;
 		this.name = stack.getName().getString();
-		this.tooltip = parseTooltip(Screen.getTooltipFromItem(INSTANCE.CLIENT, stack));
-
-		this.rarity = Arrays.stream(FaceRarity.values())
-				.filter(r -> !r.getString().equals("UNKNOWN") && tooltip.contains(r.getUnicode()))
-				.findFirst()
-				.orElse(FaceRarity.UNKNOWN);
-
-		this.tool = Arrays.stream(FaceTool.values())
-				.filter(t -> tooltip.contains(t.getFaceToolType().getName()))
-				.findFirst()
-				.orElse(null);
 	}
 
 	public boolean isInvalid() {
-		return this.rarity.equals(FaceRarity.UNKNOWN);
+		return getFaceType().equals(FaceType.UNKNOWN);
 	}
 
 	public ItemStack getStack() {
@@ -64,14 +46,32 @@ public class FaceItem {
 	}
 
 	public String getTooltip() {
+		return getTooltip(false);
+	}
+
+	private String getTooltip(boolean noParse) {
+		if (noParse)
+			return parseTooltip(Screen.getTooltipFromItem(INSTANCE.CLIENT, stack), true);
+		if (tooltip == null)
+			tooltip = parseTooltip(Screen.getTooltipFromItem(INSTANCE.CLIENT, stack), false);
 		return tooltip;
 	}
 
-	public FaceRarity getFaceRarity() {
-		return rarity;
+	public FaceType getFaceType() {
+		if (type == null)
+			type = Arrays.stream(FaceType.values())
+					.filter(r -> !r.equals(FaceType.UNKNOWN) && getTooltip(true).contains(r.getUnicode()))
+					.findFirst()
+					.orElse(FaceType.UNKNOWN);
+		return type;
 	}
 
 	public FaceTool getFaceTool() {
+		if (tool == FaceTool.BEDROCK)
+			tool = Arrays.stream(FaceTool.values())
+					.filter(t -> getTooltip().contains(t.getFaceToolType().getName()))
+					.findFirst()
+					.orElse(null);
 		return tool;
 	}
 
@@ -86,30 +86,45 @@ public class FaceItem {
 	}
 
 	public TextColor getColor() {
-		var color = rarity.getColor();
-		if (rarity.equals(FaceRarity.SOCKET_GEM)) {
+		var type = getFaceType();
+		var color = type.getColor();
+		if (type.equals(FaceType.SOCKET_GEM)) {
 			var name = stack.getName().getString();
 			var matcher = TIER_PATTERN.matcher(name);
-			var determinedRarity = matcher.find() ? FaceRarity.fromTier(matcher.group()) : FaceRarity.UNIQUE;
-			return determinedRarity.getColor();
+			var determinedType = matcher.find() && matcher.groupCount() == 1 ? FaceType.fromTier(matcher.group(1)) : FaceType.UNIQUE;
+			if (determinedType == null)
+				return color;
+			return determinedType.getColor();
 		}
-
 		return color;
 	}
 
-	private String parseTooltip(List<Text> tooltip) {
+	private String parseTooltip(List<Text> tooltip, boolean noReplace) {
 
 		if (tooltip.size() < 2)
 			return "";
 
-		var textBuilder = new StringBuilder(tooltip.subList(1, tooltip.size() - 1)
-				.stream()
-				.map(Text::getString)
-				.filter(s -> !s.isBlank())
-				.collect(Collectors.joining("\n")));
+		var textBuilder = new StringBuilder(tooltip.subList(1, tooltip.size() - 1).stream().map(Text::getString).filter(s -> !s.isBlank()).collect(Collectors.joining("\n")));
+		if (noReplace)
+			return textBuilder.toString();
 
 		TextUtils.replaceAll(textBuilder, FaceFont.get(FType.ITEM_TOOLTIP));
+		TextUtils.replaceAll(textBuilder, FaceType.map());
 
-		return textBuilder.toString();
+		var gemBuilder = new StringBuilder("\n");
+		int totalSlots = 0;
+		for (int i = 0; i < FFont.GEM_SLOTS.getUnicodes().length; i++) {
+			var unicode = FFont.GEM_SLOTS.getUnicode(i);
+			if (textBuilder.indexOf(unicode) == -1)
+				continue;
+			var text = FFont.GEM_SLOTS.getText(i);
+			var matches = TextUtils.countMatches(textBuilder, unicode);
+			TextUtils.replaceAll(textBuilder, unicode, "");
+			gemBuilder.append(text + "_Slots" + "=" + matches).append("\n");
+			totalSlots += matches;
+		}
+		gemBuilder.append("Total_Slots=" + totalSlots);
+
+		return textBuilder.append(gemBuilder).toString();
 	}
 }

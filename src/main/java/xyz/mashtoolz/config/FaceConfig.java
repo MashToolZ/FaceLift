@@ -98,9 +98,9 @@ public class FaceConfig implements ConfigData {
 		public List<String[]> equipmentSlots = new ArrayList<>();
 
 		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
-		public Rarity rarity = new Rarity();
+		public ItemColors itemColors = new ItemColors();
 
-		public static class Rarity {
+		public static class ItemColors {
 			public boolean enabled = true;
 
 			@ConfigEntry.Gui.Tooltip

@@ -17,9 +17,9 @@ import xyz.mashtoolz.config.Keybinds;
 import xyz.mashtoolz.custom.FaceEquipment;
 import xyz.mashtoolz.custom.FaceFont;
 import xyz.mashtoolz.custom.FaceItem;
-import xyz.mashtoolz.custom.FaceRarity;
 import xyz.mashtoolz.custom.FaceTexture;
 import xyz.mashtoolz.custom.FaceTool;
+import xyz.mashtoolz.custom.FaceType;
 import xyz.mashtoolz.custom.FaceFont.FType;
 import xyz.mashtoolz.displays.ArenaTimer;
 import xyz.mashtoolz.displays.CombatTimer;
@@ -386,35 +386,36 @@ public class RenderHandler {
 	}
 
 	private static void renderNormalItem(DrawContext context, MatrixStack matrices, FaceItem item, int x, int y, boolean hideItem) {
-		if (!CONFIG.inventory.rarity.enabled)
+		if (!CONFIG.inventory.itemColors.enabled)
 			return;
 
-		var rarity = item.getFaceRarity();
+		var type = item.getFaceType();
 		var color = item.getColor();
 
-		if (color == null || rarity.equals(FaceRarity.UNKNOWN)) {
+		if (color == null || type.equals(FaceType.UNKNOWN)) {
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, hideItem ? 0.25F : 1.0F);
 			return;
 		}
 
 		float[] rgb = ColorUtils.getRGB(color);
-		float opacity = hideItem ? 0.25F : CONFIG.inventory.rarity.opacity;
+		float opacity = hideItem ? 0.25F : CONFIG.inventory.itemColors.opacity;
 
 		matrices.translate(0.0f, 0.0f, 100.0f);
 		RenderSystem.setShaderTexture(0, FaceTexture.ITEM_GLOW);
 		RenderSystem.setShaderColor(rgb[0], rgb[1], rgb[2], opacity);
 
-		if (CONFIG.inventory.rarity.useTexture)
+		if (CONFIG.inventory.itemColors.useTexture)
 			context.drawTexture(FaceTexture.ITEM_GLOW, x, y, 0, 0, 16, 16, 16, 16);
 		else
 			context.drawBorder(x, y, 16, 16, ColorUtils.hex2Int("#FFFFFF", 0xFF));
 
 		matrices.translate(0.0f, 0.0f, -100.0f);
 
-		if (rarity.getString().startsWith("MATERIAL_")) {
-			int stars = Integer.parseInt(rarity.getString().split("_")[1]);
+		if (type.getString().startsWith("MATERIAL_")) {
+			int stars = Integer.parseInt(type.getString().split("_")[1]);
 			matrices.translate(0.0f, 0.0f, 300.0f);
 			RenderSystem.setShaderTexture(0, FaceTexture.ITEM_STAR);
+			RenderSystem.setShaderColor(1, 1, 1, 1);
 			context.drawTexture(FaceTexture.ITEM_STAR, x, y, 0, 0, 3 * stars, 3, 3, 3);
 			matrices.translate(0.0f, 0.0f, -300.0f);
 		}

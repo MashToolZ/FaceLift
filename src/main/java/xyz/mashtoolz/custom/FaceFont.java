@@ -29,9 +29,12 @@ public class FaceFont {
 				var name = font.name();
 				for (int i = 0; i < font.getUnicodes().length; i++) {
 					var unicode = font.getUnicode(i);
+					var text = font.getText(i);
 					switch (name) {
 						case "UPGRADE_NUMBERS" -> map.put(unicode, String.format("+%d", i + 1));
-						default -> map.put(unicode, font.getText(i));
+						case "GEM_SLOTS" -> {
+						}
+						default -> map.put(unicode, text);
 					}
 				}
 			}
@@ -52,9 +55,11 @@ public class FaceFont {
 		CHARS_4(FType.ITEM_TOOLTIP, "加务劢劣劤劥劦劧动助努劫劬劭劮劯劰励劲劳労劵劶劷劸効婱", NAME_LETTERS, true),
 		UPGRADE_NUMBERS(FType.ITEM_TOOLTIP, "丰丱串丳临丵丶丷丸丹为主丼丽举", null, true),
 		SPACERS(FType.ITEM_TOOLTIP, "", "", true),
+
 		DISTORTED(FType.ITEM_TOOLTIP, "俾", "Distorted"),
 		ENCHANTABLE(FType.ITEM_TOOLTIP, "严", "Enchantable"),
 		SOULBOUND(FType.ITEM_TOOLTIP, "俎", "Soulbound"),
+		GEM_SLOTS(FType.ITEM_TOOLTIP, "並丧丨丩个丫丬中丮丯", new String[] { "Open", "Locked", "Filled" }),
 
 		REQUIREMENT_NOT_MET(FType.ACTION, "᳤", "Requirement not met"),
 		NO_TARGET(FType.ACTION, "᳢", "No Target"),
@@ -92,6 +97,18 @@ public class FaceFont {
 
 		private FFont(FType type, String unicode, String text) {
 			this(type, unicode, text, false);
+		}
+
+		private FFont(FType type, String unicode, String[] text) {
+			this.type = type;
+			this.unicode = unicode.split("");
+			this.text = text;
+		}
+
+		private FFont(FType type, String[] unicode, String text) {
+			this.type = type;
+			this.unicode = unicode;
+			this.text = new String[] { text };
 		}
 
 		private FFont(FType type, String unicode, String text, boolean isSplit) {
