@@ -81,7 +81,7 @@ public class FaceTool {
 		var rayEnd = eyePos.add(player.getRotationVector().multiply(reach));
 		var blockHitResult = client.world.raycast(new RaycastContext(eyePos, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, player));
 
-		var faceItem = new FaceItem(mainHandStack);
+		var faceItem = FaceItem.from(mainHandStack);
 		var tooltip = faceItem.isInvalid() ? null : faceItem.getTooltip();
 		var currentTool = getCurrentToolFromTooltip(tooltip);
 		var targetTool = PlayerUtils.getTargetTool(blockHitResult, mainHandStack);

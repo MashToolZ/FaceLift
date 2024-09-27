@@ -82,7 +82,7 @@ public class PlayerUtils {
 			if (stack.isEmpty() || !stack.canDestroy(blockRegistry, cachedBlockPos))
 				continue;
 
-			var item = new FaceItem(stack);
+			var item = FaceItem.from(stack);
 			if (item.isInvalid())
 				continue;
 

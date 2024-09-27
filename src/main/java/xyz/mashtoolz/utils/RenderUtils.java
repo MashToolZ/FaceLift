@@ -127,7 +127,7 @@ public class RenderUtils {
 		if (focusedSlot == null || focusedSlot.getStack().isEmpty())
 			return;
 
-		var focusedItem = new FaceItem(focusedSlot.getStack());
+		var focusedItem = FaceItem.from(focusedSlot.getStack());
 		if (focusedItem.isInvalid())
 			return;
 

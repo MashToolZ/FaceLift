@@ -76,7 +76,7 @@ public class FaceEquipment {
 			if (stack.isEmpty())
 				continue;
 
-			var item = new FaceItem(stack);
+			var item = FaceItem.from(stack);
 			if (isTool && item.getFaceTool() == null)
 				continue;
 

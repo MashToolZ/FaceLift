@@ -73,6 +73,8 @@ public class RenderHandler {
 		if (!(screen instanceof HandledScreen))
 			return;
 
+		FaceItem.clearCache();
+
 		String title = screen.getTitle().getString();
 		if (title.contains("库"))
 			FaceEquipment.updateCache = true;
@@ -240,7 +242,7 @@ public class RenderHandler {
 		if (stack.isEmpty() || IGNORED_ITEMS.contains(stack.getItem()))
 			renderToolSlot(context, slot, x, y);
 		else {
-			item = new FaceItem(stack);
+			item = FaceItem.from(stack);
 			hideItem = searchbarCheck(item);
 			renderNormalItem(context, matrices, item, x, y, hideItem);
 		}
