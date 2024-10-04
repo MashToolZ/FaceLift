@@ -7,6 +7,8 @@ import xyz.mashtoolz.custom.FaceTool;
 import xyz.mashtoolz.mixins.HandledScreenAccessor;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.component.ComponentType;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.screen.ScreenHandler;
 

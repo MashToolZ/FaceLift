@@ -1,5 +1,6 @@
 package xyz.mashtoolz.utils;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -8,7 +9,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.item.Item.TooltipContext;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import xyz.mashtoolz.FaceLift;
@@ -112,7 +114,7 @@ public class RenderUtils {
 		matrices.push();
 		RenderSystem.disableDepthTest();
 
-		var text = stack.getTooltip(INSTANCE.CLIENT.player, INSTANCE.CLIENT.options.advancedItemTooltips ? TooltipContext.Default.ADVANCED : TooltipContext.Default.BASIC);
+		List<Text> text = stack.getTooltip(TooltipContext.DEFAULT, INSTANCE.CLIENT.player, INSTANCE.CLIENT.options.advancedItemTooltips ? TooltipType.ADVANCED : TooltipType.BASIC);
 		var components = text.stream().map(Text::asOrderedText).map(TooltipComponent::of).collect(Collectors.toList());
 		int maxWidth = components.stream().mapToInt(c -> c.getWidth(INSTANCE.CLIENT.textRenderer)).max().orElse(0);
 

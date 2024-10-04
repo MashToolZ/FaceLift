@@ -15,8 +15,8 @@ import xyz.mashtoolz.handlers.ChatHandler;
 @Mixin(ChatHud.class)
 public class ChatHudMixin {
 
-	@Inject(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;ILnet/minecraft/client/gui/hud/MessageIndicator;Z)V", at = @At(value = "HEAD"), cancellable = true)
-	private void FL_addMessage(Text text, @Nullable MessageSignatureData messageSignatureData, int i, @Nullable MessageIndicator messageIndicator, boolean bl, CallbackInfo ci) {
+	@Inject(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V", at = @At(value = "HEAD"), cancellable = true)
+	private void FL_addMessage(Text text, @Nullable MessageSignatureData messageSignatureData, @Nullable MessageIndicator messageIndicator, CallbackInfo ci) {
 		ChatHandler.addMessage(text, ci);
 	}
 }

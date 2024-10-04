@@ -28,7 +28,7 @@ dependencies {
 	modApi "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
 	implementation 'io.netty:netty-all:4.1.106.Final'
 	
-	modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.0+")
+	modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1+")
 }
 
 processResources {
@@ -40,14 +40,14 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
+	it.options.release = 21
 }
 
 java {
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {

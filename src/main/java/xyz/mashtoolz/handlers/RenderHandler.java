@@ -40,7 +40,9 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.render.BufferRenderer;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
@@ -90,7 +92,7 @@ public class RenderHandler {
 
 		}
 
-		FaceLift.info(true, TextUtils.escapeStringToUnicode(title, false));
+		// FaceLift.info(true, TextUtils.escapeStringToUnicode(title, false));
 
 		setupSearchBar(client, screen, width, height);
 		setupDropdownMenu(screen, width, height);
@@ -129,7 +131,7 @@ public class RenderHandler {
 		}, inventory.searchbar.caseSensitive);
 	}
 
-	public static void onHudRender(DrawContext context, float delta) {
+	public static void onHudRender(DrawContext context, RenderTickCounter tickCounter) {
 
 		if (!FaceConfig.General.onFaceLand)
 			return;
@@ -322,7 +324,6 @@ public class RenderHandler {
 
 	private static void drawItemCooldown(DrawContext context, ItemStack stack, int x, int y) {
 		var tessellator = Tessellator.getInstance();
-		var buffer = tessellator.getBuffer();
 		var matrix = context.getMatrices().peek().getPositionMatrix();
 
 		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
@@ -334,7 +335,7 @@ public class RenderHandler {
 		float step = (-360 + (360.0F * percent)) / numSegments;
 
 		context.enableScissor(x, y, x + 16, y + 16);
-		buffer.begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_COLOR);
+		var builder = tessellator.begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_COLOR);
 
 		for (int i = 0; i < numSegments; i++) {
 			float angle1 = -90 + i * step;
@@ -347,12 +348,12 @@ public class RenderHandler {
 			float x2 = centerX + 12 * (float) Math.cos(rad2);
 			float y2 = centerY + 12 * (float) Math.sin(rad2);
 
-			buffer.vertex(matrix, centerX, centerY, 0).color(0, 0, 0, 192).next();
-			buffer.vertex(matrix, x1, y1, 0).color(0, 0, 0, 192).next();
-			buffer.vertex(matrix, x2, y2, 0).color(0, 0, 0, 192).next();
+			builder.vertex(matrix, centerX, centerY, 0).color(0, 0, 0, 192);
+			builder.vertex(matrix, x1, y1, 0).color(0, 0, 0, 192);
+			builder.vertex(matrix, x2, y2, 0).color(0, 0, 0, 192);
 		}
 
-		tessellator.draw();
+		BufferRenderer.drawWithGlobalProgram(builder.end());
 		context.disableScissor();
 	}
 

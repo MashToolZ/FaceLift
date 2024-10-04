@@ -10,7 +10,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.hit.BlockHitResult;
 import xyz.mashtoolz.FaceLift;
@@ -67,10 +66,9 @@ public class PlayerUtils {
 			return FaceTool.BEDROCK;
 
 		var inventory = INSTANCE.CLIENT.player.getInventory();
-		var blockRegistry = world.getRegistryManager().get(RegistryKeys.BLOCK);
 		var cachedBlockPos = new CachedBlockPosition(blockView, blockPos, false);
 
-		if (currentStack.canDestroy(blockRegistry, cachedBlockPos))
+		if (currentStack.canBreak(cachedBlockPos))
 			return FaceTool.BEDROCK;
 
 		List<FaceTool> possibleTools = new ArrayList<>();
@@ -79,7 +77,7 @@ public class PlayerUtils {
 				continue;
 
 			var stack = inventory.getStack(slot.getIndex());
-			if (stack.isEmpty() || !stack.canDestroy(blockRegistry, cachedBlockPos))
+			if (stack.isEmpty() || !stack.canBreak(cachedBlockPos))
 				continue;
 
 			var item = FaceItem.from(stack);

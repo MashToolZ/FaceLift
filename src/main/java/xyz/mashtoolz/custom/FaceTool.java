@@ -1,6 +1,5 @@
 package xyz.mashtoolz.custom;
 
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.Identifier;
@@ -77,7 +76,7 @@ public class FaceTool {
 		var mainHandStack = player.getMainHandStack();
 
 		var eyePos = player.getEyePos();
-		var reach = ClientPlayerEntity.getReachDistance(false);
+		var reach = player.getBlockInteractionRange();
 		var rayEnd = eyePos.add(player.getRotationVector().multiply(reach));
 		var blockHitResult = client.world.raycast(new RaycastContext(eyePos, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, player));
 

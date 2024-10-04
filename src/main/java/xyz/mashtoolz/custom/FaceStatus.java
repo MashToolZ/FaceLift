@@ -11,6 +11,7 @@ import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import xyz.mashtoolz.FaceLift;
@@ -27,14 +28,14 @@ public enum FaceStatus {
 	private static final List<FaceStatus> EFFECTS = new ArrayList<>();
 
 	private final int duration;
-	private final StatusEffect effect;
+	private final FaceStatusEffect effect;
 
 	FaceStatus(int duration, StatusEffectCategory category) {
 		this.duration = duration;
 		this.effect = new FaceStatusEffect(category, 0x000000, this);
 	}
 
-	public StatusEffect getEffect() {
+	public FaceStatusEffect getEffect() {
 		return effect;
 	}
 
@@ -47,12 +48,12 @@ public enum FaceStatus {
 	private static void applyEffect(FaceStatus status, int duration) {
 		if (status.equals(FaceStatus.CURSE_STACK))
 			duration = -1;
-		var effect = new StatusEffectInstance(status.effect, duration, 0, false, false, true);
+		var effect = new StatusEffectInstance(status.getEffect().getEntry(), duration, 0, false, false, true);
 		INSTANCE.CLIENT.player.addStatusEffect(effect);
 	}
 
 	public void removeEffect() {
-		INSTANCE.CLIENT.player.removeStatusEffect(this.effect);
+		INSTANCE.CLIENT.player.removeStatusEffect(this.getEffect().getEntry());
 		INSTANCE.CONFIG.general.statusEffects.remove(this);
 		FaceConfig.save();
 	}
@@ -73,7 +74,7 @@ public enum FaceStatus {
 	public static void registerEffects() {
 		for (FaceStatus status : FaceStatus.values()) {
 			EFFECTS.add(status);
-			Registry.register(Registries.STATUS_EFFECT, new Identifier("facelift", status.name().toLowerCase()), status.effect);
+			Registry.register(Registries.STATUS_EFFECT, Identifier.of("facelift", status.name().toLowerCase()), status.getEffect());
 		}
 	}
 
@@ -87,21 +88,21 @@ public enum FaceStatus {
 			var startTime = entry.getValue();
 			var elapsedTime = (System.currentTimeMillis() - startTime) / 1000;
 			var remainingTicks = (int) ((status.duration / 20) - elapsedTime) * 20;
-			var statusEffect = player.getStatusEffect(status.getEffect());
+			var statusEffect = player.getStatusEffect(status.getEffect().getEntry());
 			if (statusEffect == null)
 				applyEffect(status, remainingTicks);
 		}
 
 		for (var faceStatus : EFFECTS) {
 
-			var statusEffect = player.getStatusEffect(faceStatus.getEffect());
+			var statusEffect = player.getStatusEffect(faceStatus.getEffect().getEntry());
 			if (statusEffect == null) {
 				if (faceStatus.equals(FaceStatus.CURSE_STACK) && INSTANCE.CONFIG.general.curseStacks > 0)
 					faceStatus.applyEffect();
 				continue;
 			}
 
-			var effect = (FaceStatusEffect) statusEffect.getEffectType();
+			var effect = (FaceStatusEffect) statusEffect.getEffectType().value();
 			switch (effect.getFaceStatus()) {
 				case CURSE_STACK -> {
 					if (INSTANCE.CONFIG.general.curseStacks <= 0) {
@@ -134,6 +135,10 @@ public enum FaceStatus {
 
 		public FaceStatus getFaceStatus() {
 			return status;
+		}
+
+		public RegistryEntry<StatusEffect> getEntry() {
+			return Registries.STATUS_EFFECT.getEntry(this);
 		}
 	}
 }

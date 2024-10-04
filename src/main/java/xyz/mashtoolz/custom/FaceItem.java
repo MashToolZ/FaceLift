@@ -79,7 +79,7 @@ public class FaceItem {
 	}
 
 	public FaceTool getFaceTool() {
-		if (tool == FaceTool.BEDROCK)
+		if (tool == FaceTool.BEDROCK || tool == null)
 			tool = Arrays.stream(FaceTool.values())
 					.filter(t -> getTooltip().contains(t.getFaceToolType().getName()))
 					.findFirst()

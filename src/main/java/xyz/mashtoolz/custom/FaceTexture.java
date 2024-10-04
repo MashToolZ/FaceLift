@@ -14,6 +14,6 @@ public class FaceTexture {
 	public static final Identifier EMPTY_POTION = id("textures/gui/empty_slot/potion.png");
 
 	private static Identifier id(String path) {
-		return new Identifier("facelift", path);
+		return Identifier.of("facelift", path);
 	}
 }

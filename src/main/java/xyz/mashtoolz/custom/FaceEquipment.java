@@ -3,10 +3,10 @@ package xyz.mashtoolz.custom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import java.util.Arrays;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.screen.ScreenHandler;
 import xyz.mashtoolz.FaceLift;
@@ -33,7 +33,8 @@ public class FaceEquipment {
 				if (eqSlot[0].equals(slot.getFaceSlotType().toString())) {
 					try {
 						var compound = StringNbtReader.parse(eqSlot[1]);
-						slot.setStack(ItemStack.fromNbt(compound));
+						var wrapper = INSTANCE.CLIENT.world.getRegistryManager();
+						slot.setStack(ItemStack.fromNbtOrEmpty(wrapper, compound));
 					} catch (Exception e) {
 						FaceLift.info(true, "Failed to parse NBT for cached item: " + eqSlot[0] + "[" + eqSlot[1] + "]");
 					}
@@ -85,8 +86,8 @@ public class FaceEquipment {
 
 			slot.setStack(stack);
 
-			var compoundTag = new NbtCompound();
-			stack.writeNbt(compoundTag);
+			var wrapper = INSTANCE.CLIENT.world.getRegistryManager();
+			var compoundTag = stack.encode(wrapper);
 			var eqSlot = new String[] { slot.getFaceSlotType().toString(), compoundTag.asString() };
 			INSTANCE.CONFIG.inventory.equipmentSlots.add(eqSlot);
 		}
