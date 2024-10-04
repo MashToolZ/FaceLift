@@ -31,6 +31,7 @@ import xyz.mashtoolz.mixins.HandledScreenAccessor;
 import xyz.mashtoolz.mixins.ScreenAccessor;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.RenderUtils;
+import xyz.mashtoolz.utils.TextUtils;
 import xyz.mashtoolz.widget.DropDownMenu;
 import xyz.mashtoolz.widget.SearchFieldWidget;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
@@ -76,8 +77,20 @@ public class RenderHandler {
 		FaceItem.clearCache();
 
 		String title = screen.getTitle().getString();
-		if (title.contains("库"))
+		// Equipment Screen
+		if (title.contains("库")) {
 			FaceEquipment.updateCache = true;
+		}
+		// Personal Bank Screen
+		else if (title.contains("拽")) {
+
+		}
+		// Guild Bank Screen
+		else if (title.contains("抭")) {
+
+		}
+
+		FaceLift.info(true, TextUtils.escapeStringToUnicode(title, false));
 
 		setupSearchBar(client, screen, width, height);
 		setupDropdownMenu(screen, width, height);
@@ -372,11 +385,11 @@ public class RenderHandler {
 		var handler = screen.getHandler();
 		if (handler.slots.size() == 46 && !CLIENT.currentScreen.getTitle().getString().isEmpty()) {
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.75F);
-			if (slot.id == 44) {
-				RenderSystem.setShaderTexture(0, FaceTexture.EMPTY_POTION);
-				context.drawTexture(FaceTexture.EMPTY_POTION, x, y, 0, 0, 16, 16, 16, 16);
-				return;
-			}
+			// if (slot.id == 44) {
+			// RenderSystem.setShaderTexture(0, FaceTexture.EMPTY_POTION);
+			// context.drawTexture(FaceTexture.EMPTY_POTION, x, y, 0, 0, 16, 16, 16, 16);
+			// return;
+			// }
 			for (var tool : FaceTool.values()) {
 				if (slot.id == tool.getSlotIndex()) {
 					RenderSystem.setShaderTexture(0, tool.getTexture());
