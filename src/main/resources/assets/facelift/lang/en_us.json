@@ -4,10 +4,6 @@
     "facelift.key.menu": "Open Config Menu",
     "facelift.key.mount": "Mount",
     "facelift.key.escape": "Escape",
-    "facelift.key.spell_1": "Spell 1",
-    "facelift.key.spell_2": "Spell 2",
-    "facelift.key.spell_3": "Spell 3",
-    "facelift.key.spell_4": "Spell 4",
     "facelift.key.set_tool_slot": "Set Tool Slot",
     "facelift.key.compare_tooltip": "Compare Equipment",
 
@@ -36,8 +32,11 @@
     "text.autoconfig.facelift.option.general.xpDisplay.displayType": "Display Type",
     "text.autoconfig.facelift.option.general.xpDisplay.displayType.@Tooltip": "0: Total\n1: Per Minute\n2: Per Hour",
 
+    "text.autoconfig.facelift.option.inventory.customHotbar": "Custom Hotbar",
+    "text.autoconfig.facelift.option.inventory.customHotbar.@Tooltip": "Displays your spells in the center of the screen and only 5 slots in your hotbar",
     "text.autoconfig.facelift.option.inventory.itemColors": "Item Colors",
     "text.autoconfig.facelift.option.inventory.itemColors.enabled": "Enabled",
+    "text.autoconfig.facelift.option.inventory.itemColors.enabled.@Tooltip": "Display item colors depending on their rarity",
     "text.autoconfig.facelift.option.inventory.itemColors.opacity": "Opacity",
     "text.autoconfig.facelift.option.inventory.itemColors.opacity.@Tooltip": "How transparent the color should be",
     "text.autoconfig.facelift.option.inventory.itemColors.useTexture": "Use Texture",
@@ -45,6 +44,7 @@
 
     "text.autoconfig.facelift.option.inventory.autoTool": "Auto Tool",
     "text.autoconfig.facelift.option.inventory.autoTool.enabled": "Enabled",
+    "text.autoconfig.facelift.option.inventory.autoTool.enabled.@Tooltip": "Automatically switches to the tool in your designated tool slot when trying to mine blocks",
 
     "text.autoconfig.facelift.option.combat.combatTimer": "Combat Timer",
     "text.autoconfig.facelift.option.combat.combatTimer.enabled": "Enabled",

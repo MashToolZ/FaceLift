@@ -12,24 +12,16 @@ public class Keybinds {
 
 	public static FaceLift INSTANCE;
 
-	public static KeyBinding MENU = add("facelift.key.menu");
+	public static KeyBinding MENU = add("facelift.key.menu", GLFW.GLFW_KEY_UNKNOWN);
 
-	public static KeyBinding MOUNT = add("facelift.key.mount");
-	public static KeyBinding ESCAPE = add("facelift.key.escape");
+	public static KeyBinding MOUNT = add("facelift.key.mount", GLFW.GLFW_KEY_V);
+	public static KeyBinding ESCAPE = add("facelift.key.escape", GLFW.GLFW_KEY_O);
 
-	public static KeyBinding SPELL_1 = add("facelift.key.spell_1");
-	public static KeyBinding SPELL_2 = add("facelift.key.spell_2");
-	public static KeyBinding SPELL_3 = add("facelift.key.spell_3");
-	public static KeyBinding SPELL_4 = add("facelift.key.spell_4");
+	public static KeyBinding SET_TOOL_SLOT = add("facelift.key.set_tool_slot", GLFW.GLFW_KEY_LEFT_BRACKET);
+	public static KeyBinding COMPARE_TOOLTIP = add("facelift.key.compare_tooltip", GLFW.GLFW_KEY_LEFT_ALT);
 
-	public static KeyBinding POTION = add("facelift.key.potion");
-
-	public static KeyBinding SET_TOOL_SLOT = add("facelift.key.set_tool_slot");
-
-	public static KeyBinding COMPARE_TOOLTIP = add("facelift.key.compare_tooltip");
-
-	public static KeyBinding add(String key) {
-		return KeyBindingHelper.registerKeyBinding(new KeyBinding(key, InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "facelift.title"));
+	public static KeyBinding add(String key, int defaultKey) {
+		return KeyBindingHelper.registerKeyBinding(new KeyBinding(key, InputUtil.Type.KEYSYM, defaultKey, "facelift.title"));
 	}
 
 	public static boolean isPressed(KeyBinding key) {
@@ -37,5 +29,10 @@ public class Keybinds {
 		if (code == -1)
 			return false;
 		return InputUtil.isKeyPressed(INSTANCE.CLIENT.getWindow().getHandle(), code);
+	}
+
+	public static void resetPress(KeyBinding key) {
+		key.setPressed(true);
+		key.setPressed(false);
 	}
 }

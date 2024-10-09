@@ -10,10 +10,15 @@ import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.text.Text;
+import net.minecraft.util.Hand;
 import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.config.Keybinds;
+import xyz.mashtoolz.custom.FaceItem;
+import xyz.mashtoolz.custom.FaceSpell;
 import xyz.mashtoolz.custom.FaceStatus;
 import xyz.mashtoolz.custom.FaceTool;
 import xyz.mashtoolz.displays.ArenaTimer;
@@ -65,6 +70,10 @@ public class FaceLift implements ClientModInitializer {
 		});
 
 		ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> {
+
+			if (!FaceConfig.General.onFaceLand)
+				return false;
+
 			if (CONFIG.inventory.autoTool.enabled)
 				FaceTool.update();
 			return false;
@@ -76,7 +85,8 @@ public class FaceLift implements ClientModInitializer {
 				return;
 
 			switch (entity.getName().getString()) {
-				case "Text Display" -> DPSMeter.TEXT_DISPLAYS.put(entity.getUuid().toString(), (TextDisplayEntity) entity);
+				case "Text Display" ->
+					DPSMeter.TEXT_DISPLAYS.put(entity.getUuid().toString(), (TextDisplayEntity) entity);
 			}
 		});
 
@@ -119,30 +129,49 @@ public class FaceLift implements ClientModInitializer {
 			INSTANCE.CLIENT.player.sendMessage(Text.literal("§7[§cFaceLift§7] " + message));
 	}
 
+	public static void handleHotbarChange(PlayerInventory inventory, int index) {
+
+		var client = INSTANCE.CLIENT;
+		var player = client.player;
+		if (player == null) {
+			inventory.selectedSlot = index;
+			return;
+		}
+
+		var stack = inventory.getStack(index);
+		if (stack.isEmpty()) {
+			inventory.selectedSlot = index;
+			return;
+		}
+
+		var spell = FaceSpell.from(stack);
+		if (spell != null) {
+			spell.cast();
+			return;
+		}
+
+		var item = FaceItem.from(stack);
+		if (item.isInvalid() || !item.isPotion()) {
+			inventory.selectedSlot = index;
+			return;
+		}
+
+		int selectedSlot = inventory.selectedSlot;
+		client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(index));
+		INSTANCE.CLIENT.interactionManager.interactItem(player, Hand.MAIN_HAND);
+		client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(selectedSlot));
+	}
+
 	private void handleKeybinds(MinecraftClient client) {
-		if (Keybinds.MENU.wasPressed())
+
+		while (Keybinds.MENU.wasPressed())
 			KeyHandler.MENU();
 
-		if (Keybinds.MOUNT.wasPressed())
+		while (Keybinds.MOUNT.wasPressed())
 			KeyHandler.MOUNT(PlayerUtils.isMounted());
 
-		if (Keybinds.ESCAPE.wasPressed())
+		while (Keybinds.ESCAPE.wasPressed())
 			KeyHandler.ESCAPE();
-
-		if (Keybinds.POTION.wasPressed())
-			KeyHandler.POTION();
-
-		if (Keybinds.SPELL_1.wasPressed())
-			KeyHandler.SPELL_1();
-
-		if (Keybinds.SPELL_2.wasPressed())
-			KeyHandler.SPELL_2();
-
-		if (Keybinds.SPELL_3.wasPressed())
-			KeyHandler.SPELL_3();
-
-		if (Keybinds.SPELL_4.wasPressed())
-			KeyHandler.SPELL_4();
 
 		if (Keybinds.isPressed(Keybinds.SET_TOOL_SLOT))
 			KeyHandler.SET_TOOL_SLOT();

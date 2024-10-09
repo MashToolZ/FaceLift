@@ -80,6 +80,7 @@ public class FaceConfig implements ConfigData {
 			public Pos2D position = new Pos2D(5, 99);
 
 			@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+			@ConfigEntry.Gui.Tooltip
 			public DisplayType displayType = DisplayType.DEFAULT;
 
 			public enum DisplayType {
@@ -97,10 +98,15 @@ public class FaceConfig implements ConfigData {
 		@ConfigEntry.Gui.Excluded
 		public List<String[]> equipmentSlots = new ArrayList<>();
 
+		@ConfigEntry.Gui.Tooltip
+		public boolean customHotbar = true;
+
 		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
 		public ItemColors itemColors = new ItemColors();
 
 		public static class ItemColors {
+
+			@ConfigEntry.Gui.Tooltip
 			public boolean enabled = true;
 
 			@ConfigEntry.Gui.Tooltip
@@ -114,6 +120,8 @@ public class FaceConfig implements ConfigData {
 		public AutoTool autoTool = new AutoTool();
 
 		public static class AutoTool {
+
+			@ConfigEntry.Gui.Tooltip
 			public boolean enabled = true;
 
 			@ConfigEntry.Gui.Excluded

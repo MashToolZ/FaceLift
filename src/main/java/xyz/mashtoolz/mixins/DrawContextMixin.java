@@ -8,7 +8,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import xyz.mashtoolz.handlers.RenderHandler;
 
 @Mixin(DrawContext.class)
@@ -16,6 +18,11 @@ public abstract class DrawContextMixin {
 
 	@Inject(method = "drawItemInSlot(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V", at = @At("HEAD"), cancellable = true)
 	public void FL_drawItemInSlot(TextRenderer textRenderer, ItemStack stack, int x, int y, @Nullable String countOverride, CallbackInfo ci) {
-		RenderHandler.drawHotbarItemSlot((DrawContext) (Object) this, stack, x, y, ci);
+		RenderHandler.drawItemInSlot(textRenderer, (DrawContext) (Object) this, stack, x, y, countOverride, ci);
+	}
+
+	@Inject(method = "drawItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;IIII)V", at = @At("HEAD"), cancellable = true)
+	private void drawItem(@Nullable LivingEntity entity, @Nullable World world, ItemStack stack, int x, int y, int seed, int z, CallbackInfo ci) {
+		RenderHandler.drawItem((DrawContext) (Object) this, entity, world, stack, x, y, seed, z, ci);
 	}
 }

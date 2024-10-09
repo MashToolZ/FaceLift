@@ -31,7 +31,7 @@ public class ChatHandler {
 
 		switch (message.trim()) {
 			case "RISE AND SHINE! You're well rested and had a pretty good meal!" -> FaceStatus.WELL_RESTED.applyEffect();
-			case "Teleport started! You will be teleported in 10 seconds!" -> TeleportBar.start(11_000, "Escaping");
+			case "Teleport started! You will be teleported in 10 seconds!" -> TeleportBar.start(10_000, "Escaping");
 			case "Teleport cancelled!" -> TeleportBar.stop();
 			case "Whoosh!" -> FaceStatus.ESCAPE_COOLDOWN.applyEffect();
 			case "Your curse has been broken!" -> {

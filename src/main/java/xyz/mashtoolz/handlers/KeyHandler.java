@@ -7,9 +7,6 @@ import xyz.mashtoolz.custom.FaceTool;
 import xyz.mashtoolz.mixins.HandledScreenAccessor;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.component.ComponentType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.screen.ScreenHandler;
 
 public class KeyHandler {
@@ -31,25 +28,6 @@ public class KeyHandler {
 
 	public static void ESCAPE() {
 		INSTANCE.sendCommand("escape");
-	}
-
-	public static void POTION() {
-	}
-
-	public static void SPELL_1() {
-		INSTANCE.CLIENT.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(0));
-	}
-
-	public static void SPELL_2() {
-		INSTANCE.CLIENT.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(1));
-	}
-
-	public static void SPELL_3() {
-		INSTANCE.CLIENT.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(2));
-	}
-
-	public static void SPELL_4() {
-		INSTANCE.CLIENT.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(3));
 	}
 
 	public static void SET_TOOL_SLOT() {

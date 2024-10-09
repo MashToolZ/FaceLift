@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -17,6 +18,7 @@ import xyz.mashtoolz.config.Keybinds;
 import xyz.mashtoolz.custom.FaceEquipment;
 import xyz.mashtoolz.custom.FaceFont;
 import xyz.mashtoolz.custom.FaceItem;
+import xyz.mashtoolz.custom.FaceSpell;
 import xyz.mashtoolz.custom.FaceTexture;
 import xyz.mashtoolz.custom.FaceTool;
 import xyz.mashtoolz.custom.FaceType;
@@ -28,31 +30,42 @@ import xyz.mashtoolz.displays.TeleportBar;
 import xyz.mashtoolz.displays.XPDisplay;
 import xyz.mashtoolz.interfaces.EntityInterface;
 import xyz.mashtoolz.mixins.HandledScreenAccessor;
+import xyz.mashtoolz.mixins.InGameHudAccessor;
 import xyz.mashtoolz.mixins.ScreenAccessor;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.RenderUtils;
-import xyz.mashtoolz.utils.TextUtils;
 import xyz.mashtoolz.widget.DropDownMenu;
 import xyz.mashtoolz.widget.SearchFieldWidget;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.option.AttackIndicator;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.render.BufferRenderer;
-import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.DiffuseLighting;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
+import net.minecraft.util.Arm;
+import net.minecraft.util.Colors;
+import net.minecraft.util.crash.CrashCallable;
+import net.minecraft.util.crash.CrashException;
+import net.minecraft.util.crash.CrashReport;
+import net.minecraft.util.crash.CrashReportSection;
+import net.minecraft.world.World;
 
 public class RenderHandler {
 
@@ -240,6 +253,121 @@ public class RenderHandler {
 		}
 	}
 
+	public static void drawItem(DrawContext context, @Nullable LivingEntity entity, @Nullable World world, ItemStack stack, int x, int y, int seed, int z, CallbackInfo ci) {
+		if (!stack.isEmpty()) {
+			var matrices = context.getMatrices();
+			BakedModel bakedModel = CLIENT.getItemRenderer().getModel(stack, world, entity, seed);
+			matrices.push();
+			matrices.translate((float) (x + 8), (float) (y + 8), (float) (150 + (bakedModel.hasDepth() ? z : 0)));
+
+			try {
+				var isSpell = ABILITY_ITEMS.contains(stack.getItem());
+				if (isSpell && !(CLIENT.currentScreen instanceof HandledScreen)) {
+					var spell = FaceSpell.from(stack);
+					if (spell == null)
+						return;
+					spell.animate(context, stack, x, y);
+				} else
+					matrices.scale(16.0F, -16.0F, 16.0F);
+
+				boolean bl = !bakedModel.isSideLit();
+				if (bl) {
+					DiffuseLighting.disableGuiDepthLighting();
+				}
+
+				CLIENT.getItemRenderer().renderItem(stack, ModelTransformationMode.GUI, false, matrices, context.getVertexConsumers(), 15728880, OverlayTexture.DEFAULT_UV, bakedModel);
+				context.draw();
+				if (bl) {
+					DiffuseLighting.enableGuiDepthLighting();
+				}
+			} catch (Throwable var12) {
+				CrashReport crashReport = CrashReport.create(var12, "Rendering item");
+				CrashReportSection crashReportSection = crashReport.addElement("Item being rendered");
+				crashReportSection.add("Item Type", (CrashCallable<String>) (() -> String.valueOf(stack.getItem())));
+				crashReportSection.add("Item Components", (CrashCallable<String>) (() -> String.valueOf(stack.getComponents())));
+				crashReportSection.add("Item Foil", (CrashCallable<String>) (() -> String.valueOf(stack.hasGlint())));
+				throw new CrashException(crashReport);
+			}
+
+			matrices.pop();
+		}
+
+		ci.cancel();
+	}
+
+	public static void renderHotbar(InGameHud inGameHud, DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+		if (!FaceConfig.General.onFaceLand || !CONFIG.inventory.customHotbar)
+			return;
+
+		var hud = ((InGameHudAccessor) inGameHud);
+		var matrices = context.getMatrices();
+		var player = hud.invokeGetCameraPlayer();
+
+		if (player != null) {
+
+			ItemStack itemStack = player.getOffHandStack();
+			Arm arm = player.getMainArm().getOpposite();
+			int i = context.getScaledWindowWidth() / 2;
+			RenderSystem.enableBlend();
+			matrices.push();
+			matrices.translate(0.0F, 0.0F, -90.0F);
+
+			context.drawTexture(FaceTexture.HOTBAR_TEXTURE, i - 91, context.getScaledWindowHeight() - 22, 0, 0, 182, 22, 182, 22);
+
+			var inventory = player.getInventory();
+			int selectedSlot = inventory.selectedSlot;
+			if (selectedSlot >= 4 && selectedSlot <= 8) {
+				int visualIndex = selectedSlot - 4;
+				context.drawGuiTexture(hud.hotbarSelectionTexture(), i - 91 - 1 + 30 + visualIndex * 25, context.getScaledWindowHeight() - 22 - 1, 24, 23);
+			}
+			if (!itemStack.isEmpty())
+				if (arm == Arm.LEFT)
+					context.drawGuiTexture(hud.hotbarOffhandLeftTexture(), i - 91 - 29, context.getScaledWindowHeight() - 23, 29, 24);
+				else
+					context.drawGuiTexture(hud.hotbarOffhandRightTexture(), i + 91, context.getScaledWindowHeight() - 23, 29, 24);
+
+			matrices.pop();
+			RenderSystem.disableBlend();
+			int l = 1;
+
+			for (int m = 0; m < 9; m++) {
+				boolean isSpellSlot = m < 4;
+				int x = isSpellSlot ? (i - 90 + 42 + m * 25 + 2) : (i - 90 + 30 + (m - 4) * 25 + 2);
+				int y = isSpellSlot ? (context.getScaledWindowHeight() / 2 + 35) : (context.getScaledWindowHeight() - 16 - 3);
+				hud.invokeRenderHotbarItem(context, x, y, tickCounter, player, player.getInventory().main.get(m), l++);
+			}
+
+			if (!itemStack.isEmpty()) {
+				int m = context.getScaledWindowHeight() - 16 - 3;
+				if (arm == Arm.LEFT) {
+					hud.invokeRenderHotbarItem(context, i - 91 - 26, m, tickCounter, player, itemStack, l++);
+				} else {
+					hud.invokeRenderHotbarItem(context, i + 91 + 10, m, tickCounter, player, itemStack, l++);
+				}
+			}
+
+			if (INSTANCE.CLIENT.options.getAttackIndicator().getValue() == AttackIndicator.HOTBAR) {
+				RenderSystem.enableBlend();
+				float f = INSTANCE.CLIENT.player.getAttackCooldownProgress(0.0F);
+				if (f < 1.0F) {
+					int n = context.getScaledWindowHeight() - 20;
+					int o = i + 91 + 6;
+					if (arm == Arm.RIGHT) {
+						o = i - 91 - 22;
+					}
+
+					int p = (int) (f * 19.0F);
+					context.drawGuiTexture(hud.hotbarAttackIndicatorBackgroundTexture(), o, n, 18, 18);
+					context.drawGuiTexture(hud.hotbarAttackIndicatorProgressTexture(), 18, 18, 0, 18 - p, o, n + 18 - p, 18, p);
+				}
+
+				RenderSystem.disableBlend();
+			}
+		}
+
+		ci.cancel();
+	}
+
 	public static void drawSlot_start(DrawContext context, Slot slot, CallbackInfo ci) {
 		if (!FaceConfig.General.onFaceLand)
 			return;
@@ -275,25 +403,47 @@ public class RenderHandler {
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 
-	public static void drawHotbarItemSlot(DrawContext context, ItemStack stack, int x, int y, CallbackInfo ci) {
+	public static void drawItemInSlot(TextRenderer textRenderer, DrawContext context, ItemStack stack, int x, int y, @Nullable String countOverride, CallbackInfo ci) {
 
 		if (!FaceConfig.General.onFaceLand || !ABILITY_ITEMS.contains(stack.getItem()))
 			return;
 
 		MatrixStack matrices = context.getMatrices();
 		matrices.push();
-		matrices.translate(0.0f, 0.0f, 300.0f);
 		RenderUtils.enableBlend();
 
-		if (!stack.getEnchantments().isEmpty())
-			drawGlintAnimation(context, x, y);
-
-		if (stack.getItemBarStep() != 13)
-			drawItemCooldown(context, stack, x, y);
+		var spell = FaceSpell.from(stack);
+		if (spell != null) {
+			if (!stack.getEnchantments().isEmpty() || spell.isToggled()) {
+				if (!spell.isToggled())
+					spell.setToggled(true);
+				drawGlintAnimation(context, stack, x, y);
+			}
+			spell.update(context, stack, x, y);
+		}
 
 		RenderUtils.disableBlend();
-		matrices.translate(0.0f, 0.0f, -300.0f);
 		matrices.pop();
+
+		if (!stack.isEmpty()) {
+			matrices.push();
+			if (stack.getCount() != 1 || countOverride != null) {
+				String string = countOverride == null ? String.valueOf(stack.getCount()) : countOverride;
+				matrices.translate(0.0F, 0.0F, 200.0F);
+				context.drawText(CLIENT.textRenderer, string, x + 19 - 2 - CLIENT.textRenderer.getWidth(string), y + 6 + 3, 16777215, true);
+			}
+
+			if (stack.isItemBarVisible()) {
+				int i = stack.getItemBarStep();
+				int j = stack.getItemBarColor();
+				int k = x + 2;
+				int l = y + 13;
+				context.fill(RenderLayer.getGuiOverlay(), k, l, k + 13, l + 2, Colors.BLACK);
+				context.fill(RenderLayer.getGuiOverlay(), k, l, k + i, l + 1, j | Colors.BLACK);
+			}
+			matrices.pop();
+		}
+		ci.cancel();
 	}
 
 	private static boolean searchbarCheck(FaceItem item) {
@@ -322,55 +472,29 @@ public class RenderHandler {
 		return false;
 	}
 
-	private static void drawItemCooldown(DrawContext context, ItemStack stack, int x, int y) {
-		var tessellator = Tessellator.getInstance();
-		var matrix = context.getMatrices().peek().getPositionMatrix();
+	private static void drawGlintAnimation(DrawContext context, ItemStack stack, int x, int y) {
 
-		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
-
-		int centerX = x + 8;
-		int centerY = y + 8;
-		int numSegments = 64;
-		float percent = 1.0F - (float) stack.getDamage() / stack.getMaxDamage();
-		float step = (-360 + (360.0F * percent)) / numSegments;
-
-		context.enableScissor(x, y, x + 16, y + 16);
-		var builder = tessellator.begin(VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_COLOR);
-
-		for (int i = 0; i < numSegments; i++) {
-			float angle1 = -90 + i * step;
-			float angle2 = -90 + (i + 1) * step;
-			double rad1 = Math.toRadians(angle1);
-			double rad2 = Math.toRadians(angle2);
-
-			float x1 = centerX + 12 * (float) Math.cos(rad1);
-			float y1 = centerY + 12 * (float) Math.sin(rad1);
-			float x2 = centerX + 12 * (float) Math.cos(rad2);
-			float y2 = centerY + 12 * (float) Math.sin(rad2);
-
-			builder.vertex(matrix, centerX, centerY, 0).color(0, 0, 0, 192);
-			builder.vertex(matrix, x1, y1, 0).color(0, 0, 0, 192);
-			builder.vertex(matrix, x2, y2, 0).color(0, 0, 0, 192);
-		}
-
-		BufferRenderer.drawWithGlobalProgram(builder.end());
-		context.disableScissor();
-	}
-
-	private static void drawGlintAnimation(DrawContext context, int x, int y) {
+		var spell = FaceSpell.from(stack);
+		var matrices = context.getMatrices();
 		int size = 16;
-		int textureWidth = 960;
-		int maxFrames = textureWidth / size;
+		float f = CLIENT.player == null ? 0.0F : CLIENT.player.getItemCooldownManager().getCooldownProgress(stack.getItem(), CLIENT.getRenderTickCounter().getTickDelta(true));
+		boolean onCooldown = f != 0.0F || (1.0F - (float) stack.getDamage() / stack.getMaxDamage()) != 1.0F;
+		int iSize = CLIENT.currentScreen instanceof HandledScreen || !CONFIG.inventory.customHotbar ? 16 : (spell != null && spell.isToggled()) ? 20 : onCooldown ? 16 : 20;
+
+		int iOffset = (iSize - size) / 2;
+		int maxFrames = 960 / size;
 		int stepTime = 1200 / maxFrames;
 
-		context.fill(x, y, x + 16, y + 16, ColorUtils.hex2Int("#000000", 0x78));
+		matrices.translate(0.0f, 0.0f, 400.0f);
+		context.fill(x - iOffset, y - iOffset, x + iSize - iOffset, y + iSize - iOffset, ColorUtils.hex2Int("#000000", 0x78));
 
 		RenderSystem.setShaderTexture(0, FaceTexture.ABILITY_GLINT);
 		RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 0.5F);
-		context.drawTexture(FaceTexture.ABILITY_GLINT, x + 1, y + 1, 14, 14, 0 | (GLINT_FRAME * size), 0, size, size, maxFrames * size, size);
+		context.drawTexture(FaceTexture.ABILITY_GLINT, x - iOffset + 1, y - iOffset + 1, iSize - 2, iSize - 2, 0 | (GLINT_FRAME * size), 0, size, size, maxFrames * size, size);
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		context.drawTexture(FaceTexture.ABILITY_GLINT, x, y, 16, 16, 0 | (GLINT_FRAME * size), 0, size, size, maxFrames * size, size);
+		context.drawTexture(FaceTexture.ABILITY_GLINT, x - iOffset, y - iOffset, iSize, iSize, 0 | (GLINT_FRAME * size), 0, size, size, maxFrames * size, size);
+		matrices.translate(0.0f, 0.0f, -400.0f);
 
 		if (System.currentTimeMillis() - GLINT_TIME >= stepTime) {
 			GLINT_TIME = System.currentTimeMillis();
@@ -386,11 +510,6 @@ public class RenderHandler {
 		var handler = screen.getHandler();
 		if (handler.slots.size() == 46 && !CLIENT.currentScreen.getTitle().getString().isEmpty()) {
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.75F);
-			// if (slot.id == 44) {
-			// RenderSystem.setShaderTexture(0, FaceTexture.EMPTY_POTION);
-			// context.drawTexture(FaceTexture.EMPTY_POTION, x, y, 0, 0, 16, 16, 16, 16);
-			// return;
-			// }
 			for (var tool : FaceTool.values()) {
 				if (slot.id == tool.getSlotIndex()) {
 					RenderSystem.setShaderTexture(0, tool.getTexture());

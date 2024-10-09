@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
+import net.minecraft.util.Hand;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.custom.FaceFont.FFont;
 import xyz.mashtoolz.custom.FaceFont.FType;
@@ -30,9 +31,17 @@ public class FaceItem {
 	private FaceType type = null;
 	private FaceTool tool = null;
 
+	private int remaining = 0;
+	private int max = 0;
+
 	public FaceItem(ItemStack stack) {
 		this.stack = stack;
 		this.name = stack.getName().getString();
+		this.updatePotionValues();
+	}
+
+	public static ConcurrentHashMap<ItemStack, FaceItem> getCache() {
+		return CACHE;
 	}
 
 	public static void clearCache() {
@@ -49,6 +58,10 @@ public class FaceItem {
 		return getFaceType().equals(FaceType.UNKNOWN);
 	}
 
+	public boolean isPotion() {
+		return max != 0;
+	}
+
 	public ItemStack getStack() {
 		return stack;
 	}
@@ -61,10 +74,14 @@ public class FaceItem {
 		return getTooltip(false);
 	}
 
-	private String getTooltip(boolean noParse) {
-		if (tooltip == null && !noParse)
+	public String getTooltip(boolean forceRefresh) {
+		return getTooltip(false, forceRefresh);
+	}
+
+	private String getTooltip(boolean noParse, boolean forceRefresh) {
+		if (forceRefresh || (tooltip == null && !noParse))
 			tooltip = parseTooltip(Screen.getTooltipFromItem(INSTANCE.CLIENT, stack), false);
-		if (_tooltip == null && noParse)
+		if (forceRefresh || (_tooltip == null && noParse))
 			_tooltip = parseTooltip(Screen.getTooltipFromItem(INSTANCE.CLIENT, stack), true);
 		return noParse ? _tooltip : tooltip;
 	}
@@ -72,7 +89,7 @@ public class FaceItem {
 	public FaceType getFaceType() {
 		if (type == null)
 			type = Arrays.stream(FaceType.values())
-					.filter(r -> !r.equals(FaceType.UNKNOWN) && getTooltip(true).contains(r.getUnicode()))
+					.filter(r -> !r.equals(FaceType.UNKNOWN) && getTooltip(true, false).contains(r.getUnicode()))
 					.findFirst()
 					.orElse(FaceType.UNKNOWN);
 		return type;
@@ -103,12 +120,33 @@ public class FaceItem {
 		if (type.equals(FaceType.SOCKET_GEM)) {
 			var name = stack.getName().getString();
 			var matcher = TIER_PATTERN.matcher(name);
-			var determinedType = matcher.find() && matcher.groupCount() == 1 ? FaceType.fromTier(matcher.group(1)) : FaceType.UNIQUE;
+			var determinedType = matcher.find() && matcher.groupCount() == 1 ? FaceType.fromTier(matcher.group(1))
+					: FaceType.UNIQUE;
 			if (determinedType == null)
 				return color;
 			return determinedType.getColor();
 		}
 		return color;
+	}
+
+	private void updatePotionValues() {
+		var pattern = Pattern.compile("Uses: \\((\\d+)/(\\d+)\\)", Pattern.DOTALL);
+		var matcher = pattern.matcher(getTooltip(true));
+		if (!matcher.find() || matcher.groupCount() != 2)
+			return;
+
+		remaining = Integer.parseInt(matcher.group(1));
+		max = Integer.parseInt(matcher.group(2));
+	}
+
+	public int getRemaining() {
+		this.updatePotionValues();
+		return remaining;
+	}
+
+	public int getMax() {
+		this.updatePotionValues();
+		return max;
 	}
 
 	private String parseTooltip(List<Text> tooltip, boolean noReplace) {
@@ -146,5 +184,11 @@ public class FaceItem {
 
 		gemBuilder.append("Total_Slots=").append(totalSlots);
 		return textBuilder.append(gemBuilder).toString();
+	}
+
+	public void use() {
+		System.out.println(isPotion() + " | " + getRemaining() + " | " + remaining);
+		if (isPotion() && remaining > 0)
+			stack.use(INSTANCE.CLIENT.world, INSTANCE.CLIENT.player, Hand.MAIN_HAND);
 	}
 }
