@@ -51,7 +51,6 @@ public class ChatHandler {
 	}
 
 	private static final RegexPattern[] XP_REGEXES = {
-			new RegexPattern("fishingXP", "Gained Fishing XP! \\(\\+(\\d+)XP\\)"),
 			new RegexPattern("skillXP", "Gained (\\w+ ?){1,2} XP! \\(\\+(\\d+)XP\\)"),
 			new RegexPattern("combatXP", "\\+(\\d+)XP")
 	};
