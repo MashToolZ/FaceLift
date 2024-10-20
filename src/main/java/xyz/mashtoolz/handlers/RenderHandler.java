@@ -413,13 +413,13 @@ public class RenderHandler {
 		RenderUtils.enableBlend();
 
 		var spell = FaceSpell.from(stack);
-		if (spell != null) {
-			if (!stack.getEnchantments().isEmpty() || spell.isToggled()) {
+		if (!stack.getEnchantments().isEmpty() || (spell != null && spell.isToggled())) {
+			drawGlintAnimation(context, stack, x, y);
+			if (spell != null) {
 				if (!spell.isToggled())
 					spell.setToggled(true);
-				drawGlintAnimation(context, stack, x, y);
+				spell.update(context, stack, x, y);
 			}
-			spell.update(context, stack, x, y);
 		}
 
 		RenderUtils.disableBlend();

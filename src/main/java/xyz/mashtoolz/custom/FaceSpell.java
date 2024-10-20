@@ -50,7 +50,7 @@ public class FaceSpell {
 
 	public static FaceSpell from(ItemStack stack) {
 		var spellIndex = INSTANCE.CLIENT.player.getInventory().getSlotWithStack(stack);
-		if (spellIndex > 3)
+		if (spellIndex > 3 || spellIndex < 0)
 			return null;
 
 		if (SPELLS[spellIndex] == null)
