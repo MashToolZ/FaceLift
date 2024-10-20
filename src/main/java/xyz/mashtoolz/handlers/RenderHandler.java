@@ -82,7 +82,7 @@ public class RenderHandler {
 
 	public static final List<Item> ABILITY_ITEMS = Arrays.asList(Items.DIAMOND_CHESTPLATE, Items.GOLDEN_CHESTPLATE);
 	public static final List<Item> IGNORED_ITEMS = Arrays.asList(Items.BARRIER, Items.IRON_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.PLAYER_HEAD, Items.BARRIER);
-	public static final List<Item> HIDDEN_ITEMS = Arrays.asList(Items.SHIELD, Items.TRIPWIRE_HOOK, Items.STRING);
+	public static final List<Item> HIDDEN_ITEMS = Arrays.asList(Items.SHIELD, Items.TRIPWIRE_HOOK, Items.STRING, Items.KELP);
 
 	public static void afterInitScreen(MinecraftClient client, Screen screen, int width, int height) {
 
@@ -413,14 +413,16 @@ public class RenderHandler {
 		RenderUtils.enableBlend();
 
 		var spell = FaceSpell.from(stack);
-		if (!stack.getEnchantments().isEmpty() || (spell != null && spell.isToggled())) {
-			drawGlintAnimation(context, stack, x, y);
-			if (spell != null) {
+		boolean hasEnchantment = !stack.getEnchantments().isEmpty();
+		if (spell != null) {
+			if (hasEnchantment && spell.isToggled()) {
 				if (!spell.isToggled())
 					spell.setToggled(true);
-				spell.update(context, stack, x, y);
+				drawGlintAnimation(context, stack, x, y);
 			}
-		}
+			spell.update(context, stack, x, y);
+		} else if (hasEnchantment)
+			drawGlintAnimation(context, stack, x, y);
 
 		RenderUtils.disableBlend();
 		matrices.pop();
@@ -431,6 +433,7 @@ public class RenderHandler {
 				String string = countOverride == null ? String.valueOf(stack.getCount()) : countOverride;
 				matrices.translate(0.0F, 0.0F, 200.0F);
 				context.drawText(CLIENT.textRenderer, string, x + 19 - 2 - CLIENT.textRenderer.getWidth(string), y + 6 + 3, 16777215, true);
+				matrices.translate(0.0F, 0.0F, -200.0F);
 			}
 
 			if (stack.isItemBarVisible()) {
@@ -462,7 +465,7 @@ public class RenderHandler {
 
 		try {
 			Pattern pattern = Pattern.compile(query, Pattern.DOTALL | (CONFIG.inventory.searchbar.caseSensitive ? 0 : Pattern.CASE_INSENSITIVE));
-			if (!pattern.matcher(tooltip).find())
+			if (!pattern.matcher(tooltip).find() && !pattern.matcher(name).find())
 				return true;
 			SEARCHBAR.setEditableColor(0xFFFF78);
 		} catch (PatternSyntaxException e) {

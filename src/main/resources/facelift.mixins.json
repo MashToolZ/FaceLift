@@ -22,7 +22,8 @@
         "PlayerInventoryMixin",
         "PlayerListHudMixin",
         "ScreenAccessor",
-        "ToastManagerMixin"
+        "ToastManagerMixin",
+        "TooltipBackgroundRendererMixin"
     ],
     "injectors": {
         "defaultRequire": 1
