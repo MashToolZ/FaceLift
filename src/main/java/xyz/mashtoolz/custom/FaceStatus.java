@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 
+import net.minecraft.client.resource.language.I18n;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -14,6 +15,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
 
@@ -48,7 +50,7 @@ public enum FaceStatus {
 	private static void applyEffect(FaceStatus status, int duration) {
 		if (status.equals(FaceStatus.CURSE_STACK))
 			duration = -1;
-		var effect = new StatusEffectInstance(status.getEffect().getEntry(), duration, 0, false, false, true);
+		var effect = new FaceStatusEffectInstance(status, status.getEffect().getEntry(), duration, 0, false, false, true);
 		INSTANCE.CLIENT.player.addStatusEffect(effect);
 	}
 
@@ -59,15 +61,32 @@ public enum FaceStatus {
 	}
 
 	public static void getDescription(StatusEffectInstance statusEffect, CallbackInfoReturnable<Text> cir) {
-		var status = statusEffect.getEffectType();
-		if (!(status instanceof FaceStatusEffect))
+
+		if (!(statusEffect instanceof FaceStatusEffectInstance))
 			return;
 
-		var effect = (FaceStatusEffect) status;
-		switch (effect.getFaceStatus()) {
+		var faceStatusEffect = (FaceStatusEffectInstance) statusEffect;
+		switch (faceStatusEffect.getFaceStatus()) {
 			case CURSE_STACK -> cir.setReturnValue(Text.of("Curse Stacks: " + INSTANCE.CONFIG.general.curseStacks));
 			default -> {
 			}
+		}
+	}
+
+	public static String getDuration(StatusEffectInstance statusEffect) {
+
+		if (statusEffect.isInfinite())
+			return I18n.translate("effect.duration.infinite");
+
+		int ticks = MathHelper.floor((float) statusEffect.getDuration());
+		int seconds = ticks / 20;
+
+		if (seconds >= 3600) {
+			return seconds / 3600 + "h";
+		} else if (seconds >= 60) {
+			return seconds / 60 + "m";
+		} else {
+			return String.valueOf(seconds) + "s";
 		}
 	}
 
@@ -139,6 +158,20 @@ public enum FaceStatus {
 
 		public RegistryEntry<StatusEffect> getEntry() {
 			return Registries.STATUS_EFFECT.getEntry(this);
+		}
+	}
+
+	public static class FaceStatusEffectInstance extends StatusEffectInstance {
+
+		private FaceStatus faceStatus;
+
+		public FaceStatusEffectInstance(FaceStatus status, RegistryEntry<StatusEffect> effect, int duration, int amplifier, boolean ambient, boolean visible, boolean showParticles) {
+			super(effect, duration, amplifier, ambient, visible, showParticles);
+			this.faceStatus = status;
+		}
+
+		public FaceStatus getFaceStatus() {
+			return faceStatus;
 		}
 	}
 }

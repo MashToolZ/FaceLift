@@ -179,6 +179,26 @@ public class RenderHandler {
 
 		matrices.pop();
 	}
+	public static void drawStatusEffectOverlay(DrawContext context, StatusEffectInstance statusEffectInstance, int x, int y) {
+
+		String duration = FaceStatus.getDuration(statusEffectInstance);
+		String color = "<#FDFDFD>";
+
+		if (statusEffectInstance instanceof FaceStatusEffectInstance) {
+			var faceStatusEffect = (FaceStatusEffectInstance) statusEffectInstance;
+			switch (faceStatusEffect.getFaceStatus()) {
+				case CURSE_STACK -> {
+					duration = "" + CONFIG.general.curseStacks;
+					color = "<#FF0000>";
+				}
+				default -> {
+				}
+			}
+		}
+
+		int durationLength = CLIENT.textRenderer.getWidth(duration);
+		RenderUtils.drawTextWithShadow(context, color + duration, x + 13 - (durationLength / 2), y + 14);
+	}
 
 	public static void beforeEntities(WorldRenderContext context) {
 
