@@ -1,24 +1,23 @@
 package xyz.mashtoolz.custom;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.List;
-import java.util.Arrays;
-import java.util.regex.Pattern;
-
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
-import net.minecraft.util.Hand;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.custom.FaceFont.FFont;
 import xyz.mashtoolz.custom.FaceFont.FType;
 import xyz.mashtoolz.utils.TextUtils;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
+
 public class FaceItem {
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
 	private static final ConcurrentHashMap<ItemStack, FaceItem> CACHE = new ConcurrentHashMap<>();
 	private static final List<FaceSlot> TOOL_SLOTS = Arrays.asList(FaceSlot.PICKAXE, FaceSlot.WOODCUTTINGAXE, FaceSlot.HOE);
@@ -40,10 +39,6 @@ public class FaceItem {
 		this.updatePotionValues();
 	}
 
-	public static ConcurrentHashMap<ItemStack, FaceItem> getCache() {
-		return CACHE;
-	}
-
 	public static void clearCache() {
 		if (CACHE.isEmpty())
 			return;
@@ -60,10 +55,6 @@ public class FaceItem {
 
 	public boolean isPotion() {
 		return max != 0;
-	}
-
-	public ItemStack getStack() {
-		return stack;
 	}
 
 	public String getName() {
@@ -139,16 +130,6 @@ public class FaceItem {
 		max = Integer.parseInt(matcher.group(2));
 	}
 
-	public int getRemaining() {
-		this.updatePotionValues();
-		return remaining;
-	}
-
-	public int getMax() {
-		this.updatePotionValues();
-		return max;
-	}
-
 	private String parseTooltip(List<Text> tooltip, boolean noReplace) {
 
 		if (tooltip.size() < 2)
@@ -184,11 +165,5 @@ public class FaceItem {
 
 		gemBuilder.append("Total_Slots=").append(totalSlots);
 		return textBuilder.append(gemBuilder).toString();
-	}
-
-	public void use() {
-		System.out.println(isPotion() + " | " + getRemaining() + " | " + remaining);
-		if (isPotion() && remaining > 0)
-			stack.use(INSTANCE.CLIENT.world, INSTANCE.CLIENT.player, Hand.MAIN_HAND);
 	}
 }

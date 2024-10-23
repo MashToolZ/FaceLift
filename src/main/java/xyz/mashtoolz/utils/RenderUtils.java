@@ -1,25 +1,23 @@
 package xyz.mashtoolz.utils;
 
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.item.Item.TooltipContext;
-import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.custom.FaceItem;
 import xyz.mashtoolz.mixins.HandledScreenAccessor;
 
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class RenderUtils {
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
 	private static final Pattern COLOR_PATTERN = Pattern.compile("<#([A-Fa-f0-9]{6,8})>");
 	private static final int DEFAULT_COLOR = 0xD1D1D1;
@@ -54,50 +52,8 @@ public class RenderUtils {
 		context.fill(x + 6, y + 16, barWidth, y + 21, color);
 	}
 
-	public static int w(int n) {
-		return 107 + n;
-	}
-
 	public static int h(int n) {
 		return 10 * n + 5;
-	}
-
-	public static int tbh(int n) {
-		return 22 + n;
-	}
-
-	public static void drawLine(DrawContext context, int x0, int y0, int x1, int y1, int color, int lineWidth) {
-		int dx = Math.abs(x1 - x0);
-		int dy = Math.abs(y1 - y0);
-
-		int sx = x0 < x1 ? 1 : -1;
-		int sy = y0 < y1 ? 1 : -1;
-
-		int err = dx - dy;
-
-		while (true) {
-			if (dx > dy) {
-				for (int i = -lineWidth / 2; i <= lineWidth / 2; i++)
-					context.fill(x0, y0 + i, x0 + 1, y0 + i + 1, color);
-			} else {
-				for (int i = -lineWidth / 2; i <= lineWidth / 2; i++)
-					context.fill(x0 + i, y0, x0 + i + 1, y0 + 1, color);
-			}
-
-			if (x0 == x1 && y0 == y1)
-				break;
-
-			int e2 = err << 1;
-
-			if (e2 > -dy) {
-				err -= dy;
-				x0 += sx;
-			}
-			if (e2 < dx) {
-				err += dx;
-				y0 += sy;
-			}
-		}
 	}
 
 	public static void enableBlend() {
@@ -115,7 +71,7 @@ public class RenderUtils {
 		RenderSystem.disableDepthTest();
 
 		List<Text> text = stack.getTooltip(TooltipContext.DEFAULT, INSTANCE.CLIENT.player, INSTANCE.CLIENT.options.advancedItemTooltips ? TooltipType.ADVANCED : TooltipType.BASIC);
-		var components = text.stream().map(Text::asOrderedText).map(TooltipComponent::of).collect(Collectors.toList());
+		var components = text.stream().map(Text::asOrderedText).map(TooltipComponent::of).toList();
 		int maxWidth = components.stream().mapToInt(c -> c.getWidth(INSTANCE.CLIENT.textRenderer)).max().orElse(0);
 
 		context.drawTooltip(INSTANCE.CLIENT.textRenderer, text, stack.getTooltipData(), mouseX - maxWidth - 25, mouseY);

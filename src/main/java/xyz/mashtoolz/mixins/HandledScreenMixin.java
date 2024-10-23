@@ -1,5 +1,6 @@
 package xyz.mashtoolz.mixins;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,12 +22,12 @@ public abstract class HandledScreenMixin {
 
 	@Inject(method = "drawSlot", at = @At("TAIL"))
 	public void FL_drawSlot_end(DrawContext context, Slot slot, CallbackInfo ci) {
-		RenderHandler.drawSlot_end(context, slot);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 
 	@Inject(method = "render", at = @At("TAIL"))
 	public void FL_render(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-		RenderHandler.onHandledScreenRender(context, mouseX, mouseY, delta);
+		RenderHandler.onHandledScreenRender(context, mouseX, mouseY);
 	}
 
 	@Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)

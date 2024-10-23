@@ -7,13 +7,10 @@ import xyz.mashtoolz.custom.FaceTool;
 import xyz.mashtoolz.mixins.HandledScreenAccessor;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.screen.ScreenHandler;
 
 public class KeyHandler {
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
-
-	public static ScreenHandler handler;
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
 	public static void MENU() {
 		INSTANCE.CLIENT.setScreen(AutoConfig.getConfigScreen(FaceConfig.class, INSTANCE.CLIENT.currentScreen).get());
@@ -21,7 +18,8 @@ public class KeyHandler {
 
 	public static void MOUNT(boolean isMounted) {
 		if (!isMounted) {
-			INSTANCE.CLIENT.player.setSprinting(false);
+            assert INSTANCE.CLIENT.player != null;
+            INSTANCE.CLIENT.player.setSprinting(false);
 			INSTANCE.sendCommand("mount");
 		}
 	}
@@ -32,7 +30,7 @@ public class KeyHandler {
 
 	public static void SET_TOOL_SLOT() {
 
-		if (INSTANCE.CLIENT.currentScreen == null || !(INSTANCE.CLIENT.currentScreen instanceof HandledScreen))
+		if (!(INSTANCE.CLIENT.currentScreen instanceof HandledScreen))
 			return;
 
 		var screen = (HandledScreenAccessor) INSTANCE.CLIENT.currentScreen;

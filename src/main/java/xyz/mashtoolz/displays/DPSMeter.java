@@ -1,10 +1,5 @@
 package xyz.mashtoolz.displays;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
 import xyz.mashtoolz.FaceLift;
@@ -14,9 +9,14 @@ import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.NumberUtils;
 import xyz.mashtoolz.utils.RenderUtils;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public class DPSMeter {
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
 	public static final Map<String, TextDisplayEntity> TEXT_DISPLAYS = new HashMap<>();
 
@@ -41,14 +41,6 @@ public class DPSMeter {
 		hits++;
 	}
 
-	public static int getDamage() {
-		return damage;
-	}
-
-	public static int getHits() {
-		return hits;
-	}
-
 	public static void reset() {
 		startTime = 0;
 		damage = 0;
@@ -63,7 +55,7 @@ public class DPSMeter {
 	public static Integer parseDamage(String text) {
 		String numericString = text.chars()
 				.mapToObj(c -> String.valueOf((char) c))
-				.filter(c -> FaceFont.keys(FType.DAMAGE_NUMBERS).contains(c.toString()))
+				.filter(c -> FaceFont.keys(FType.DAMAGE_NUMBERS).contains(c))
 				.collect(Collectors.joining());
 		return numericString.isEmpty() ? 0 : Integer.parseInt(numericString);
 	}

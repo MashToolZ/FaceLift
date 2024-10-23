@@ -30,9 +30,4 @@ public class Keybinds {
 			return false;
 		return InputUtil.isKeyPressed(INSTANCE.CLIENT.getWindow().getHandle(), code);
 	}
-
-	public static void resetPress(KeyBinding key) {
-		key.setPressed(true);
-		key.setPressed(false);
-	}
 }

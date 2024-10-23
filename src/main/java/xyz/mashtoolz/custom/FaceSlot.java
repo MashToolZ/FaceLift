@@ -22,20 +22,20 @@ public enum FaceSlot {
 	WOODCUTTINGAXE(FaceSlotType.WOODCUTTINGAXE, FaceToolType.WOODCUTTINGAXE),
 	HOE(FaceSlotType.HOE, FaceToolType.HOE);
 
-	private FaceLift INSTANCE = FaceLift.getInstance();
+	private final FaceLift INSTANCE = FaceLift.getInstance();
 
 	private final FaceSlotType slotType;
 	private int index;
 	private ItemStack stack = ItemStack.EMPTY;
 	private FaceToolType toolType;
 
-	private FaceSlot(FaceSlotType type, FaceToolType toolType) {
+	FaceSlot(FaceSlotType type, FaceToolType toolType) {
 		this.slotType = type;
 		this.toolType = toolType;
 		updateIndex(true);
 	}
 
-	private FaceSlot(FaceSlotType type, int index) {
+	FaceSlot(FaceSlotType type, int index) {
 		this.slotType = type;
 		this.index = index;
 	}
@@ -58,7 +58,8 @@ public enum FaceSlot {
 	}
 
 	public void updateIndex(boolean init) {
-		var inventory = INSTANCE.CLIENT.player.getInventory();
+        assert INSTANCE.CLIENT.player != null;
+        var inventory = INSTANCE.CLIENT.player.getInventory();
 		if (slotType.equals(FaceSlotType.MAINHAND)) {
 			var hotbarSlot = inventory.selectedSlot;
 			this.index = (init ? (36 + hotbarSlot) : (8 - hotbarSlot));

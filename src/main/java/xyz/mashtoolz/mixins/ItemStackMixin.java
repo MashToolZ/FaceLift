@@ -20,15 +20,13 @@ public abstract class ItemStackMixin {
 	public void FL_hasGlint(CallbackInfoReturnable<Boolean> cir) {
 		if (RenderHandler.ABILITY_ITEMS.contains(this.getItem())) {
 			cir.setReturnValue(false);
-			return;
-		}
+        }
 	}
 
 	@Inject(method = "isItemBarVisible", at = @At("HEAD"), cancellable = true)
 	public void FL_isItemBarVisible(CallbackInfoReturnable<Boolean> cir) {
 		if (RenderHandler.ABILITY_ITEMS.contains(this.getItem())) {
 			cir.setReturnValue(false);
-			return;
-		}
+        }
 	}
 }

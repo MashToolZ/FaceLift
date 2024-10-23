@@ -11,7 +11,7 @@ import net.minecraft.client.gui.tooltip.TooltipBackgroundRenderer;
 @Mixin(TooltipBackgroundRenderer.class)
 public abstract class TooltipBackgroundRendererMixin {
 
-	@Inject(method = "render", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "render", at = @At("HEAD"))
 	private static void render(DrawContext context, int x, int y, int width, int height, int z, CallbackInfo ci) {
 		int i = x - 3;
 		int j = y - 3;

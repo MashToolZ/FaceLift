@@ -1,11 +1,5 @@
 package xyz.mashtoolz.custom;
 
-import java.util.List;
-
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.ArrayList;
-
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
@@ -16,8 +10,12 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public enum FaceStatus {
 
@@ -25,7 +23,7 @@ public enum FaceStatus {
 	ESCAPE_COOLDOWN(6000, StatusEffectCategory.NEUTRAL),
 	CURSE_STACK(-1, StatusEffectCategory.HARMFUL);
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
 	private static final List<FaceStatus> EFFECTS = new ArrayList<>();
 
@@ -51,22 +49,23 @@ public enum FaceStatus {
 		if (status.equals(FaceStatus.CURSE_STACK))
 			duration = -1;
 		var effect = new FaceStatusEffectInstance(status, status.getEffect().getEntry(), duration, 0, false, false, true);
-		INSTANCE.CLIENT.player.addStatusEffect(effect);
+        assert INSTANCE.CLIENT.player != null;
+        INSTANCE.CLIENT.player.addStatusEffect(effect);
 	}
 
 	public void removeEffect() {
-		INSTANCE.CLIENT.player.removeStatusEffect(this.getEffect().getEntry());
+        assert INSTANCE.CLIENT.player != null;
+        INSTANCE.CLIENT.player.removeStatusEffect(this.getEffect().getEntry());
 		INSTANCE.CONFIG.general.statusEffects.remove(this);
 		FaceConfig.save();
 	}
 
 	public static void getDescription(StatusEffectInstance statusEffect, CallbackInfoReturnable<Text> cir) {
 
-		if (!(statusEffect instanceof FaceStatusEffectInstance))
+		if (!(statusEffect instanceof FaceStatusEffectInstance faceStatusEffect))
 			return;
 
-		var faceStatusEffect = (FaceStatusEffectInstance) statusEffect;
-		switch (faceStatusEffect.getFaceStatus()) {
+        switch (faceStatusEffect.getFaceStatus()) {
 			case CURSE_STACK -> cir.setReturnValue(Text.of("Curse Stacks: " + INSTANCE.CONFIG.general.curseStacks));
 			default -> {
 			}
@@ -86,7 +85,7 @@ public enum FaceStatus {
 		} else if (seconds >= 60) {
 			return seconds / 60 + "m";
 		} else {
-			return String.valueOf(seconds) + "s";
+			return seconds + "s";
 		}
 	}
 
@@ -126,8 +125,7 @@ public enum FaceStatus {
 				case CURSE_STACK -> {
 					if (INSTANCE.CONFIG.general.curseStacks <= 0) {
 						faceStatus.removeEffect();
-						continue;
-					}
+                    }
 				}
 
 				default -> {
@@ -147,12 +145,7 @@ public enum FaceStatus {
 			this.status = status;
 		}
 
-		@Override
-		public boolean canApplyUpdateEffect(int duration, int amplifier) {
-			return false;
-		}
-
-		public FaceStatus getFaceStatus() {
+        public FaceStatus getFaceStatus() {
 			return status;
 		}
 
@@ -163,7 +156,7 @@ public enum FaceStatus {
 
 	public static class FaceStatusEffectInstance extends StatusEffectInstance {
 
-		private FaceStatus faceStatus;
+		private final FaceStatus faceStatus;
 
 		public FaceStatusEffectInstance(FaceStatus status, RegistryEntry<StatusEffect> effect, int duration, int amplifier, boolean ambient, boolean visible, boolean showParticles) {
 			super(effect, duration, amplifier, ambient, visible, showParticles);

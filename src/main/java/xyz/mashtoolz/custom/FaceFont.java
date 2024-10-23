@@ -1,6 +1,5 @@
 package xyz.mashtoolz.custom;
 
-import java.util.Collection;
 import java.util.Set;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +8,7 @@ public class FaceFont {
 
 	private static final Map<FType, Map<String, String>> MAPS = new HashMap<>();
 
-	public static enum FType {
+	public enum FType {
 		DAMAGE_NUMBERS,
 		ITEM_TOOLTIP,
 		ACTION,
@@ -45,7 +44,7 @@ public class FaceFont {
 	private static final String TT_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
 	private static final String NAME_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ'";
 
-	public static enum FFont {
+	public enum FFont {
 
 		DAMAGE_NUMBERS(FType.DAMAGE_NUMBERS, "１２３４５６７８９０", "1234567890", true),
 
@@ -95,23 +94,17 @@ public class FaceFont {
 		private final String[] unicode;
 		private final String[] text;
 
-		private FFont(FType type, String unicode, String text) {
+		FFont(FType type, String unicode, String text) {
 			this(type, unicode, text, false);
 		}
 
-		private FFont(FType type, String unicode, String[] text) {
+		FFont(FType type, String unicode, String[] text) {
 			this.type = type;
 			this.unicode = unicode.split("");
 			this.text = text;
 		}
 
-		private FFont(FType type, String[] unicode, String text) {
-			this.type = type;
-			this.unicode = unicode;
-			this.text = new String[] { text };
-		}
-
-		private FFont(FType type, String unicode, String text, boolean isSplit) {
+		FFont(FType type, String unicode, String text, boolean isSplit) {
 			this.type = type;
 			this.unicode = isSplit ? unicode.split("") : new String[] { unicode };
 			this.text = text != null && isSplit ? text.split("") : new String[] { text };
@@ -140,10 +133,6 @@ public class FaceFont {
 
 	public static Set<String> keys(FType type) {
 		return MAPS.get(type).keySet();
-	}
-
-	public static Collection<String> values(FType type) {
-		return MAPS.get(type).values();
 	}
 
 	public static Set<Map.Entry<String, String>> entries(FType type) {

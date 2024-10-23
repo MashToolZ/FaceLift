@@ -7,7 +7,7 @@ public enum FaceToolType {
 	HOE("HOE"),
 	BEDROCK("BEDROCK");
 
-	private String name;
+	private final String name;
 
 	FaceToolType(String name) {
 		this.name = name;

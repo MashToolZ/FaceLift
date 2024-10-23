@@ -1,20 +1,18 @@
 package xyz.mashtoolz.custom;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import java.util.Arrays;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.screen.ScreenHandler;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class FaceEquipment {
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
 	public static boolean updateCache = false;
 	public static final List<FaceSlot> SLOTS = new ArrayList<>();
@@ -33,7 +31,8 @@ public class FaceEquipment {
 				if (eqSlot[0].equals(slot.getFaceSlotType().toString())) {
 					try {
 						var compound = StringNbtReader.parse(eqSlot[1]);
-						var wrapper = INSTANCE.CLIENT.world.getRegistryManager();
+                        assert INSTANCE.CLIENT.world != null;
+                        var wrapper = INSTANCE.CLIENT.world.getRegistryManager();
 						slot.setStack(ItemStack.fromNbtOrEmpty(wrapper, compound));
 					} catch (Exception e) {
 						FaceLift.info(true, "Failed to parse NBT for cached item: " + eqSlot[0] + "[" + eqSlot[1] + "]");
@@ -46,17 +45,17 @@ public class FaceEquipment {
 
 	public static FaceSlot getSlot(String id, boolean shiftDown) {
 		var matches = SLOTS.stream()
-				.filter(slot -> Arrays.stream(slot.getFaceSlotType().getNames()).anyMatch(name -> name.equals(id)))
-				.collect(Collectors.toList());
+				.filter(slot -> Arrays.asList(slot.getFaceSlotType().getNames()).contains(id))
+				.toList();
 
 		if (matches.isEmpty())
 			return null;
 
-		var slotType = matches.get(0).getFaceSlotType();
+		var slotType = matches.getFirst().getFaceSlotType();
 		if (DUALWIELD_SLOTS.contains(slotType) || DOUBLE_SLOTS.contains(slotType))
-			return matches.size() == 2 ? matches.get(shiftDown ? 1 : 0) : matches.get(0);
+			return matches.size() == 2 ? matches.get(shiftDown ? 1 : 0) : matches.getFirst();
 		else
-			return matches.get(0);
+			return matches.getFirst();
 
 	}
 
@@ -86,7 +85,8 @@ public class FaceEquipment {
 
 			slot.setStack(stack);
 
-			var wrapper = INSTANCE.CLIENT.world.getRegistryManager();
+            assert INSTANCE.CLIENT.world != null;
+            var wrapper =INSTANCE.CLIENT.world.getRegistryManager();
 			var compoundTag = stack.encode(wrapper);
 			var eqSlot = new String[] { slot.getFaceSlotType().toString(), compoundTag.asString() };
 			INSTANCE.CONFIG.inventory.equipmentSlots.add(eqSlot);

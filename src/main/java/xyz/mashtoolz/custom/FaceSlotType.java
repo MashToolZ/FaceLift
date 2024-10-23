@@ -1,12 +1,11 @@
 package xyz.mashtoolz.custom;
 
-import java.util.Arrays;
-
-import java.util.stream.Collectors;
-
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public enum FaceSlotType {
 
@@ -39,16 +38,16 @@ public enum FaceSlotType {
 
 	private final String[] names;
 
-	private FaceSlotType(FaceToolType toolType) {
+	FaceSlotType(FaceToolType toolType) {
 		this.names = new String[] { toolType.getName() };
 	}
 
-	private FaceSlotType(Item item) {
+	FaceSlotType(Item item) {
 		var name = Registries.ITEM.getId(item).toString();
 		this.names = new String[] { name };
 	}
 
-	private FaceSlotType(Item[] items) {
+	FaceSlotType(Item[] items) {
 		this.names = Arrays.stream(items).map(Registries.ITEM::getId).map(Object::toString).collect(Collectors.toList()).toArray(new String[0]);
 	}
 

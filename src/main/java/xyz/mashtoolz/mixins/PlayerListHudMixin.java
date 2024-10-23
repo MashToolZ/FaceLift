@@ -4,6 +4,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.PlayerListHud;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardObjective;
+import org.spongepowered.asm.mixin.Unique;
 import xyz.mashtoolz.FaceLift;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,7 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerListHud.class)
 public class PlayerListHudMixin {
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
+	@Unique
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
 	@Inject(method = "render", at = @At("HEAD"))
 	private void FL_onRender(DrawContext context, int scaledWindowWidth, Scoreboard scoreboard, ScoreboardObjective objective, CallbackInfo ci) {

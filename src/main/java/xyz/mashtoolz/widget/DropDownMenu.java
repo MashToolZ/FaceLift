@@ -1,26 +1,26 @@
 package xyz.mashtoolz.widget;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ButtonWidget.PressAction;
 import net.minecraft.text.Text;
 import xyz.mashtoolz.mixins.ScreenAccessor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DropDownMenu {
 
-	private List<ButtonWidget> BUTTONS = new ArrayList<>();
+	private final List<ButtonWidget> BUTTONS = new ArrayList<>();
 
-	private Screen screen;
-	private Text text;
-	private int x;
-	private int y;
-	private int width;
-	private int height;
-	private boolean inverted;
-	private ButtonWidget btn;
+	private final Screen screen;
+	private final Text text;
+	private final int x;
+	private final int y;
+	private final int width;
+	private final int height;
+	private final boolean inverted;
+	private final ButtonWidget btn;
 
 	private boolean active = false;
 
@@ -38,7 +38,7 @@ public class DropDownMenu {
 		}).position(x, y).size(width, height).build();
 	}
 
-	public void addButton(String text, PressAction onPress, boolean bool) {
+	public void addButton(String text, PressAction onPress) {
 		var btn = ButtonWidget.builder(Text.literal(text), onPress)
 				.position(x, y + ((inverted ? -1 : 1) * (BUTTONS.size() + 1) * height))
 				.size(width, height)
@@ -58,10 +58,6 @@ public class DropDownMenu {
 
 	public int getY() {
 		return y;
-	}
-
-	public int getWidth() {
-		return width;
 	}
 
 	public ButtonWidget getButton() {

@@ -28,7 +28,7 @@ public class ToastHandler {
 				case "Combat Start" -> FaceConfig.General.inCombat = true;
 				case "Exited Combat" -> FaceConfig.General.inCombat = false;
 			}
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 		}
 	}
 }

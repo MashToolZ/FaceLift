@@ -2,8 +2,6 @@ package xyz.mashtoolz.utils;
 
 import java.util.Map;
 
-import net.minecraft.text.OrderedText;
-
 public class TextUtils {
 
 	public static String escapeStringToUnicode(String input, boolean removeUnicode) {
@@ -17,17 +15,6 @@ public class TextUtils {
 		return builder.toString();
 	}
 
-	public static String toString(OrderedText orderedText) {
-		StringBuilder builder = new StringBuilder();
-
-		orderedText.accept((index, style, codePoint) -> {
-			builder.appendCodePoint(codePoint);
-			return true;
-		});
-
-		return builder.toString();
-	}
-
 	public static void replaceAll(StringBuilder builder, String key, String value) {
 		int index;
 		while ((index = builder.indexOf(key)) != -1)
@@ -36,10 +23,6 @@ public class TextUtils {
 
 	public static <T> void replaceAll(StringBuilder builder, Map<String, T> replacements) {
 		replaceAll(builder, replacements, "", "");
-	}
-
-	public static <T> void replaceAll(StringBuilder builder, Map<String, T> replacements, String prefix) {
-		replaceAll(builder, replacements, prefix, "");
 	}
 
 	public static <T> void replaceAll(StringBuilder builder, Map<String, T> replacements, String prefix, String suffix) {

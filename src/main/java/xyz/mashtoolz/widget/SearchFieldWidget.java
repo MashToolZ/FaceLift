@@ -15,10 +15,6 @@ public class SearchFieldWidget extends TextFieldWidget {
 	private long lastClickTime = 0;
 	public boolean highlighted = false;
 
-	public SearchFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height, Text text) {
-		super(textRenderer, x, y, width, height, text);
-	}
-
 	public SearchFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height, @Nullable SearchFieldWidget copyFrom, Text text) {
 		super(textRenderer, x, y, width, height, copyFrom, text);
 	}

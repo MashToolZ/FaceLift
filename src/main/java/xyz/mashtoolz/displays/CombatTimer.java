@@ -1,8 +1,5 @@
 package xyz.mashtoolz.displays;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
 import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
@@ -12,9 +9,12 @@ import xyz.mashtoolz.mixins.InGameHudAccessor;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.RenderUtils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class CombatTimer {
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
 	public static void draw(DrawContext context) {
 
@@ -57,7 +57,8 @@ public class CombatTimer {
 				FaceConfig.General.lastHurtTime = System.currentTimeMillis();
 		}
 
-		int playerHurtTime = INSTANCE.CLIENT.player.hurtTime;
+        assert INSTANCE.CLIENT.player != null;
+        int playerHurtTime = INSTANCE.CLIENT.player.hurtTime;
 		if (FaceConfig.General.hurtTime == 0 && playerHurtTime != 0)
 			FaceConfig.General.hurtTime = playerHurtTime;
 
@@ -67,7 +68,7 @@ public class CombatTimer {
 		if (FaceConfig.General.hurtTime > 0) {
 			FaceConfig.General.hurtTime = -1;
 			var recentDamageSource = INSTANCE.CLIENT.player.getRecentDamageSource();
-			if (recentDamageSource != null && !recentDamageSource.getType().msgId().toString().equals("fall"))
+			if (recentDamageSource != null && !recentDamageSource.getType().msgId().equals("fall"))
 				FaceConfig.General.lastHurtTime = System.currentTimeMillis();
 		}
 	}

@@ -1,8 +1,5 @@
 package xyz.mashtoolz.displays;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import xyz.mashtoolz.FaceLift;
@@ -11,9 +8,12 @@ import xyz.mashtoolz.structs.RegexPattern;
 import xyz.mashtoolz.utils.RenderUtils;
 import xyz.mashtoolz.utils.TimeUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ArenaTimer {
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
 	private static final List<Wave> WAVES = new ArrayList<>();
 	private static final RegexPattern[] REGEXES = {
@@ -51,7 +51,7 @@ public class ArenaTimer {
 	}
 
 	public static void endWave() {
-		Wave currentWave = WAVES.get(WAVES.size() - 1);
+		Wave currentWave = WAVES.getLast();
 		currentWave.setEndTime(System.currentTimeMillis());
 		paused = true;
 	}
@@ -67,16 +67,10 @@ public class ArenaTimer {
 	}
 
 	public static long getTotalTime() {
-		return System.currentTimeMillis() - WAVES.get(0).getStartTime();
+		return System.currentTimeMillis() - WAVES.getFirst().getStartTime();
 	}
 
-	public static long getTotalTimeWithoutPauses() {
-		return WAVES.stream()
-				.mapToLong(wave -> wave.getEndTime() > 0 ? wave.getEndTime() - wave.getStartTime() : 0)
-				.sum();
-	}
-
-	public static void updateTimer(DrawContext context) {
+	public static void updateTimer() {
 		var inGameHud = (InGameHudAccessor) INSTANCE.CLIENT.inGameHud;
 		if (inGameHud == null)
 			return;

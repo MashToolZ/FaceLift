@@ -24,14 +24,14 @@ public interface InGameHudAccessor {
 	@Accessor("overlayMessage")
 	Text getOverlayMessage();
 
+	@Accessor("overlayMessage")
+	void setOverlayMessage(Text overlayMessage);
+
 	@Invoker("getCameraPlayer")
 	PlayerEntity invokeGetCameraPlayer();
 
 	@Invoker("renderHotbarItem")
 	void invokeRenderHotbarItem(DrawContext context, int x, int y, RenderTickCounter tickCounter, PlayerEntity player, ItemStack stack, int seed);
-
-	@Accessor("HOTBAR_TEXTURE")
-	Identifier hotbarTexture();
 
 	@Accessor("HOTBAR_SELECTION_TEXTURE")
 	Identifier hotbarSelectionTexture();

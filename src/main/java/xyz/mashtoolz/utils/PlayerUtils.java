@@ -1,8 +1,5 @@
 package xyz.mashtoolz.utils;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import net.minecraft.block.Blocks;
 import net.minecraft.block.CropBlock;
 import net.minecraft.block.pattern.CachedBlockPosition;
@@ -17,6 +14,9 @@ import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.custom.FaceEquipment;
 import xyz.mashtoolz.custom.FaceItem;
 import xyz.mashtoolz.custom.FaceTool;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerUtils {
 
@@ -40,25 +40,29 @@ public class PlayerUtils {
 
 	public static boolean isMounted() {
 		Entity player = INSTANCE.CLIENT.player;
-		Entity ridingEntity = player.getVehicle();
+        assert player != null;
+        Entity ridingEntity = player.getVehicle();
 		return ridingEntity != null && ridingEntity != player;
 	}
 
 	public static void clickSlot(int slotId, int button, SlotActionType actionType) {
-		int syncId = INSTANCE.CLIENT.player.currentScreenHandler.syncId;
-		INSTANCE.CLIENT.interactionManager.clickSlot(syncId, slotId, button, actionType, INSTANCE.CLIENT.player);
+        assert INSTANCE.CLIENT.player != null;
+        int syncId = INSTANCE.CLIENT.player.currentScreenHandler.syncId;
+        assert INSTANCE.CLIENT.interactionManager != null;
+        INSTANCE.CLIENT.interactionManager.clickSlot(syncId, slotId, button, actionType, INSTANCE.CLIENT.player);
 	}
 
 	public static FaceTool getTargetTool(BlockHitResult blockHitResult, ItemStack currentStack) {
 		var world = INSTANCE.CLIENT.world;
-		var blockView = INSTANCE.CLIENT.player.getWorld();
+        assert INSTANCE.CLIENT.player != null;
+        var blockView = INSTANCE.CLIENT.player.getWorld();
 		var blockPos = blockHitResult.getBlockPos();
-		var blockState = world.getBlockState(blockPos);
+        assert world != null;
+        var blockState = world.getBlockState(blockPos);
 		var block = blockState.getBlock();
 
-		if (block instanceof CropBlock) {
-			CropBlock cropBlock = (CropBlock) block;
-			if (cropBlock.getAge(blockState) != cropBlock.getMaxAge())
+		if (block instanceof CropBlock cropBlock) {
+            if (cropBlock.getAge(blockState) != cropBlock.getMaxAge())
 				return null;
 		}
 
@@ -91,7 +95,7 @@ public class PlayerUtils {
 		}
 
 		if (possibleTools.size() == 1)
-			return possibleTools.get(0);
+			return possibleTools.getFirst();
 
 		if (possibleTools.contains(FaceTool.HOE) && possibleTools.contains(FaceTool.WOODCUTTINGAXE))
 			return FaceTool.HOE;

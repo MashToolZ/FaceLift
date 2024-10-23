@@ -1,31 +1,28 @@
 package xyz.mashtoolz.custom;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.BufferRenderer;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.utils.RenderUtils;
 
+import java.util.Objects;
+
 public class FaceSpell {
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
-	private static FaceSpell[] SPELLS = new FaceSpell[4];
+	private static final FaceSpell[] SPELLS = new FaceSpell[4];
 
 	public static float GLOBALCD = 0.0F;
 
-	private static int maxFrames = 10;
-	private static int animTime = 100;
-	private static int stepTime = animTime / maxFrames;
-	private static float cooldownScale = 16.0F;
-	private static float readyScale = 20.0F;
+	private static final int maxFrames = 10;
+	private static final int animTime = 100;
+	private static final int stepTime = animTime / maxFrames;
+	private static final float cooldownScale = 16.0F;
+	private static final float readyScale = 20.0F;
 
 	private final int spellIndex;
 
@@ -40,16 +37,19 @@ public class FaceSpell {
 
 	private boolean isToggled;
 	private boolean onCooldown;
-	private boolean scalingUp;
 
-	public FaceSpell(ItemStack stack, int spellIndex) {
+	private int maxCharges;
+	private int charges;
+
+    public FaceSpell(ItemStack stack, int spellIndex) {
 		this.spellIndex = spellIndex;
 		this.damage = stack.getDamage();
 		this.maxDamage = stack.getMaxDamage();
 	}
 
 	public static FaceSpell from(ItemStack stack) {
-		var spellIndex = INSTANCE.CLIENT.player.getInventory().getSlotWithStack(stack);
+        assert INSTANCE.CLIENT.player != null;
+        var spellIndex =INSTANCE.CLIENT.player.getInventory().getSlotWithStack(stack);
 		if (spellIndex > 3 || spellIndex < 0)
 			return null;
 
@@ -59,11 +59,7 @@ public class FaceSpell {
 	}
 
 	public void cast() {
-		INSTANCE.CLIENT.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(spellIndex));
-	}
-
-	public int getSpellIndex() {
-		return spellIndex;
+		Objects.requireNonNull(INSTANCE.CLIENT.getNetworkHandler()).sendPacket(new UpdateSelectedSlotC2SPacket(spellIndex));
 	}
 
 	public float getSize() {
@@ -78,33 +74,38 @@ public class FaceSpell {
 		this.isToggled = toggled;
 	}
 
-	public boolean isScalingUp() {
-		return scalingUp;
-	}
-
 	public void update(DrawContext context, ItemStack stack, int x, int y) {
 		int damage = stack.getDamage();
 		int maxDamage = stack.getMaxDamage();
 		int step = stack.getItemBarStep();
-		if (!this.onCooldown || (this.onCooldown && maxDamage != 0 && (damage != 0 || (this.lastStep == 13)))) {
+
+		if (!this.onCooldown || (maxDamage != 0 && (damage != 0 || this.lastStep == 13))) {
 			this.damage = damage;
 			this.maxDamage = maxDamage;
 			this.lastStep = step;
+			String charges = String.valueOf(stack.getMaxCount());
+			String[] chargeParts = charges.split("");
+			if (chargeParts.length == 2) {
+				this.maxCharges = Integer.parseInt(chargeParts[0]);
+				this.charges = Integer.parseInt(chargeParts[1]);
+			}
 		}
 		if (this.isToggled())
 			return;
+
+		if (this.maxCharges > 1 && INSTANCE.CONFIG.inventory.customHotbar) {
+			int emptyCharges = this.maxCharges - this.charges;
+			if (this.onCooldown) {
+				context.drawText(INSTANCE.CLIENT.textRenderer, "☊".repeat(this.charges) + "☋".repeat(emptyCharges), x, y - 54, 0xFFFFFF, false);
+			} else
+				context.drawText(INSTANCE.CLIENT.textRenderer, "☊".repeat(this.charges) + "☋".repeat(emptyCharges), x - 2, y - 56, 0xFFFFFF, false);
+		}
 		drawCooldown(context, x, y);
 	}
 
 	private void drawCooldown(DrawContext context, int x, int y) {
 
 		float percent = 1.0F - ((float) this.damage / this.maxDamage);
-		if (percent == 1.0F) {
-			if (FaceSpell.GLOBALCD == 0.0F)
-				return;
-			percent = 1.0F - FaceSpell.GLOBALCD;
-		}
-
 		int size = INSTANCE.CONFIG.inventory.customHotbar ? (int) getSize() : 16;
 		int offset = (size - 16) / 2;
 		int centerX = x + (size / 2) - offset;
@@ -143,18 +144,20 @@ public class FaceSpell {
 		matrices.translate(0.0f, 0.0f, -400.0f);
 	}
 
-	public void animate(DrawContext context, ItemStack stack, int x, int y) {
+	public void animate(DrawContext context, ItemStack stack) {
 
 		FaceSpell.GLOBALCD = INSTANCE.CLIENT.player == null ? 0.0F : INSTANCE.CLIENT.player.getItemCooldownManager().getCooldownProgress(stack.getItem(), INSTANCE.CLIENT.getRenderTickCounter().getTickDelta(true));
-		boolean onCooldown = (!this.isToggled() && FaceSpell.GLOBALCD != 0.0F) || (1.0F - (float) this.damage / this.maxDamage) != 1.0F;
+		boolean cooldown = (1.0F - (float) this.damage / this.maxDamage) != 1.0F;
+		boolean onCooldown = (!this.isToggled() && FaceSpell.GLOBALCD != 0.0F) || cooldown;
 		long currentTime = System.currentTimeMillis();
+		if ((this.maxCharges > 1 && this.charges > 0) || (FaceSpell.GLOBALCD != 0.0F && !cooldown))
+			onCooldown = false;
 
-		if (onCooldown) {
+        if (onCooldown) {
 			if (!this.onCooldown) {
 				this.animationStartTime = currentTime;
 				this.onCooldown = true;
-				this.scalingUp = false;
-				this.isToggled = false;
+                this.isToggled = false;
 			}
 			if (!INSTANCE.CONFIG.inventory.customHotbar)
 				this.size = cooldownScale;
@@ -173,8 +176,7 @@ public class FaceSpell {
 			if (this.onCooldown) {
 				this.animationStartTime = currentTime;
 				this.onCooldown = false;
-				this.scalingUp = true;
-			}
+            }
 			if (!INSTANCE.CONFIG.inventory.customHotbar)
 				this.size = cooldownScale;
 			else if (this.isToggled())

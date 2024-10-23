@@ -1,5 +1,7 @@
 package xyz.mashtoolz;
 
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -30,9 +32,6 @@ import xyz.mashtoolz.utils.PlayerUtils;
 
 import java.util.Objects;
 
-import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
-
 public class FaceLift implements ClientModInitializer {
 
 	private static FaceLift INSTANCE;
@@ -54,15 +53,13 @@ public class FaceLift implements ClientModInitializer {
 
 		FaceStatus.registerEffects();
 
-		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-			client.execute(() -> {
-				ClientConnection connection = Objects.requireNonNull(client.getNetworkHandler()).getConnection();
-				if (connection != null && connection.getAddress() != null) {
-					String serverAddress = connection.getAddress().toString().toLowerCase();
-					FaceConfig.General.onFaceLand = serverAddress.startsWith("local") || serverAddress.contains("face.land");
-				}
-			});
-		});
+		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> client.execute(() -> {
+            ClientConnection connection = Objects.requireNonNull(client.getNetworkHandler()).getConnection();
+            if (connection != null && connection.getAddress() != null) {
+                String serverAddress = connection.getAddress().toString().toLowerCase();
+                FaceConfig.General.onFaceLand = serverAddress.startsWith("local") || serverAddress.contains("face.land");
+            }
+        }));
 
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			FaceConfig.General.onFaceLand = false;
@@ -76,6 +73,7 @@ public class FaceLift implements ClientModInitializer {
 
 			if (CONFIG.inventory.autoTool.enabled)
 				FaceTool.update();
+
 			return false;
 		});
 
@@ -84,10 +82,9 @@ public class FaceLift implements ClientModInitializer {
 			if (!FaceConfig.General.onFaceLand)
 				return;
 
-			switch (entity.getName().getString()) {
-				case "Text Display" ->
-					DPSMeter.TEXT_DISPLAYS.put(entity.getUuid().toString(), (TextDisplayEntity) entity);
-			}
+            if (entity.getName().getString().equals("Text Display")) {
+                DPSMeter.TEXT_DISPLAYS.put(entity.getUuid().toString(), (TextDisplayEntity) entity);
+            }
 		});
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
@@ -103,7 +100,7 @@ public class FaceLift implements ClientModInitializer {
 			if (Keybinds.INSTANCE == null)
 				Keybinds.INSTANCE = this;
 
-			handleKeybinds(client);
+			handleKeybinds();
 
 			if (CONFIG.combat.arenaTimer.enabled && ArenaTimer.isActive() && (client.player != null && client.player.getHealth() <= 0))
 				ArenaTimer.end();
@@ -119,14 +116,14 @@ public class FaceLift implements ClientModInitializer {
 	}
 
 	public void sendCommand(String command) {
-		CLIENT.player.networkHandler.sendChatCommand(command);
+		Objects.requireNonNull(CLIENT.player).networkHandler.sendChatCommand(command);
 	}
 
 	public static void info(boolean console, String message) {
 		if (console)
 			System.out.println("[FaceLift] " + message);
 		else
-			INSTANCE.CLIENT.player.sendMessage(Text.literal("§7[§cFaceLift§7] " + message));
+			Objects.requireNonNull(INSTANCE.CLIENT.player).sendMessage(Text.literal("§7[§cFaceLift§7] " + message));
 	}
 
 	public static void handleHotbarChange(PlayerInventory inventory, int index) {
@@ -157,12 +154,13 @@ public class FaceLift implements ClientModInitializer {
 		}
 
 		int selectedSlot = inventory.selectedSlot;
-		client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(index));
-		INSTANCE.CLIENT.interactionManager.interactItem(player, Hand.MAIN_HAND);
+		Objects.requireNonNull(client.getNetworkHandler()).sendPacket(new UpdateSelectedSlotC2SPacket(index));
+        assert INSTANCE.CLIENT.interactionManager != null;
+        INSTANCE.CLIENT.interactionManager.interactItem(player, Hand.MAIN_HAND);
 		client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(selectedSlot));
 	}
 
-	private void handleKeybinds(MinecraftClient client) {
+	private void handleKeybinds() {
 
 		while (Keybinds.MENU.wasPressed())
 			KeyHandler.MENU();

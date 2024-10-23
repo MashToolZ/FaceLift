@@ -1,8 +1,5 @@
 package xyz.mashtoolz.displays;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import net.minecraft.client.gui.DrawContext;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig.General.XPDisplay.DisplayType;
@@ -10,14 +7,17 @@ import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.NumberUtils;
 import xyz.mashtoolz.utils.RenderUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class XPDisplay {
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
 	public static Map<String, XPDisplay> DISPLAYS = new HashMap<>();
 	public static XPDisplay lastDisplay;
 
-	private String key;
+	private final String key;
 	private String color;
 	private int xp;
 	private int lastXp;
@@ -36,10 +36,6 @@ public class XPDisplay {
 
 	public String getKey() {
 		return key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
 	}
 
 	public String getColor() {

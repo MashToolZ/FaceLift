@@ -7,7 +7,7 @@ import xyz.mashtoolz.utils.RenderUtils;
 
 public class TeleportBar {
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
 	private static double start = 0;
 	private static double duration = 0;
@@ -39,13 +39,13 @@ public class TeleportBar {
 		var barWidth = (int) ((1 - percent) * 100);
 		var textWidth = INSTANCE.CLIENT.textRenderer.getWidth(text);
 
-		matrices.translate(width / 2 - 50, height / 2 + 20, 0);
+		matrices.translate((float) width / 2 - 50, (float) height / 2 + 14, 0);
 
 		RenderUtils.drawTextWithShadow(context, text, 50 - textWidth / 2, -10);
 		context.fill(0, 0, 100, 10, ColorUtils.hex2Int("#252320", 0xFF));
 		context.drawBorder(0, 0, 100, 10, ColorUtils.hex2Int("#171717", 0xFF));
 		context.fillGradient(1, 1, barWidth, 9, ColorUtils.hex2Int("#A44FE9", 0xFF), ColorUtils.hex2Int("#C42CE3", 0xFF));
 
-		matrices.translate(-width / 2 + 50, -height / 2 - 20, 0);
+		matrices.translate((float) -width / 2 + 50, (float) -height / 2 - 20, 0);
 	}
 }

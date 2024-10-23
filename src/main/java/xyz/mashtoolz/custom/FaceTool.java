@@ -1,6 +1,8 @@
 package xyz.mashtoolz.custom;
 
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.RaycastContext;
@@ -8,9 +10,11 @@ import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.utils.PlayerUtils;
 
+import java.util.Objects;
+
 public class FaceTool {
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
 	public static final FaceTool PICKAXE = new FaceTool(FaceToolType.PICKAXE, INSTANCE.CONFIG.inventory.autoTool.PICKAXE, FaceTexture.EMPTY_PICKAXE);
 	public static final FaceTool WOODCUTTINGAXE = new FaceTool(FaceToolType.WOODCUTTINGAXE, INSTANCE.CONFIG.inventory.autoTool.WOODCUTTINGAXE, FaceTexture.EMPTY_WOODCUTTINGAXE);
@@ -71,14 +75,16 @@ public class FaceTool {
 
 		var client = INSTANCE.CLIENT;
 		var player = client.player;
-		var inventory = player.getInventory();
+        assert player != null;
+        var inventory = player.getInventory();
 		var hotbarSlot = inventory.selectedSlot;
 		var mainHandStack = player.getMainHandStack();
 
 		var eyePos = player.getEyePos();
 		var reach = player.getBlockInteractionRange();
 		var rayEnd = eyePos.add(player.getRotationVector().multiply(reach));
-		var blockHitResult = client.world.raycast(new RaycastContext(eyePos, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, player));
+        assert client.world != null;
+        var blockHitResult = client.world.raycast(new RaycastContext(eyePos, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, player));
 
 		var faceItem = FaceItem.from(mainHandStack);
 		var tooltip = faceItem.isInvalid() ? null : faceItem.getTooltip();
@@ -88,12 +94,16 @@ public class FaceTool {
 		if (targetTool != null && targetTool.getFaceToolType().equals(FaceToolType.BEDROCK))
 			return;
 
+		ClientPlayNetworkHandler networkHandler = Objects.requireNonNull(INSTANCE.CLIENT.getNetworkHandler());
+		networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(hotbarSlot != 8 ? 8 : 5));
 		if (tooltip == null || currentTool == null) {
 			handleNullTool(targetTool, hotbarSlot, inventory);
+			networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(hotbarSlot));
 			return;
 		}
 
 		handleToolSwap(targetTool, currentTool, hotbarSlot, inventory);
+		networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(hotbarSlot));
 	}
 
 	private static FaceTool getCurrentToolFromTooltip(String tooltip) {
@@ -120,7 +130,6 @@ public class FaceTool {
 				swap(hotbarSlot, currentTool);
 			else
 				PlayerUtils.clickSlot(currentTool.getSlotIndex(), hotbarSlot, SlotActionType.SWAP);
-
 			return;
 		}
 

@@ -1,10 +1,7 @@
 package xyz.mashtoolz.handlers;
 
-import java.util.regex.Pattern;
-
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import net.minecraft.text.Text;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.mashtoolz.FaceLift;
 import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.custom.FaceStatus;
@@ -14,11 +11,13 @@ import xyz.mashtoolz.structs.RegexPattern;
 import xyz.mashtoolz.utils.ColorUtils;
 import xyz.mashtoolz.utils.TextUtils;
 
+import java.util.regex.Pattern;
+
 public class ChatHandler {
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
-	private static Pattern CURSE_STACK_PATTERN = Pattern.compile("You have (\\d+) curse stacks");
+	private static final Pattern CURSE_STACK_PATTERN = Pattern.compile("You have (\\d+) curse stacks");
 
 	public static void addMessage(Text text, CallbackInfo ci) {
 
@@ -31,7 +30,7 @@ public class ChatHandler {
 
 		switch (message.trim()) {
 			case "RISE AND SHINE! You're well rested and had a pretty good meal!" -> FaceStatus.WELL_RESTED.applyEffect();
-			case "Teleport started! You will be teleported in 10 seconds!" -> TeleportBar.start(10_000, "Escaping");
+			case "Teleport started! You will be teleported in 10 seconds!" -> TeleportBar.start(10_500, "Escaping");
 			case "Teleport cancelled!" -> TeleportBar.stop();
 			case "Whoosh!" -> FaceStatus.ESCAPE_COOLDOWN.applyEffect();
 			case "Your curse has been broken!" -> {
@@ -44,8 +43,7 @@ public class ChatHandler {
 				if (curse_matcher.find()) {
 					INSTANCE.CONFIG.general.curseStacks = Integer.parseInt(curse_matcher.group(1));
 					FaceConfig.save();
-					return;
-				}
+                }
 			}
 		}
 	}

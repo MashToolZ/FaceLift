@@ -1,10 +1,10 @@
 package xyz.mashtoolz.custom;
 
+import net.minecraft.text.TextColor;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import net.minecraft.text.TextColor;
 
 public enum FaceType {
 
@@ -57,11 +57,11 @@ public enum FaceType {
 	private final TextColor color;
 	private final String tier;
 
-	private FaceType(String text, String unicode, int color) {
+	FaceType(String text, String unicode, int color) {
 		this(text, unicode, color, "");
 	}
 
-	private FaceType(String text, String unicode, int color, String tier) {
+	FaceType(String text, String unicode, int color, String tier) {
 		this.text = text;
 		this.unicode = unicode;
 		this.color = TextColor.fromRgb(color);

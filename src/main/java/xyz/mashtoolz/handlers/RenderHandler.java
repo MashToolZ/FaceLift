@@ -1,44 +1,8 @@
 package xyz.mashtoolz.handlers;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
 import com.mojang.blaze3d.systems.RenderSystem;
-
-import xyz.mashtoolz.FaceLift;
-import xyz.mashtoolz.config.FaceConfig;
-import xyz.mashtoolz.config.Keybinds;
-import xyz.mashtoolz.custom.FaceEquipment;
-import xyz.mashtoolz.custom.FaceFont;
-import xyz.mashtoolz.custom.FaceItem;
-import xyz.mashtoolz.custom.FaceSpell;
-import xyz.mashtoolz.custom.FaceTexture;
-import xyz.mashtoolz.custom.FaceTool;
-import xyz.mashtoolz.custom.FaceType;
-import xyz.mashtoolz.custom.FaceFont.FType;
-import xyz.mashtoolz.displays.ArenaTimer;
-import xyz.mashtoolz.displays.CombatTimer;
-import xyz.mashtoolz.displays.DPSMeter;
-import xyz.mashtoolz.displays.TeleportBar;
-import xyz.mashtoolz.displays.XPDisplay;
-import xyz.mashtoolz.interfaces.EntityInterface;
-import xyz.mashtoolz.mixins.HandledScreenAccessor;
-import xyz.mashtoolz.mixins.InGameHudAccessor;
-import xyz.mashtoolz.mixins.ScreenAccessor;
-import xyz.mashtoolz.utils.ColorUtils;
-import xyz.mashtoolz.utils.RenderUtils;
-import xyz.mashtoolz.widget.DropDownMenu;
-import xyz.mashtoolz.widget.SearchFieldWidget;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.Screen;
@@ -54,6 +18,7 @@ import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -61,18 +26,41 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Colors;
-import net.minecraft.util.crash.CrashCallable;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import xyz.mashtoolz.FaceLift;
+import xyz.mashtoolz.config.FaceConfig;
+import xyz.mashtoolz.config.Keybinds;
+import xyz.mashtoolz.custom.*;
+import xyz.mashtoolz.custom.FaceFont.FType;
+import xyz.mashtoolz.custom.FaceStatus.FaceStatusEffectInstance;
+import xyz.mashtoolz.displays.*;
+import xyz.mashtoolz.interfaces.EntityInterface;
+import xyz.mashtoolz.mixins.HandledScreenAccessor;
+import xyz.mashtoolz.mixins.InGameHudAccessor;
+import xyz.mashtoolz.mixins.ScreenAccessor;
+import xyz.mashtoolz.utils.ColorUtils;
+import xyz.mashtoolz.utils.RenderUtils;
+import xyz.mashtoolz.widget.DropDownMenu;
+import xyz.mashtoolz.widget.SearchFieldWidget;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class RenderHandler {
 
-	private static FaceLift INSTANCE = FaceLift.getInstance();
+	private static final FaceLift INSTANCE = FaceLift.getInstance();
 
-	private static MinecraftClient CLIENT = INSTANCE.CLIENT;
-	private static FaceConfig CONFIG = INSTANCE.CONFIG;
+	private static final MinecraftClient CLIENT = INSTANCE.CLIENT;
+	private static final FaceConfig CONFIG = INSTANCE.CONFIG;
 
 	public static SearchFieldWidget SEARCHBAR;
 	private static DropDownMenu DROPDOWN;
@@ -96,25 +84,17 @@ public class RenderHandler {
 		if (title.contains("库")) {
 			FaceEquipment.updateCache = true;
 		}
-		// Personal Bank Screen
-		else if (title.contains("拽")) {
-
-		}
-		// Guild Bank Screen
-		else if (title.contains("抭")) {
-
-		}
 
 		// FaceLift.info(true, TextUtils.escapeStringToUnicode(title, false));
 
-		setupSearchBar(client, screen, width, height);
+		setupSearchBar(client, width, height);
 		setupDropdownMenu(screen, width, height);
 
 		((ScreenAccessor) screen).invokeAddDrawableChild(SEARCHBAR);
 		((ScreenAccessor) screen).invokeAddDrawableChild(DROPDOWN.getButton());
 	}
 
-	private static void setupSearchBar(MinecraftClient client, Screen screen, int width, int height) {
+	private static void setupSearchBar(MinecraftClient client, int width, int height) {
 		var inventory = CONFIG.inventory;
 
 		SEARCHBAR = new SearchFieldWidget(client.textRenderer, width / 2 - 90, height - 25, 180, 20, SEARCHBAR, Text.literal(inventory.searchbar.query));
@@ -141,7 +121,7 @@ public class RenderHandler {
 			inventory.searchbar.caseSensitive = !inventory.searchbar.caseSensitive;
 			button.setMessage(Text.literal(" Case-Sensitive: " + inventory.searchbar.caseSensitive));
 			FaceConfig.save();
-		}, inventory.searchbar.caseSensitive);
+		});
 	}
 
 	public static void onHudRender(DrawContext context, RenderTickCounter tickCounter) {
@@ -167,7 +147,7 @@ public class RenderHandler {
 			DPSMeter.draw(context);
 
 		if (CONFIG.combat.arenaTimer.enabled) {
-			ArenaTimer.updateTimer(context);
+			ArenaTimer.updateTimer();
 			ArenaTimer.draw(context);
 		}
 
@@ -179,17 +159,34 @@ public class RenderHandler {
 
 		matrices.pop();
 	}
+
+	public static void renderOverlayMessage(InGameHud inGameHud) {
+
+		if (!FaceConfig.General.onFaceLand || !CONFIG.inventory.customHotbar)
+			return;
+
+		var hud = ((InGameHudAccessor) inGameHud);
+		if (hud.getOverlayMessage() != null) {
+			var originalText = hud.getOverlayMessage();
+			var replacedText = Text.literal("");
+			for (Text sibling : originalText.getSiblings()) {
+				var text = Text.literal(sibling.getString().replaceAll("☊", "").replaceAll("☋", "")).setStyle(sibling.getStyle());
+				replacedText.append(text);
+			}
+			hud.setOverlayMessage(replacedText);
+		}
+	}
+
 	public static void drawStatusEffectOverlay(DrawContext context, StatusEffectInstance statusEffectInstance, int x, int y) {
 
 		String duration = FaceStatus.getDuration(statusEffectInstance);
-		String color = "<#FDFDFD>";
+		String color = "<#D1D1D1>";
 
-		if (statusEffectInstance instanceof FaceStatusEffectInstance) {
-			var faceStatusEffect = (FaceStatusEffectInstance) statusEffectInstance;
-			switch (faceStatusEffect.getFaceStatus()) {
+		if (statusEffectInstance instanceof FaceStatusEffectInstance faceStatusEffect) {
+            switch (faceStatusEffect.getFaceStatus()) {
 				case CURSE_STACK -> {
 					duration = "" + CONFIG.general.curseStacks;
-					color = "<#FF0000>";
+					color = "<#FD3434>";
 				}
 				default -> {
 				}
@@ -221,7 +218,7 @@ public class RenderHandler {
 				return;
 
 			var flEntity = (EntityInterface) entity;
-			var tag = list.get(0).getString().trim();
+			var tag = list.getFirst().getString().trim();
 			int forceGlowingValue = 2;
 			boolean tagFound = false;
 
@@ -233,7 +230,7 @@ public class RenderHandler {
 			}
 
 			if (!tagFound) {
-				var color = list.get(0).getStyle().getColor();
+				var color = list.getFirst().getStyle().getColor();
 				if (color != null)
 					flEntity.FL_setGlowingColor(ColorUtils.hex2Int(color.getHexCode(), 0xFF));
 				else
@@ -244,9 +241,9 @@ public class RenderHandler {
 		});
 	}
 
-	public static void onHandledScreenRender(DrawContext context, int mouseX, int mouseY, float delta) {
+	public static void onHandledScreenRender(DrawContext context, int mouseX, int mouseY) {
 
-		if (!FaceConfig.General.onFaceLand || CLIENT.currentScreen == null || !(CLIENT.currentScreen instanceof HandledScreen))
+		if (!FaceConfig.General.onFaceLand || !(CLIENT.currentScreen instanceof HandledScreen))
 			return;
 
 		var screen = (HandledScreenAccessor) CLIENT.currentScreen;
@@ -275,6 +272,7 @@ public class RenderHandler {
 
 	public static void drawItem(DrawContext context, @Nullable LivingEntity entity, @Nullable World world, ItemStack stack, int x, int y, int seed, int z, CallbackInfo ci) {
 		if (!stack.isEmpty()) {
+
 			var matrices = context.getMatrices();
 			BakedModel bakedModel = CLIENT.getItemRenderer().getModel(stack, world, entity, seed);
 			matrices.push();
@@ -286,7 +284,7 @@ public class RenderHandler {
 					var spell = FaceSpell.from(stack);
 					if (spell == null)
 						return;
-					spell.animate(context, stack, x, y);
+					spell.animate(context, stack);
 				} else
 					matrices.scale(16.0F, -16.0F, 16.0F);
 
@@ -295,17 +293,20 @@ public class RenderHandler {
 					DiffuseLighting.disableGuiDepthLighting();
 				}
 
+				if (isSpell)
+					RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, FaceSpell.GLOBALCD != 0.0F ? 0.35F : 1.0F);
 				CLIENT.getItemRenderer().renderItem(stack, ModelTransformationMode.GUI, false, matrices, context.getVertexConsumers(), 15728880, OverlayTexture.DEFAULT_UV, bakedModel);
 				context.draw();
+				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 				if (bl) {
 					DiffuseLighting.enableGuiDepthLighting();
 				}
 			} catch (Throwable var12) {
 				CrashReport crashReport = CrashReport.create(var12, "Rendering item");
 				CrashReportSection crashReportSection = crashReport.addElement("Item being rendered");
-				crashReportSection.add("Item Type", (CrashCallable<String>) (() -> String.valueOf(stack.getItem())));
-				crashReportSection.add("Item Components", (CrashCallable<String>) (() -> String.valueOf(stack.getComponents())));
-				crashReportSection.add("Item Foil", (CrashCallable<String>) (() -> String.valueOf(stack.hasGlint())));
+				crashReportSection.add("Item Type", () -> String.valueOf(stack.getItem()));
+				crashReportSection.add("Item Components", () -> String.valueOf(stack.getComponents()));
+				crashReportSection.add("Item Foil", () -> String.valueOf(stack.hasGlint()));
 				throw new CrashException(crashReport);
 			}
 
@@ -368,7 +369,8 @@ public class RenderHandler {
 
 			if (INSTANCE.CLIENT.options.getAttackIndicator().getValue() == AttackIndicator.HOTBAR) {
 				RenderSystem.enableBlend();
-				float f = INSTANCE.CLIENT.player.getAttackCooldownProgress(0.0F);
+                assert INSTANCE.CLIENT.player != null;
+                float f = INSTANCE.CLIENT.player.getAttackCooldownProgress(0.0F);
 				if (f < 1.0F) {
 					int n = context.getScaledWindowHeight() - 20;
 					int o = i + 91 + 6;
@@ -417,13 +419,7 @@ public class RenderHandler {
 			ci.cancel();
 	}
 
-	public static void drawSlot_end(DrawContext context, Slot slot) {
-		if (!FaceConfig.General.onFaceLand)
-			return;
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-	}
-
-	public static void drawItemInSlot(TextRenderer textRenderer, DrawContext context, ItemStack stack, int x, int y, @Nullable String countOverride, CallbackInfo ci) {
+	public static void drawItemInSlot(DrawContext context, ItemStack stack, int x, int y, @Nullable String countOverride, CallbackInfo ci) {
 
 		if (!FaceConfig.General.onFaceLand || !ABILITY_ITEMS.contains(stack.getItem()))
 			return;
@@ -435,13 +431,12 @@ public class RenderHandler {
 		var spell = FaceSpell.from(stack);
 		boolean hasEnchantment = !stack.getEnchantments().isEmpty();
 		if (spell != null) {
-			if (hasEnchantment && spell.isToggled()) {
-				if (!spell.isToggled())
-					spell.setToggled(true);
-				drawGlintAnimation(context, stack, x, y);
-			}
+			if ((spell.isToggled() && !hasEnchantment) || (!spell.isToggled() && hasEnchantment))
+				spell.setToggled(hasEnchantment);
 			spell.update(context, stack, x, y);
-		} else if (hasEnchantment)
+		}
+
+		if (hasEnchantment)
 			drawGlintAnimation(context, stack, x, y);
 
 		RenderUtils.disableBlend();
@@ -474,7 +469,7 @@ public class RenderHandler {
 			return false;
 
 		var query = SEARCHBAR.getText();
-		if (query.isEmpty() || query.length() == 0)
+		if (query.isEmpty())
 			return true;
 
 		var name = item.getName();
@@ -513,10 +508,10 @@ public class RenderHandler {
 
 		RenderSystem.setShaderTexture(0, FaceTexture.ABILITY_GLINT);
 		RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 0.5F);
-		context.drawTexture(FaceTexture.ABILITY_GLINT, x - iOffset + 1, y - iOffset + 1, iSize - 2, iSize - 2, 0 | (GLINT_FRAME * size), 0, size, size, maxFrames * size, size);
+		context.drawTexture(FaceTexture.ABILITY_GLINT, x - iOffset + 1, y - iOffset + 1, iSize - 2, iSize - 2, (GLINT_FRAME * size), 0, size, size, maxFrames * size, size);
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		context.drawTexture(FaceTexture.ABILITY_GLINT, x - iOffset, y - iOffset, iSize, iSize, 0 | (GLINT_FRAME * size), 0, size, size, maxFrames * size, size);
+		context.drawTexture(FaceTexture.ABILITY_GLINT, x - iOffset, y - iOffset, iSize, iSize, (GLINT_FRAME * size), 0, size, size, maxFrames * size, size);
 		matrices.translate(0.0f, 0.0f, -400.0f);
 
 		if (System.currentTimeMillis() - GLINT_TIME >= stepTime) {
@@ -530,7 +525,8 @@ public class RenderHandler {
 			return;
 
 		var screen = (HandledScreenAccessor) CLIENT.currentScreen;
-		var handler = screen.getHandler();
+        assert screen != null;
+        var handler = screen.getHandler();
 		if (handler.slots.size() == 46 && !CLIENT.currentScreen.getTitle().getString().isEmpty()) {
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.75F);
 			for (var tool : FaceTool.values()) {
