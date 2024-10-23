@@ -1,15 +1,16 @@
 package xyz.mashtoolz.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import xyz.mashtoolz.custom.FaceStatus;
 import xyz.mashtoolz.structs.Pos2D;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Config(name = "facelift")
 public class FaceConfig implements ConfigData {
@@ -45,7 +46,7 @@ public class FaceConfig implements ConfigData {
 		public int curseStacks = 0;
 
 		@ConfigEntry.Gui.Excluded
-		public Map<FaceStatus, Long> statusEffects = Map.of();
+		public Map<FaceStatus, Long> statusEffects = new HashMap<>();
 
 		//
 
