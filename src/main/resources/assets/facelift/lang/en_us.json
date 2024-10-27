@@ -1,11 +1,12 @@
 {
-    "facelift.title": "FaceLift",
 
     "facelift.key.menu": "Open Config Menu",
     "facelift.key.mount": "Mount",
     "facelift.key.escape": "Escape",
     "facelift.key.set_tool_slot": "Set Tool Slot",
     "facelift.key.compare_tooltip": "Compare Equipment",
+
+    "text.autoconfig.facelift.title": "FaceLift",
 
     "text.autoconfig.facelift.category.general": "General",
     "text.autoconfig.facelift.category.inventory": "Inventory",
@@ -20,6 +21,10 @@
 
     "text.autoconfig.facelift.option.general.teleportBar": "Teleport Bar",
     "text.autoconfig.facelift.option.general.teleportBar.enabled": "Enabled",
+    "text.autoconfig.facelift.option.general.teleportBar.width": "Width (px)",
+    "text.autoconfig.facelift.option.general.teleportBar.height": "Height (px)",
+    "text.autoconfig.facelift.option.general.teleportBar.offset.x": "X Offset (px)",
+    "text.autoconfig.facelift.option.general.teleportBar.offset.y": "Y Offset (px)",
 
     "text.autoconfig.facelift.option.general.xpDisplay": "XP Display",
     "text.autoconfig.facelift.option.general.xpDisplay.enabled": "Enabled",
@@ -30,10 +35,19 @@
     "text.autoconfig.facelift.option.general.xpDisplay.showLastGain": "Show gained XP",
     "text.autoconfig.facelift.option.general.xpDisplay.showLastGain.@Tooltip": "Display the latest gained XP amount separately",
     "text.autoconfig.facelift.option.general.xpDisplay.displayType": "Display Type",
-    "text.autoconfig.facelift.option.general.xpDisplay.displayType.@Tooltip": "0: Total\n1: Per Minute\n2: Per Hour",
 
-    "text.autoconfig.facelift.option.inventory.customHotbar": "Custom Hotbar",
-    "text.autoconfig.facelift.option.inventory.customHotbar.@Tooltip": "Displays your spells in the center of the screen and only 5 slots in your hotbar",
+    "text.autoconfig.facelift.option.inventory.hotbar": "Hotbar",
+    "text.autoconfig.facelift.option.inventory.hotbar.useCustom": "Use Custom Hotbar",
+    "text.autoconfig.facelift.option.inventory.hotbar.useCustom.@Tooltip": "Displays your spells in the center of the screen and only 5 slots in your hotbar\nThe offsets below adjust the Spells display position",
+    "text.autoconfig.facelift.option.inventory.hotbar.offset.x": "X Offset (px)",
+    "text.autoconfig.facelift.option.inventory.hotbar.offset.y": "Y Offset (px)",
+    "text.autoconfig.facelift.option.inventory.hotbar.scrollFix": "Use ScrollFix",
+    "text.autoconfig.facelift.option.inventory.hotbar.scrollFix.@Tooltip": "Prevents you from casting your spells by scrolling",
+    "text.autoconfig.facelift.option.inventory.hotbar.scrollFixMethod": "ScrollFix Method",
+    "text.autoconfig.facelift.option.inventory.hotbar.scrollFixMethod.@Tooltip": "WRAP = Skips past spell slots and wraps around\nBLOCK = Stops you from scrolling onto spells",
+    "text.autoconfig.facelift.option.inventory.hotbar.instantPotion": "Instant Potion",
+    "text.autoconfig.facelift.option.inventory.hotbar.instantPotion.@Tooltip": "Instead of switching to a potion, drink it instantly (Does not work with scrolling)",
+
     "text.autoconfig.facelift.option.inventory.itemColors": "Item Colors",
     "text.autoconfig.facelift.option.inventory.itemColors.enabled": "Enabled",
     "text.autoconfig.facelift.option.inventory.itemColors.enabled.@Tooltip": "Display item colors depending on their rarity",

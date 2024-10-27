@@ -9,26 +9,26 @@ import xyz.mashtoolz.mixins.AdvancementToastAccessor;
 
 public class ToastHandler {
 
-	public static void add(Toast toast) {
+    public static void add(Toast toast) {
 
-		if (!(toast instanceof AdvancementToast))
-			return;
+        if (!(toast instanceof AdvancementToast))
+            return;
 
-		try {
+        try {
 
-			var advancementToast = (AdvancementToastAccessor) toast;
-			var advancement = advancementToast.getAdvancement();
-			var id = advancement.id().toString();
-			var name = FaceFont.get(FType.TOAST).get(id);
+            var advancementToast = (AdvancementToastAccessor) toast;
+            var advancement = advancementToast.getAdvancement();
+            var id = advancement.id().toString();
+            var name = FaceFont.get(FType.TOAST).get(id);
 
-			if (name == null)
-				return;
+            if (name == null)
+                return;
 
-			switch (name) {
-				case "Combat Start" -> FaceConfig.General.inCombat = true;
-				case "Exited Combat" -> FaceConfig.General.inCombat = false;
-			}
-		} catch (Exception ignored) {
-		}
-	}
+            switch (name) {
+                case "Combat Start" -> FaceConfig.General.inCombat = true;
+                case "Exited Combat" -> xyz.mashtoolz.config.FaceConfig.General.inCombat = false;
+            }
+        } catch (Exception ignored) {
+        }
+    }
 }
