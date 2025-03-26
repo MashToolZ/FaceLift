@@ -17,7 +17,7 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.mashtoolz.config.FaceConfig;
 import xyz.mashtoolz.config.Keybinds;
 import xyz.mashtoolz.custom.FaceItem;
@@ -124,26 +124,26 @@ public class FaceLift implements ClientModInitializer {
         if (console)
             System.out.println("[FaceLift] " + message);
         else
-            Objects.requireNonNull(INSTANCE.CLIENT.player).sendMessage(Text.literal("§7[§cFaceLift§7] " + message));
+            Objects.requireNonNull(INSTANCE.CLIENT.player).sendMessage(Text.literal("§7[§cFaceLift§7] " + message), false);
     }
 
-    public static void handleHotbarScroll(PlayerInventory inventory, double scrollAmount, CallbackInfo ci) {
+    public static void handleHotbarScroll(double amount, int selectedIndex, int total, CallbackInfoReturnable<Integer> cir) {
 
         if (INSTANCE.CONFIG.inventory.hotbar.scrollFix) {
 
-            int i = (int) Math.signum(scrollAmount);
-            inventory.selectedSlot -= i;
+            int i = (int) Math.signum(amount);
+            selectedIndex -= i;
 
             var hotbar = INSTANCE.CONFIG.inventory.hotbar;
             var WRAP = xyz.mashtoolz.config.FaceConfig.Inventory.Hotbar.ScrollFixMethod.WRAP;
 
-            while (inventory.selectedSlot <= 3)
-                inventory.selectedSlot += (hotbar.scrollFixMethod == WRAP) ? 5 : 1;
+            while (selectedIndex <= 3)
+                selectedIndex += (hotbar.scrollFixMethod == WRAP) ? 5 : 1;
 
-            while (inventory.selectedSlot >= 9)
-                inventory.selectedSlot -= (hotbar.scrollFixMethod == WRAP) ? 5 : 1;
+            while (selectedIndex >= 9)
+                selectedIndex -= (hotbar.scrollFixMethod == WRAP) ? 5 : 1;
 
-            ci.cancel();
+            cir.setReturnValue(selectedIndex);
         }
     }
 
