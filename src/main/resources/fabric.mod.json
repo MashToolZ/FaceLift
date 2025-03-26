@@ -22,10 +22,10 @@
     },
     "mixins": ["facelift.mixins.json"],
     "depends": {
-        "fabricloader": ">=0.16.5",
-        "minecraft": "1.21.1",
+        "fabricloader": ">=0.16.9",
+        "minecraft": "1.21.3",
         "java": ">=21",
-        "fabric-api": ">=0.105.0+1.21.1",
-        "cloth-config": ">=15.0.140+fabric"
+        "fabric-api": ">=0.110.0+1.21.3",
+        "cloth-config": ">=16.0.141+fabric"
     }
 }
