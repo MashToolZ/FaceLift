@@ -87,7 +87,7 @@ public class FaceEquipment {
 
             assert INSTANCE.CLIENT.world != null;
             var wrapper = INSTANCE.CLIENT.world.getRegistryManager();
-            var compoundTag = stack.encode(wrapper);
+            var compoundTag = stack.toNbt(wrapper);
             var eqSlot = new String[]{slot.getFaceSlotType().toString(), compoundTag.asString()};
             INSTANCE.CONFIG.inventory.equipmentSlots.add(eqSlot);
         }

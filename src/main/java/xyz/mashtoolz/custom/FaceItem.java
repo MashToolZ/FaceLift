@@ -1,6 +1,7 @@
 package xyz.mashtoolz.custom;
 
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
@@ -78,11 +79,19 @@ public class FaceItem {
 	}
 
 	public FaceType getFaceType() {
-		if (type == null)
+		if (type == null) {
+			var tooltipStyle = stack.getComponents().get(DataComponentTypes.TOOLTIP_STYLE);
 			type = Arrays.stream(FaceType.values())
 					.filter(r -> !r.equals(FaceType.UNKNOWN) && getTooltip(true, false).contains(r.getUnicode()))
 					.findFirst()
 					.orElse(FaceType.UNKNOWN);
+			if (getTooltip(true, false).contains(FaceType.UNIQUE.getUnicode()) || type == FaceType.UNKNOWN && tooltipStyle != null) {
+				type = Arrays.stream(FaceType.values())
+						.filter(r -> tooltipStyle.toString().split("_")[1].equals(r.getText().toLowerCase()))
+						.findFirst()
+						.orElse(FaceType.UNKNOWN);
+			}
+		}
 		return type;
 	}
 

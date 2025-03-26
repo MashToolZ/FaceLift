@@ -34,7 +34,6 @@ public enum FaceType {
 	TOME("Tome", "不", 0x136FCE),
 	ESSENCE("Essence", "万", 0x30B6E1),
 	EXTENDER("Extender", "三", 0x009E81),
-	SCROLL("Scroll", "上", 0x7A65D7),
 	PURITY("Purity Scroll", "与", 0xE4E4E4),
 
 	PET("Pet", "俈", 0x5DDE2E),

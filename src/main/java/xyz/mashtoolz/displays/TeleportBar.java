@@ -60,7 +60,8 @@ public class TeleportBar {
 
         context.fill(0, 0, width, height, ColorUtils.hex2Int("#252320", 0xFF));
         context.drawBorder(0, 0, width, height, ColorUtils.hex2Int("#171717", 0xFF));
-        context.fillGradient(1, 1, fillWidth, height - 1, ColorUtils.hex2Int("#A44FE9", 0xFF), ColorUtils.hex2Int("#C42CE3", 0xFF));
+        context.fillGradient(1, 1, fillWidth, height - 1, ColorUtils.hex2Int("#A44FE9", 0xFF),
+                ColorUtils.hex2Int("#C42CE3", 0xFF));
 
         matrices.translate((float) (-scaledWidth / 2 + width / 2), (float) -scaledHeight / 2 - 20, 0);
     }

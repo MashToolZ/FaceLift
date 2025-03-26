@@ -27,11 +27,16 @@ public class ChatHandler {
 
         if (INSTANCE.CONFIG.general.xpDisplay.enabled)
             handleXPMessage(text, message, ci);
+        
+        if (message.startsWith("惉")) {
+            if (message.contains("Escape Started!! Teleporting in 10s"))
+                TeleportBar.start(10_500, "Escaping");
+            else if (message.contains("Teleportation Cancelled!"))
+                TeleportBar.stop();
+        }
 
         switch (message.trim()) {
             case "RISE AND SHINE! You're well rested and had a pretty good meal!" -> FaceStatus.WELL_RESTED.applyEffect();
-            case "Teleport started! You will be teleported in 10 seconds!" -> TeleportBar.start(10_500, "Escaping");
-            case "Teleport cancelled!" -> TeleportBar.stop();
             case "Whoosh!" -> FaceStatus.ESCAPE_COOLDOWN.applyEffect();
             case "Your curse has been broken!" -> {
                 INSTANCE.CONFIG.general.curseStacks = 0;

@@ -1,8 +1,12 @@
 package xyz.mashtoolz.custom;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.util.Identifier;
@@ -98,6 +102,7 @@ public class FaceSpell {
                 this.charges = Integer.parseInt(chargeParts[1]);
             }
         }
+
         if (this.isToggled())
             return;
 
@@ -122,7 +127,7 @@ public class FaceSpell {
         float step = (-360 + (360.0F * percent)) / numSegments;
 
         var matrices = context.getMatrices();
-        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         RenderUtils.enableBlend();
         context.enableScissor(x - offset, y - offset, x + size - offset, y + size - offset);
         matrices.translate(0.0f, 0.0f, 400.0f);
@@ -154,7 +159,7 @@ public class FaceSpell {
 
     public void animate(DrawContext context, ItemStack stack) {
 
-        FaceSpell.GLOBALCD = INSTANCE.CLIENT.player == null ? 0.0F : INSTANCE.CLIENT.player.getItemCooldownManager().getCooldownProgress(stack.getItem(), INSTANCE.CLIENT.getRenderTickCounter().getTickDelta(true));
+        FaceSpell.GLOBALCD = INSTANCE.CLIENT.player == null ? 0.0F : INSTANCE.CLIENT.player.getItemCooldownManager().getCooldownProgress(stack, INSTANCE.CLIENT.getRenderTickCounter().getTickDelta(true));
         boolean cooldown = (1.0F - (float) this.damage / this.maxDamage) != 1.0F;
         boolean onCooldown = (!this.isToggled() && FaceSpell.GLOBALCD != 0.0F) || cooldown;
         long currentTime = System.currentTimeMillis();

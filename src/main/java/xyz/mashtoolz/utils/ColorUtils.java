@@ -1,11 +1,11 @@
 package xyz.mashtoolz.utils;
 
-import java.util.Optional;
-
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
+
+import java.util.Optional;
 
 public class ColorUtils {
 
@@ -26,6 +26,12 @@ public class ColorUtils {
 				(rgb >> 8 & 255) / 255.0F,
 				(rgb & 255) / 255.0F
 		};
+	}
+
+	public static int getARGB(TextColor color, int opacity) {
+		int rgb = color.getRgb(); // Gets the RGB value (0xRRGGBB)
+		int alpha = opacity << 24;
+		return alpha | rgb; // Combine alpha and RGB
 	}
 
 	public static String getTextColor(Text text) {

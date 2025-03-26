@@ -9,12 +9,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.option.AttackIndicator;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -22,6 +18,7 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.ModelTransformationMode;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
@@ -270,7 +267,7 @@ public class RenderHandler {
         }
     }
 
-    public static void drawItem(DrawContext context, @Nullable LivingEntity entity, @Nullable World world, ItemStack stack, int x, int y, int seed, int z, CallbackInfo ci) {
+    public static void drawItem(DrawContext context, VertexConsumerProvider.Immediate vertexConsumers, @Nullable LivingEntity entity, @Nullable World world, ItemStack stack, int x, int y, int seed, int z, CallbackInfo ci) {
         if (!stack.isEmpty()) {
 
             var matrices = context.getMatrices();
@@ -295,7 +292,7 @@ public class RenderHandler {
 
                 if (isSpell)
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, FaceSpell.GLOBALCD != 0.0F ? 0.35F : 1.0F);
-                CLIENT.getItemRenderer().renderItem(stack, ModelTransformationMode.GUI, false, matrices, context.getVertexConsumers(), 15728880, OverlayTexture.DEFAULT_UV, bakedModel);
+                CLIENT.getItemRenderer().renderItem(stack, ModelTransformationMode.GUI, false, matrices, vertexConsumers, 15728880, OverlayTexture.DEFAULT_UV, bakedModel);
                 context.draw();
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 if (bl) {
@@ -338,22 +335,22 @@ public class RenderHandler {
             matrices.translate(0.0F, 0.0F, -90.0F);
 
             matrices.scale(1.0F, 1.0F, 1.0F);
-            context.drawTexture(customHotbar ? FaceTexture.CUSTOM_HOTBAR : FaceTexture.HOTBAR, i - 91, j - 22, 0, 0, 182, 22, 182, 22);
+            context.drawTexture(RenderLayer::getGuiTextured, customHotbar ? FaceTexture.CUSTOM_HOTBAR : FaceTexture.HOTBAR, i - 91, j - 22, 0, 0, 182, 22, 182, 22);
 
             var inventory = player.getInventory();
             int selectedSlot = inventory.selectedSlot;
             if (!customHotbar)
-                context.drawGuiTexture(hud.hotbarSelectionTexture(), i - 91 - 1 + selectedSlot * 20, j - 23, 24, 23);
+                context.drawGuiTexture(RenderLayer::getGuiTextured, hud.hotbarSelectionTexture(), i - 91 - 1 + selectedSlot * 20, j - 23, 24, 23);
             else if (selectedSlot >= 4 && selectedSlot <= 8) {
                 int visualIndex = selectedSlot - 4;
-                context.drawGuiTexture(hud.hotbarSelectionTexture(), i - 91 - 1 + 30 + visualIndex * 25, j - 23, 24, 23);
+                context.drawGuiTexture(RenderLayer::getGuiTextured, hud.hotbarSelectionTexture(), i - 91 - 1 + 30 + visualIndex * 25, j - 23, 24, 23);
             }
 
             if (!itemStack.isEmpty())
                 if (arm == Arm.LEFT)
-                    context.drawGuiTexture(hud.hotbarOffhandLeftTexture(), i - 91 - 29, j - 23, 29, 24);
+                    context.drawGuiTexture(RenderLayer::getGuiTextured, hud.hotbarOffhandLeftTexture(), i - 91 - 29, j - 23, 29, 24);
                 else
-                    context.drawGuiTexture(hud.hotbarOffhandRightTexture(), i + 91, j - 23, 29, 24);
+                    context.drawGuiTexture(RenderLayer::getGuiTextured, hud.hotbarOffhandRightTexture(), i + 91, j - 23, 29, 24);
 
             matrices.pop();
             RenderSystem.disableBlend();
@@ -395,8 +392,8 @@ public class RenderHandler {
                     }
 
                     int p = (int) (f * 19.0F);
-                    context.drawGuiTexture(hud.hotbarAttackIndicatorBackgroundTexture(), o, n, 18, 18);
-                    context.drawGuiTexture(hud.hotbarAttackIndicatorProgressTexture(), 18, 18, 0, 18 - p, o, n + 18 - p, 18, p);
+                    context.drawGuiTexture(RenderLayer::getGuiTextured, hud.hotbarAttackIndicatorBackgroundTexture(), o, n, 18, 18);
+                    context.drawGuiTexture(RenderLayer::getGuiTextured, hud.hotbarAttackIndicatorProgressTexture(), 18, 18, 0, 18 - p, o, n + 18 - p, 18, p);
                 }
 
                 RenderSystem.disableBlend();
@@ -448,13 +445,13 @@ public class RenderHandler {
         boolean hasEnchantment = !stack.getEnchantments().isEmpty();
 
         if (spell != null) {
-
             if ((spell.isToggled() && !hasEnchantment) || (!spell.isToggled() && hasEnchantment))
                 spell.setToggled(hasEnchantment);
             spell.update(context, stack, x, y);
             int size = (int) spell.getSize() + 2;
             int offset = (size - 16) / 2;
-            context.drawTexture(spell.getTexture(), x - offset, y - offset, 0, 0, size, size, size, size);
+            if (CLIENT.currentScreen == null)
+                context.drawTexture(RenderLayer::getGuiTextured, spell.getTexture(), x - offset, y - offset, 0, 0, size, size, size, size);
         }
 
         if (hasEnchantment)
@@ -516,7 +513,7 @@ public class RenderHandler {
         var spell = FaceSpell.from(stack);
         var matrices = context.getMatrices();
         int size = 16;
-        float f = CLIENT.player == null ? 0.0F : CLIENT.player.getItemCooldownManager().getCooldownProgress(stack.getItem(), CLIENT.getRenderTickCounter().getTickDelta(true));
+        float f = CLIENT.player == null ? 0.0F : CLIENT.player.getItemCooldownManager().getCooldownProgress(stack, CLIENT.getRenderTickCounter().getTickDelta(true));
         boolean onCooldown = f != 0.0F || (1.0F - (float) stack.getDamage() / stack.getMaxDamage()) != 1.0F;
         int iSize = CLIENT.currentScreen instanceof HandledScreen || !CONFIG.inventory.hotbar.useCustom ? 16 : (spell != null && spell.isToggled()) ? 20 : onCooldown ? 16 : 20;
 
@@ -528,11 +525,9 @@ public class RenderHandler {
         context.fill(x - iOffset, y - iOffset, x + iSize - iOffset, y + iSize - iOffset, ColorUtils.hex2Int("#000000", 0x78));
 
         RenderSystem.setShaderTexture(0, FaceTexture.ABILITY_GLINT);
-        RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 0.5F);
-        context.drawTexture(FaceTexture.ABILITY_GLINT, x - iOffset + 1, y - iOffset + 1, iSize - 2, iSize - 2, (GLINT_FRAME * size), 0, size, size, maxFrames * size, size);
+        context.drawTexture(RenderLayer::getGuiTextured, FaceTexture.ABILITY_GLINT, x - iOffset + 1, y - iOffset + 1, (GLINT_FRAME * size), 0, iSize - 2, iSize - 2, size, size, maxFrames * size, size, 0xFF000000);
 
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        context.drawTexture(FaceTexture.ABILITY_GLINT, x - iOffset, y - iOffset, iSize, iSize, (GLINT_FRAME * size), 0, size, size, maxFrames * size, size);
+        context.drawTexture(RenderLayer::getGuiTextured, FaceTexture.ABILITY_GLINT, x - iOffset, y - iOffset, (GLINT_FRAME * size), 0, iSize, iSize, size, size, maxFrames * size, size, 0xFFFDFDFD);
         matrices.translate(0.0f, 0.0f, -400.0f);
 
         if (System.currentTimeMillis() - GLINT_TIME >= stepTime) {
@@ -549,11 +544,11 @@ public class RenderHandler {
         assert screen != null;
         var handler = screen.getHandler();
         if (handler.slots.size() == 46 && !CLIENT.currentScreen.getTitle().getString().isEmpty()) {
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.75F);
+
             for (var tool : FaceTool.values()) {
                 if (slot.id == tool.getSlotIndex()) {
                     RenderSystem.setShaderTexture(0, tool.getTexture());
-                    context.drawTexture(tool.getTexture(), x, y, 0, 0, 16, 16, 16, 16);
+                    context.drawTexture(RenderLayer::getGuiTextured, tool.getTexture(), x, y, 0, 0, 16, 16, 16, 16, 0xBFFFFFFF);
                     break;
                 }
             }
@@ -572,17 +567,16 @@ public class RenderHandler {
             return;
         }
 
-        float[] rgb = ColorUtils.getRGB(color);
-        float opacity = hideItem ? 0.25F : CONFIG.inventory.itemColors.opacity;
+        int opacity = (int) ((hideItem ? 0.25F : CONFIG.inventory.itemColors.opacity) * 255);
+        int rgb = ColorUtils.getARGB(color, opacity);
 
         matrices.translate(0.0f, 0.0f, 100.0f);
         RenderSystem.setShaderTexture(0, FaceTexture.ITEM_GLOW);
-        RenderSystem.setShaderColor(rgb[0], rgb[1], rgb[2], opacity);
 
-        if (CONFIG.inventory.itemColors.useTexture)
-            context.drawTexture(FaceTexture.ITEM_GLOW, x, y, 0, 0, 16, 16, 16, 16);
-        else
-            context.drawBorder(x, y, 16, 16, ColorUtils.hex2Int("#FFFFFF", 0xFF));
+        if (CONFIG.inventory.itemColors.useTexture) {
+            context.drawTexture(RenderLayer::getGuiTextured, FaceTexture.ITEM_GLOW, x, y, 0, 0, 16, 16, 16, 16, rgb);
+        } else
+            context.drawBorder(x, y, 16, 16, rgb);
 
         matrices.translate(0.0f, 0.0f, -100.0f);
 
@@ -590,8 +584,7 @@ public class RenderHandler {
             int stars = Integer.parseInt(type.getString().split("_")[1]);
             matrices.translate(0.0f, 0.0f, 300.0f);
             RenderSystem.setShaderTexture(0, FaceTexture.ITEM_STAR);
-            RenderSystem.setShaderColor(1, 1, 1, 1);
-            context.drawTexture(FaceTexture.ITEM_STAR, x, y, 0, 0, 3 * stars, 3, 3, 3);
+            context.drawTexture(RenderLayer::getGuiTextured, FaceTexture.ITEM_STAR, x, y, 0, 0, 3 * stars, 3, 3, 3, 0xFFFFFFFF);
             matrices.translate(0.0f, 0.0f, -300.0f);
         }
 

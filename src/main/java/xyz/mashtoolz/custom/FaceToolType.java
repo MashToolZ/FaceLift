@@ -3,7 +3,7 @@ package xyz.mashtoolz.custom;
 public enum FaceToolType {
 
 	PICKAXE("PICKAXE"),
-	WOODCUTTINGAXE("WOOD AXE"),
+	WOODCUTTINGAXE("LUMBER AXE"),
 	HOE("HOE"),
 	BEDROCK("BEDROCK");
 

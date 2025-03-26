@@ -58,8 +58,8 @@ public enum FaceSlot {
 	}
 
 	public void updateIndex(boolean init) {
-        assert INSTANCE.CLIENT.player != null;
-        var inventory = INSTANCE.CLIENT.player.getInventory();
+		assert INSTANCE.CLIENT.player != null;
+		var inventory = INSTANCE.CLIENT.player.getInventory();
 		if (slotType.equals(FaceSlotType.MAINHAND)) {
 			var hotbarSlot = inventory.selectedSlot;
 			this.index = (init ? (36 + hotbarSlot) : (8 - hotbarSlot));
